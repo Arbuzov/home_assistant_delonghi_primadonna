@@ -1,0 +1,10 @@
+{
+  "domain": "delongi_primadonna",
+  "name": "Delongi Primadonna",
+  "documentation": "https://github.com/home-assistant/example-custom-config/tree/master/custom_components/hello_world/",
+  "dependencies": [],
+  "codeowners": [],
+  "requirements": [],
+  "iot_class": "local_polling",
+  "version": "0.0.1"
+}
