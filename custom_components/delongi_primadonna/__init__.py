@@ -7,18 +7,31 @@ configuration.yaml file.
 hello_world:
 """
 from __future__ import annotations
-
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.typing import ConfigType
 
-# The domain of your component. Should be equal to the name of your component.
-DOMAIN = "delongi_primadonna"
+from .const import DOMAIN
+from .device import DelongiPrimadonna
+
+PLATFORMS: list[str] = [Platform.SWITCH, Platform.SENSOR, Platform.BUTTON]
 
 
-def setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Set up a skeleton component."""
-    # States are in the format DOMAIN.OBJECT_ID.
-    hass.states.set('hello_world.Hello_World', 'Works!')
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Set up oiot from a config entry."""
 
-    # Return boolean to indicate that initialization was successfully.
+    if DOMAIN not in hass.data:
+        hass.data[DOMAIN] = {}
+    delonghi_device = DelongiPrimadonna(entry.data)
+    hass.data[DOMAIN][entry.unique_id] = delonghi_device
+    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
     return True
+
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Unload a config entry."""
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unload_ok:
+        hass.data[DOMAIN].pop(entry.unique_id)
+
+    return unload_ok
