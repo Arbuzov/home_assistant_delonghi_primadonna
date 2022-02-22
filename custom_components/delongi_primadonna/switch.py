@@ -1,7 +1,6 @@
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import STATE_ON, STATE_OFF
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import ToggleEntity
@@ -10,7 +9,9 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import DOMAIN
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
+async def async_setup_entry(
+        hass: HomeAssistant, entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback):
     delongh_device = hass.data[DOMAIN][entry.unique_id]
     async_add_entities([
         DelongiPrimadonnaCupLightSwitch(delongh_device)

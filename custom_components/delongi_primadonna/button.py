@@ -7,7 +7,9 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import DOMAIN
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
+async def async_setup_entry(
+        hass: HomeAssistant, entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback):
     delongh_device = hass.data[DOMAIN][entry.unique_id]
     async_add_entities([
         DelongiPrimadonnaPowerButton(delongh_device),

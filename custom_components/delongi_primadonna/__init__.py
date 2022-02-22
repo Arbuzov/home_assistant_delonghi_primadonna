@@ -1,12 +1,6 @@
-"""
-The "hDelongi Primadonna" custom component.
-This component implements the bare minimum that a component should implement.
-Configuration:
-To use the hello_world component you will need to add the following to your
-configuration.yaml file.
-hello_world:
-"""
+"""Delonghi integration"""
 from __future__ import annotations
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
