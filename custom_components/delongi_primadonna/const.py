@@ -1,5 +1,9 @@
 """Constants for the oiot integration."""
 
-DOMAIN = "delongi_primadonna"
+DOMAIN = 'delongi_primadonna'
 
-CHARACTERISTIC = "00035b03-58e6-07dd-021a-08123a000301"
+SERVICE = '00035b03-58e6-07dd-021a-08123a000300'
+
+CHARACTERISTIC = '00035b03-58e6-07dd-021a-08123a000301'
+
+DESCRIPTOR = '00002902-0000-1000-8000-00805f9b34fb'

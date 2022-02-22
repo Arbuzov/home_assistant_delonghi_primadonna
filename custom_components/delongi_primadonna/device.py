@@ -1,5 +1,6 @@
 """Delongi primadonna device description"""
 import logging
+from homeassistant.backports.enum import StrEnum
 
 from homeassistant.const import CONF_MAC, CONF_NAME
 import pygatt
@@ -9,7 +10,7 @@ from .const import CHARACTERISTIC
 
 class AvailableBeverage(StrEnum):
 
-    STEAM = "steam"
+    STEAM = 'steam'
 
 
 class DelongiPrimadonna:
@@ -19,7 +20,7 @@ class DelongiPrimadonna:
         """Initialize."""
         self.mac = config.get(CONF_MAC)
         self.name = config.get(CONF_NAME)
-        self.model = "Prima Donna"
+        self.model = 'Prima Donna'
         self.adapter = pygatt.GATTToolBackend()
 
     def power_on(self) -> None:

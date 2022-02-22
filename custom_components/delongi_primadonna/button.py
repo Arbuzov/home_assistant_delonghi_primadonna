@@ -10,6 +10,7 @@ from .const import DOMAIN
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     delongh_device = hass.data[DOMAIN][entry.unique_id]
     async_add_entities([
+        DelongiPrimadonnaPowerButton(delongh_device),
         DelongiPrimadonnaLongButton(delongh_device),
         DelongiPrimadonnaCoffeeButton(delongh_device),
         DelongiPrimadonnaDopioButton(delongh_device),
@@ -23,12 +24,34 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     return True
 
 
-class DelongiPrimadonnaLongButton(ButtonEntity):
+class DelongiPrimadonnaPowerButton(ButtonEntity):
 
-    _attr_name = "Prepare long"
+    _attr_name = 'Turn on'
 
     def __init__(self, delongh_device):
-        self._attr_unique_id = f"{delongh_device.mac}_long"
+        self._attr_unique_id = f'{delongh_device.mac}_power'
+        self.device = delongh_device
+
+    def press(self):
+        self.device.turn_on()
+
+    @property
+    def device_info(self):
+        return {
+            'identifiers': {(DOMAIN, self.device.mac)},
+            'connections': {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
+            'name': self.device.name,
+            'manufacturer': 'Delongi',
+            'model': self.device.model
+        }
+
+
+class DelongiPrimadonnaLongButton(ButtonEntity):
+
+    _attr_name = 'Prepare long'
+
+    def __init__(self, delongh_device):
+        self._attr_unique_id = f'{delongh_device.mac}_long'
         self.device = delongh_device
 
     def press(self):
@@ -37,20 +60,20 @@ class DelongiPrimadonnaLongButton(ButtonEntity):
     @property
     def device_info(self):
         return {
-            "identifiers": {(DOMAIN, self.device.mac)},
-            "connections": {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
-            "name": self.device.name,
-            "manufacturer": "Delongi",
-            "model": self.device.model
+            'identifiers': {(DOMAIN, self.device.mac)},
+            'connections': {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
+            'name': self.device.name,
+            'manufacturer': 'Delongi',
+            'model': self.device.model
         }
 
 
 class DelongiPrimadonnaCoffeeButton(ButtonEntity):
 
-    _attr_name = "Prepare Coffee"
+    _attr_name = 'Prepare Coffee'
 
     def __init__(self, delongh_device):
-        self._attr_unique_id = f"{delongh_device.mac}_coffe"
+        self._attr_unique_id = f'{delongh_device.mac}_coffe'
         self.device = delongh_device
 
     def press(self):
@@ -59,20 +82,20 @@ class DelongiPrimadonnaCoffeeButton(ButtonEntity):
     @property
     def device_info(self):
         return {
-            "identifiers": {(DOMAIN, self.device.mac)},
-            "connections": {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
-            "name": self.device.name,
-            "manufacturer": "Delongi",
-            "model": self.device.model
+            'identifiers': {(DOMAIN, self.device.mac)},
+            'connections': {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
+            'name': self.device.name,
+            'manufacturer': 'Delongi',
+            'model': self.device.model
         }
 
 
 class DelongiPrimadonnaDopioButton(ButtonEntity):
 
-    _attr_name = "Prepare Doppio+"
+    _attr_name = 'Prepare Doppio+'
 
     def __init__(self, delongh_device):
-        self._attr_unique_id = f"{delongh_device.mac}_dopio"
+        self._attr_unique_id = f'{delongh_device.mac}_dopio'
         self.device = delongh_device
 
     def press(self):
@@ -81,20 +104,20 @@ class DelongiPrimadonnaDopioButton(ButtonEntity):
     @property
     def device_info(self):
         return {
-            "identifiers": {(DOMAIN, self.device.mac)},
-            "connections": {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
-            "name": self.device.name,
-            "manufacturer": "Delongi",
-            "model": self.device.model
+            'identifiers': {(DOMAIN, self.device.mac)},
+            'connections': {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
+            'name': self.device.name,
+            'manufacturer': 'Delongi',
+            'model': self.device.model
         }
 
 
 class DelongiPrimadonnaSteamButton(ButtonEntity):
 
-    _attr_name = "Prepare Steam"
+    _attr_name = 'Prepare Steam'
 
     def __init__(self, delongh_device):
-        self._attr_unique_id = f"{delongh_device.mac}_steam"
+        self._attr_unique_id = f'{delongh_device.mac}_steam'
         self.device = delongh_device
 
     def press(self):
@@ -103,20 +126,20 @@ class DelongiPrimadonnaSteamButton(ButtonEntity):
     @property
     def device_info(self):
         return {
-            "identifiers": {(DOMAIN, self.device.mac)},
-            "connections": {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
-            "name": self.device.name,
-            "manufacturer": "Delongi",
-            "model": self.device.model
+            'identifiers': {(DOMAIN, self.device.mac)},
+            'connections': {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
+            'name': self.device.name,
+            'manufacturer': 'Delongi',
+            'model': self.device.model
         }
 
 
 class DelongiPrimadonnaHotWaterButton(ButtonEntity):
 
-    _attr_name = "Prepare Hot Water"
+    _attr_name = 'Prepare Hot Water'
 
     def __init__(self, delongh_device):
-        self._attr_unique_id = f"{delongh_device.mac}_hot_water"
+        self._attr_unique_id = f'{delongh_device.mac}_hot_water'
         self.device = delongh_device
 
     def press(self):
@@ -125,20 +148,20 @@ class DelongiPrimadonnaHotWaterButton(ButtonEntity):
     @property
     def device_info(self):
         return {
-            "identifiers": {(DOMAIN, self.device.mac)},
-            "connections": {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
-            "name": self.device.name,
-            "manufacturer": "Delongi",
-            "model": self.device.model
+            'identifiers': {(DOMAIN, self.device.mac)},
+            'connections': {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
+            'name': self.device.name,
+            'manufacturer': 'Delongi',
+            'model': self.device.model
         }
 
 
 class DelongiPrimadonnaEspresso2Button(ButtonEntity):
 
-    _attr_name = "Prepare x2 Espresso"
+    _attr_name = 'Prepare x2 Espresso'
 
     def __init__(self, delongh_device):
-        self._attr_unique_id = f"{delongh_device.mac}_espresso2"
+        self._attr_unique_id = f'{delongh_device.mac}_espresso2'
         self.device = delongh_device
 
     def press(self):
@@ -147,20 +170,20 @@ class DelongiPrimadonnaEspresso2Button(ButtonEntity):
     @property
     def device_info(self):
         return {
-            "identifiers": {(DOMAIN, self.device.mac)},
-            "connections": {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
-            "name": self.device.name,
-            "manufacturer": "Delongi",
-            "model": self.device.model
+            'identifiers': {(DOMAIN, self.device.mac)},
+            'connections': {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
+            'name': self.device.name,
+            'manufacturer': 'Delongi',
+            'model': self.device.model
         }
 
 
 class DelongiPrimadonnaAmericanoButton(ButtonEntity):
 
-    _attr_name = "Prepare Americano"
+    _attr_name = 'Prepare Americano'
 
     def __init__(self, delongh_device):
-        self._attr_unique_id = f"{delongh_device.mac}_americano"
+        self._attr_unique_id = f'{delongh_device.mac}_americano'
         self.device = delongh_device
 
     def press(self):
@@ -169,20 +192,20 @@ class DelongiPrimadonnaAmericanoButton(ButtonEntity):
     @property
     def device_info(self):
         return {
-            "identifiers": {(DOMAIN, self.device.mac)},
-            "connections": {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
-            "name": self.device.name,
-            "manufacturer": "Delongi",
-            "model": self.device.model
+            'identifiers': {(DOMAIN, self.device.mac)},
+            'connections': {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
+            'name': self.device.name,
+            'manufacturer': 'Delongi',
+            'model': self.device.model
         }
 
 
 class DelongiPrimadonnaEspressoButton(ButtonEntity):
 
-    _attr_name = "Prepare Espresso"
+    _attr_name = 'Prepare Espresso'
 
     def __init__(self, delongh_device):
-        self._attr_unique_id = f"{delongh_device.mac}_espresso"
+        self._attr_unique_id = f'{delongh_device.mac}_espresso'
         self.device = delongh_device
 
     def press(self):
@@ -191,28 +214,28 @@ class DelongiPrimadonnaEspressoButton(ButtonEntity):
     @property
     def device_info(self):
         return {
-            "identifiers": {(DOMAIN, self.device.mac)},
-            "connections": {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
-            "name": self.device.name,
-            "manufacturer": "Delongi",
-            "model": self.device.model
+            'identifiers': {(DOMAIN, self.device.mac)},
+            'connections': {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
+            'name': self.device.name,
+            'manufacturer': 'Delongi',
+            'model': self.device.model
         }
 
 
 class DelongiPrimadonnaCancelButton(ButtonEntity):
 
-    _attr_name = "Cancel cooking"
+    _attr_name = 'Cancel cooking'
 
     def __init__(self, delongh_device):
-        self._attr_unique_id = f"{delongh_device.mac}_cancel"
+        self._attr_unique_id = f'{delongh_device.mac}_cancel'
         self.device = delongh_device
 
     @property
     def device_info(self):
         return {
-            "identifiers": {(DOMAIN, self.device.mac)},
-            "connections": {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
-            "name": self.device.name,
-            "manufacturer": "Delongi",
-            "model": self.device.model
+            'identifiers': {(DOMAIN, self.device.mac)},
+            'connections': {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
+            'name': self.device.name,
+            'manufacturer': 'Delongi',
+            'model': self.device.model
         }
