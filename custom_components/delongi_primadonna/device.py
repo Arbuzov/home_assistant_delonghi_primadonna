@@ -1,7 +1,7 @@
 """Delongi primadonna device description"""
+import pygatt
 from homeassistant.backports.enum import StrEnum
 from homeassistant.const import CONF_MAC, CONF_NAME
-import pygatt
 
 from .const import CHARACTERISTIC
 
