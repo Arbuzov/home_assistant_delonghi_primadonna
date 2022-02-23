@@ -35,7 +35,7 @@ class DelongiPrimadonnaPowerButton(ButtonEntity):
         self.device = delongh_device
 
     def press(self):
-        self.device.turn_on()
+        self.device.power_on()
 
     @property
     def device_info(self):

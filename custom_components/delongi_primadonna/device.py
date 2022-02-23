@@ -1,7 +1,7 @@
 """Delongi primadonna device description"""
-import pygatt
 from homeassistant.backports.enum import StrEnum
 from homeassistant.const import CONF_MAC, CONF_NAME
+import pygatt
 
 from .const import CHARACTERISTIC
 
@@ -23,18 +23,6 @@ class DelongiPrimadonna:
 
     def power_on(self) -> None:
         """Turn the device on."""
-        try:
-            self.adapter.start()
-            device = self.adapter.connect(self.mac, timeout=20)
-            device.char_write(
-                CHARACTERISTIC,
-                bytearray([0x0d, 0x07, 0x84, 0x0f, 0x02, 0x01, 0x55, 0x12]))
-
-        finally:
-            self.adapter.stop()
-
-    def power_off(self) -> None:
-        """Turn the device off."""
         try:
             self.adapter.start()
             device = self.adapter.connect(self.mac, timeout=20)
