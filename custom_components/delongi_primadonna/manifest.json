@@ -3,7 +3,7 @@
   "name": "Delongi Primadonna",
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/delongi_primadonna",
-  "requirements": ["pygatt", "pexpect"],
+  "requirements": ["pygatt[GATTTOOL]==4.0.5"],
   "ssdp": [],
   "zeroconf": [],
   "homekit": {},
