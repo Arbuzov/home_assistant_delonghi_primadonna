@@ -24,7 +24,7 @@ class DelongiPrimadonna:
     def power_on(self) -> None:
         """Turn the device on."""
         try:
-            self.adapter.start()
+            self.adapter.start(reset_on_start=False)
             device = self.adapter.connect(self.mac, timeout=20)
             device.char_write(
                 CHARACTERISTIC,
@@ -36,7 +36,7 @@ class DelongiPrimadonna:
     def cup_light_on(self) -> None:
         """Turn the cup light on."""
         try:
-            self.adapter.start()
+            self.adapter.start(reset_on_start=False)
             device = self.adapter.connect(self.mac, timeout=20)
             device.char_write(
                 CHARACTERISTIC,
@@ -51,7 +51,7 @@ class DelongiPrimadonna:
     def cup_light_off(self) -> None:
         """Turn the cup light off."""
         try:
-            self.adapter.start()
+            self.adapter.start(reset_on_start=False)
             device = self.adapter.connect(self.mac, timeout=20)
             device.char_write(
                 CHARACTERISTIC,
@@ -66,7 +66,7 @@ class DelongiPrimadonna:
     def coffe_long_start(self) -> None:
         """Prepare coffe long"""
         try:
-            self.adapter.start()
+            self.adapter.start(reset_on_start=False)
             device = self.adapter.connect(self.mac, timeout=20)
             device.char_write(
                 CHARACTERISTIC,
@@ -81,7 +81,7 @@ class DelongiPrimadonna:
     def coffe_long_cancel(self) -> None:
         """Cancel preparation"""
         try:
-            self.adapter.start()
+            self.adapter.start(reset_on_start=False)
             device = self.adapter.connect(self.mac, timeout=20)
             device.char_write(
                 CHARACTERISTIC,
