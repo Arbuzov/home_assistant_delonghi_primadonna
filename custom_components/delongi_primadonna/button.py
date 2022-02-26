@@ -34,8 +34,8 @@ class DelongiPrimadonnaPowerButton(ButtonEntity):
         self._attr_unique_id = f'{delongh_device.mac}_power'
         self.device = delongh_device
 
-    def press(self):
-        self.device.power_on()
+    async def async_press(self):
+        await self.device.power_on()
 
     @property
     def device_info(self):
@@ -56,8 +56,8 @@ class DelongiPrimadonnaLongButton(ButtonEntity):
         self._attr_unique_id = f'{delongh_device.mac}_long'
         self.device = delongh_device
 
-    def press(self):
-        self.device.coffe_long_start()
+    async def async_press(self):
+        await self.device.coffe_long_start()
 
     @property
     def device_info(self):
@@ -78,8 +78,8 @@ class DelongiPrimadonnaCoffeeButton(ButtonEntity):
         self._attr_unique_id = f'{delongh_device.mac}_coffe'
         self.device = delongh_device
 
-    def press(self):
-        self.device.coffe_long_start()
+    async def async_press(self):
+        await self.device.coffe_long_start()
 
     @property
     def device_info(self):
@@ -100,8 +100,8 @@ class DelongiPrimadonnaDopioButton(ButtonEntity):
         self._attr_unique_id = f'{delongh_device.mac}_dopio'
         self.device = delongh_device
 
-    def press(self):
-        self.device.coffe_long_start()
+    async def async_press(self):
+        await self.device.coffe_long_start()
 
     @property
     def device_info(self):
@@ -122,8 +122,8 @@ class DelongiPrimadonnaSteamButton(ButtonEntity):
         self._attr_unique_id = f'{delongh_device.mac}_steam'
         self.device = delongh_device
 
-    def press(self):
-        self.device.coffe_long_start()
+    async def async_press(self):
+        await self.device.coffe_long_start()
 
     @property
     def device_info(self):
@@ -144,8 +144,8 @@ class DelongiPrimadonnaHotWaterButton(ButtonEntity):
         self._attr_unique_id = f'{delongh_device.mac}_hot_water'
         self.device = delongh_device
 
-    def press(self):
-        self.device.coffe_long_start()
+    async def async_press(self):
+        await self.device.coffe_long_start()
 
     @property
     def device_info(self):
@@ -166,8 +166,8 @@ class DelongiPrimadonnaEspresso2Button(ButtonEntity):
         self._attr_unique_id = f'{delongh_device.mac}_espresso2'
         self.device = delongh_device
 
-    def press(self):
-        self.device.coffe_long_start()
+    async def async_press(self):
+        await self.device.coffe_long_start()
 
     @property
     def device_info(self):
@@ -188,8 +188,8 @@ class DelongiPrimadonnaAmericanoButton(ButtonEntity):
         self._attr_unique_id = f'{delongh_device.mac}_americano'
         self.device = delongh_device
 
-    def press(self):
-        self.device.coffe_long_start()
+    async def async_press(self):
+        await self.device.coffe_long_start()
 
     @property
     def device_info(self):
@@ -210,8 +210,8 @@ class DelongiPrimadonnaEspressoButton(ButtonEntity):
         self._attr_unique_id = f'{delongh_device.mac}_espresso'
         self.device = delongh_device
 
-    def press(self):
-        self.device.coffe_long_start()
+    async def async_press(self):
+        await self.device.coffe_long_start()
 
     @property
     def device_info(self):

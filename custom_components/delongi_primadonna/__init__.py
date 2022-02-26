@@ -13,10 +13,9 @@ PLATFORMS: list[str] = [Platform.SWITCH, Platform.BUTTON]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up oiot from a config entry."""
-
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
-    delonghi_device = DelongiPrimadonna(entry.data)
+    delonghi_device = DelongiPrimadonna(entry.data, hass.services)
     hass.data[DOMAIN][entry.unique_id] = delonghi_device
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
     return True
