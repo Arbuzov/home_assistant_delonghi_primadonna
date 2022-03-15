@@ -1,23 +1,17 @@
 """Delongi primadonna device description"""
 import logging
+
+import pygatt
 from homeassistant.backports.enum import StrEnum
 from homeassistant.const import CONF_MAC, CONF_NAME
 from homeassistant.core import ServiceRegistry
 from homeassistant.helpers import device_registry as dr
-import pygatt
 
-from .const import (
-    DOMAIN,
-    CHARACTERISTIC,
-    BYTES_POWER,
-    BYTES_CUP_LIGHT_ON,
-    BYTES_CUP_LIGHT_OFF,
-    COFFE_ON, COFFE_OFF,
-    DOPPIO_ON,
-    DOPPIO_OFF, STEAM_ON, STEAM_OFF, HOTWATER_ON,
-    HOTWATER_OFF, ESPRESSO2_ON, ESPRESSO2_OFF,
-    AMERICANO_ON, AMERICANO_OFF, LONG_ON, LONG_OFF,
-    ESPRESSO_ON, ESPRESSO_OFF)
+from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
+                    BYTES_CUP_LIGHT_ON, BYTES_POWER, CHARACTERISTIC, COFFE_OFF,
+                    COFFE_ON, DOMAIN, DOPPIO_OFF, DOPPIO_ON, ESPRESSO2_OFF,
+                    ESPRESSO2_ON, ESPRESSO_OFF, ESPRESSO_ON, HOTWATER_OFF,
+                    HOTWATER_ON, LONG_OFF, LONG_ON, STEAM_OFF, STEAM_ON)
 
 _LOGGER = logging.getLogger(__name__)
 
