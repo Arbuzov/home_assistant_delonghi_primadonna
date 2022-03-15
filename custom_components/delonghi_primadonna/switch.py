@@ -7,6 +7,7 @@ from homeassistant.helpers.entity import ToggleEntity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
+from .device import DelonghiDeviceEntity
 
 
 async def async_setup_entry(
@@ -19,14 +20,10 @@ async def async_setup_entry(
     return True
 
 
-class DelongiPrimadonnaCupLightSwitch(ToggleEntity):
+class DelongiPrimadonnaCupLightSwitch(DelonghiDeviceEntity, ToggleEntity):
 
     _attr_name = 'Cups light'
-
-    def __init__(self, delongh_device):
-        self._attr_is_on = False
-        self._attr_unique_id = f'{delongh_device.mac}_cup_light'
-        self.device = delongh_device
+    _attr_is_on = False
 
     def turn_on(self, **kwargs: Any) -> None:
         """Turn the device on."""
@@ -37,13 +34,3 @@ class DelongiPrimadonnaCupLightSwitch(ToggleEntity):
         """Turn the device off."""
         self.device.cup_light_off()
         self._attr_is_on = False
-
-    @property
-    def device_info(self):
-        return {
-            'identifiers': {(DOMAIN, self.device.mac)},
-            'connections': {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
-            'name': self.device.name,
-            'manufacturer': 'Delongi',
-            'model': self.device.model
-        }
