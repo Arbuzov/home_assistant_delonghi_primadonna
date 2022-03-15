@@ -6,7 +6,18 @@ from homeassistant.core import ServiceRegistry
 from homeassistant.helpers import device_registry as dr
 import pygatt
 
-from .const import DOMAIN, CHARACTERISTIC, BYTES_POWER, BYTES_CUP_LIGHT_ON, BYTES_CUP_LIGHT_OFF, COFFE_ON, COFFE_OFF, DOPPIO_ON, DOPPIO_OFF, STEAM_ON, STEAM_OFF, HOTWATER_ON, HOTWATER_OFF, ESPRESSO2_ON, ESPRESSO2_OFF, AMERICANO_ON, AMERICANO_OFF, LONG_ON, LONG_OFF, ESPRESSO_ON, ESPRESSO_OFF
+from .const import (
+    DOMAIN,
+    CHARACTERISTIC,
+    BYTES_POWER,
+    BYTES_CUP_LIGHT_ON,
+    BYTES_CUP_LIGHT_OFF,
+    COFFE_ON, COFFE_OFF,
+    DOPPIO_ON,
+    DOPPIO_OFF, STEAM_ON, STEAM_OFF, HOTWATER_ON,
+    HOTWATER_OFF, ESPRESSO2_ON, ESPRESSO2_OFF,
+    AMERICANO_ON, AMERICANO_OFF, LONG_ON, LONG_OFF,
+    ESPRESSO_ON, ESPRESSO_OFF)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,7 +59,8 @@ class DelonghiDeviceEntity:
 
     def __init__(self, delongh_device):
         """Init entity with the device"""
-        self._attr_unique_id = f'{delongh_device.mac}_{self.__class__.__name__}'
+        self._attr_unique_id = \
+            f'{delongh_device.mac}_{self.__class__.__name__}'
         self.device: DelongiPrimadonna = delongh_device
 
     @property
@@ -100,7 +112,7 @@ class DelongiPrimadonna:
             'create',
             {
                 'message': error,
-                'title': f"{self.name} {self.mac}",
+                'title': f'{self.name} {self.mac}',
                 'notification_id': self.mac
             }
         )
