@@ -1,3 +1,6 @@
 /.project
 /.pydevproject
+/.ptp-sync/
 /.settings/
+.ptp-sync-folder
+__pycache__

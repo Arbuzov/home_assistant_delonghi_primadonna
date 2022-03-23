@@ -1,4 +1,4 @@
-"""Config flow for oiot integration."""
+"""Config flow for the delonghi promadonna integration."""
 from __future__ import annotations
 
 import logging
