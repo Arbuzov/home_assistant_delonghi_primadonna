@@ -33,4 +33,4 @@ jobs:
           path: custom_components
 
       - name: Verify import sorting
-        run: isort --diff --check-only tests custom_components
+        run: isort --diff --check-only custom_components

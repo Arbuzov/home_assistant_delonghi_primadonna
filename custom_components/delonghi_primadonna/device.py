@@ -1,5 +1,6 @@
 """Delongi primadonna device description"""
 import logging
+from binascii import hexlify
 
 import pygatt
 from homeassistant.backports.enum import StrEnum
@@ -11,7 +12,8 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
                     BYTES_CUP_LIGHT_ON, BYTES_POWER, CHARACTERISTIC, COFFE_OFF,
                     COFFE_ON, DOMAIN, DOPPIO_OFF, DOPPIO_ON, ESPRESSO2_OFF,
                     ESPRESSO2_ON, ESPRESSO_OFF, ESPRESSO_ON, HOTWATER_OFF,
-                    HOTWATER_ON, LONG_OFF, LONG_ON, STEAM_OFF, STEAM_ON)
+                    HOTWATER_ON, LONG_OFF, LONG_ON, NAME_CHARACTERISTIC,
+                    STEAM_OFF, STEAM_ON)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -93,11 +95,18 @@ class DelongiPrimadonna:
         """Initialize."""
         self.mac = config.get(CONF_MAC)
         self.name = config.get(CONF_NAME)
+        self.hostname = ''
+        self.error_count = 0
         self.model = 'Prima Donna'
         self.friendly_name = ''
-        self.adapter = pygatt.GATTToolBackend()
         self.services = services
         self.cooking = AvailableBeverage.NONE
+        self._adapter = pygatt.GATTToolBackend()
+        self._adapter.start(reset_on_start=False, initialization_timeout=10)
+        self._device = None
+
+    def __del__(self):
+        self._adapter.stop()
 
     async def _notify_on_error(self, error):
         """Add UI notification on error"""
@@ -111,70 +120,95 @@ class DelongiPrimadonna:
             }
         )
 
+    async def _connect(self):
+        if self._device is None:
+            try:
+                self._device = self._adapter.connect(self.mac, timeout=20)
+                self._device.subscribe(
+                    CHARACTERISTIC, callback=self._handle_data)
+            except pygatt.exceptions.NotConnectedError as error:
+                self._device = None
+        return self._device
+
+    def _handle_data(self, handle, value):
+        _LOGGER.info("Received data: %s", hexlify(value))
+
+    @property
+    def connected(self):
+        return self._device is not None
+
     async def power_on(self) -> None:
         """Turn the device on."""
-        try:
-            self.adapter.start(reset_on_start=False)
-            device = self.adapter.connect(self.mac, timeout=20)
-            device.char_write(
-                CHARACTERISTIC,
-                bytearray(BYTES_POWER))
-        except pygatt.exceptions.NotConnectedError as error:
-            await self._notify_on_error(error)
-        finally:
-            self.adapter.stop()
+        await self._connect()
+        if self.connected:
+            try:
+                self._device.char_write(
+                    CHARACTERISTIC,
+                    bytearray(BYTES_POWER))
+            except pygatt.exceptions.NotConnectedError as error:
+                await self._notify_on_error(error)
+                await self._connect()
 
     async def cup_light_on(self) -> None:
         """Turn the cup light on."""
-        try:
-            self.adapter.start(reset_on_start=False)
-            device = self.adapter.connect(self.mac, timeout=20)
-            device.char_write(
-                CHARACTERISTIC,
-                bytearray(BYTES_CUP_LIGHT_ON))
-        except pygatt.exceptions.NotConnectedError as error:
-            await self._notify_on_error(error)
-        finally:
-            self.adapter.stop()
+        await self._connect()
+        if self.connected:
+            try:
+                self._device.char_write(
+                    CHARACTERISTIC,
+                    bytearray(BYTES_CUP_LIGHT_ON))
+            except pygatt.exceptions.NotConnectedError as error:
+                await self._notify_on_error(error)
+                await self._connect()
 
     async def cup_light_off(self) -> None:
         """Turn the cup light off."""
-        try:
-            self.adapter.start(reset_on_start=False)
-            device = self.adapter.connect(self.mac, timeout=20)
-            device.char_write(
-                CHARACTERISTIC,
-                bytearray(BYTES_CUP_LIGHT_OFF))
-        except pygatt.exceptions.NotConnectedError as error:
-            await self._notify_on_error(error)
-        finally:
-            self.adapter.stop()
+        await self._connect()
+        if self.connected:
+            try:
+                self._device.char_write(
+                    CHARACTERISTIC,
+                    bytearray(BYTES_CUP_LIGHT_OFF))
+                _LOGGER.warning('written')
+            except pygatt.exceptions.NotConnectedError as error:
+                await self._notify_on_error(error)
+                await self._connect()
 
     async def beverage_start(self, beverage: AvailableBeverage) -> None:
         """Start beverage"""
-        try:
-            self.adapter.start(reset_on_start=False)
-            device = self.adapter.connect(self.mac, timeout=20)
-            device.char_write(
-                CHARACTERISTIC,
-                bytearray(BEVERAGE_COMMANDS.get(beverage).on))
-        except pygatt.exceptions.NotConnectedError as error:
-            await self._notify_on_error(error)
-        finally:
-            self.adapter.stop()
-            self.cooking = AvailableBeverage.NONE
+        await self._connect()
+        if self.connected:
+            try:
+                self._device.char_write(
+                    CHARACTERISTIC,
+                    bytearray(BEVERAGE_COMMANDS.get(beverage).on))
+            except pygatt.exceptions.NotConnectedError as error:
+                await self._notify_on_error(error)
+                await self._connect()
+            finally:
+                self.cooking = AvailableBeverage.NONE
 
     async def beverage_cancel(self) -> None:
         """Cancel beverage"""
-        if self.cooking != AvailableBeverage.NONE:
+        await self._connect()
+        if self.connected and self.cooking != AvailableBeverage.NONE:
             try:
-                self.adapter.start(reset_on_start=False)
-                device = self.adapter.connect(self.mac, timeout=20)
-                device.char_write(
+                self._device.char_write(
                     CHARACTERISTIC,
                     bytearray(BEVERAGE_COMMANDS.get(self.cooking).off))
             except pygatt.exceptions.NotConnectedError as error:
                 await self._notify_on_error(error)
+                await self._connect()
             finally:
-                self.adapter.stop()
                 self.cooking = AvailableBeverage.NONE
+
+    async def get_device_name(self):
+        await self._connect()
+        if self.connected:
+            try:
+                data = self._device.char_read(
+                    NAME_CHARACTERISTIC).decode("utf-8")
+                self.hostname = data
+            except pygatt.exceptions.NotConnectedError as error:
+                await self._notify_on_error(error)
+                await self._connect()

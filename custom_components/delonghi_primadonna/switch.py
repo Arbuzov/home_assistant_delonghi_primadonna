@@ -23,13 +23,14 @@ class DelongiPrimadonnaCupLightSwitch(DelonghiDeviceEntity, ToggleEntity):
 
     _attr_name = 'Cups light'
     _attr_is_on = False
+    _attr_icon = 'mdi:lightbulb'
 
-    def turn_on(self, **kwargs: Any) -> None:
+    async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the device on."""
-        self.device.cup_light_on()
+        await self.device.cup_light_on()
         self._attr_is_on = True
 
-    def turn_off(self, **kwargs: Any) -> None:
+    async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the device off."""
-        self.device.cup_light_off()
+        await self.device.cup_light_off()
         self._attr_is_on = False

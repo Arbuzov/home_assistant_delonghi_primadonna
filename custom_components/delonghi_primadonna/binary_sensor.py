@@ -22,6 +22,7 @@ class DelongiPrimadonnaCookingSensor(DelonghiDeviceEntity, BinarySensorEntity):
 
     _attr_device_class = BinarySensorDeviceClass.HEAT
     _attr_name = 'Cooking'
+    _attr_icon = 'mdi:coffee'
 
     @property
     def is_on(self):
