@@ -4,5 +4,6 @@
 
 ![Company logo](https://brands.home-assistant.io/delonghi_primadonna/logo.png)
 
-
 Component to integrate Delonghi caffee machine into the Home Assistant
+
+This component uses BLE to send commands to cafe machine

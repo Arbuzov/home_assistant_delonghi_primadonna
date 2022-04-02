@@ -1,5 +1,4 @@
 """Delongi primadonna device description"""
-import asyncio
 from binascii import hexlify
 import logging
 
@@ -10,7 +9,7 @@ from homeassistant.helpers import device_registry as dr
 import pygatt
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
-                    BYTES_CUP_LIGHT_ON, BYTES_POWER, CHARACTERISTIC, COFFE_OFF,
+                    BYTES_CUP_LIGHT_ON, BYTES_POWER, CONTROLL_CHARACTERISTIC, COFFE_OFF,
                     COFFE_ON, DOMAIN, DOPPIO_OFF, DEBUG, DOPPIO_ON, ESPRESSO2_OFF,
                     ESPRESSO2_ON, ESPRESSO_OFF, ESPRESSO_ON, HOTWATER_OFF,
                     HOTWATER_ON, LONG_OFF, LONG_ON, NAME_CHARACTERISTIC,
@@ -128,13 +127,13 @@ class DelongiPrimadonna:
             try:
                 self._device = self._adapter.connect(self.mac, timeout=20)
                 self._device.subscribe(
-                    CHARACTERISTIC, callback=self._handle_data)
-            except pygatt.exceptions.NotConnectedError as error:
+                    CONTROLL_CHARACTERISTIC, callback=self._handle_data)
+            except pygatt.exceptions.NotConnectedError:
                 self._device = None
         return self._device
 
     def _handle_data(self, handle, value):
-        _LOGGER.info("Received data: %s", hexlify(value, ' '))
+        _LOGGER.info('Received data: %s', hexlify(value, ' '))
         self.services.call(
             'persistent_notification',
             'create',
@@ -160,10 +159,10 @@ class DelongiPrimadonna:
         if self.connected:
             try:
                 self._device.char_write(
-                    CHARACTERISTIC,
+                    CONTROLL_CHARACTERISTIC,
                     bytearray(BYTES_POWER))
             except pygatt.exceptions.NotConnectedError as error:
-                await self._not_connected_handler()
+                await self._not_connected_handler(error)
 
     async def cup_light_on(self) -> None:
         """Turn the cup light on."""
@@ -171,7 +170,7 @@ class DelongiPrimadonna:
         if self.connected:
             try:
                 self._device.char_write(
-                    CHARACTERISTIC,
+                    CONTROLL_CHARACTERISTIC,
                     bytearray(BYTES_CUP_LIGHT_ON))
             except pygatt.exceptions.NotConnectedError as error:
                 await self._not_connected_handler(error)
@@ -182,7 +181,7 @@ class DelongiPrimadonna:
         if self.connected:
             try:
                 self._device.char_write(
-                    CHARACTERISTIC,
+                    CONTROLL_CHARACTERISTIC,
                     bytearray(BYTES_CUP_LIGHT_OFF))
                 _LOGGER.warning('written')
             except pygatt.exceptions.NotConnectedError as error:
@@ -194,7 +193,7 @@ class DelongiPrimadonna:
         if self.connected:
             try:
                 self._device.char_write(
-                    CHARACTERISTIC,
+                    CONTROLL_CHARACTERISTIC,
                     bytearray(BEVERAGE_COMMANDS.get(beverage).on))
             except pygatt.exceptions.NotConnectedError as error:
                 await self._not_connected_handler(error)
@@ -207,7 +206,7 @@ class DelongiPrimadonna:
         if self.connected and self.cooking != AvailableBeverage.NONE:
             try:
                 self._device.char_write(
-                    CHARACTERISTIC,
+                    CONTROLL_CHARACTERISTIC,
                     bytearray(BEVERAGE_COMMANDS.get(self.cooking).off))
             except pygatt.exceptions.NotConnectedError as error:
                 await self._not_connected_handler(error)
@@ -218,7 +217,7 @@ class DelongiPrimadonna:
         await self._connect()
         if self.connected:
             try:
-                self._device.char_write(CHARACTERISTIC,
+                self._device.char_write(CONTROLL_CHARACTERISTIC,
                                         bytearray(DEBUG))
             except pygatt.exceptions.NotConnectedError as error:
                 await self._not_connected_handler(error)
@@ -228,7 +227,7 @@ class DelongiPrimadonna:
         if self.connected:
             try:
                 data = self._device.char_read(
-                    DEBUG).decode("utf-8")
+                    NAME_CHARACTERISTIC).decode("utf-8")
                 self.hostname = data
             except pygatt.exceptions.NotificationTimeout as error:
                 _LOGGER.warn('Notification timeout')

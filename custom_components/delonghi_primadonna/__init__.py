@@ -8,8 +8,8 @@ from homeassistant.core import HomeAssistant
 from .const import DOMAIN
 from .device import DelongiPrimadonna
 
-PLATFORMS: list[str] = [Platform.SWITCH,
-                        Platform.BUTTON, Platform.BINARY_SENSOR, Platform.DEVICE_TRACKER]
+PLATFORMS: list[str] = [Platform.SWITCH, Platform.BUTTON,
+                        Platform.BINARY_SENSOR, Platform.DEVICE_TRACKER]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
