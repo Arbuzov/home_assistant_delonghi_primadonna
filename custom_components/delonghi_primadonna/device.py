@@ -9,11 +9,11 @@ from homeassistant.helpers import device_registry as dr
 import pygatt
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
-                    BYTES_CUP_LIGHT_ON, BYTES_POWER, CONTROLL_CHARACTERISTIC, COFFE_OFF,
-                    COFFE_ON, DOMAIN, DOPPIO_OFF, DEBUG, DOPPIO_ON, ESPRESSO2_OFF,
-                    ESPRESSO2_ON, ESPRESSO_OFF, ESPRESSO_ON, HOTWATER_OFF,
-                    HOTWATER_ON, LONG_OFF, LONG_ON, NAME_CHARACTERISTIC,
-                    STEAM_OFF, STEAM_ON)
+                    BYTES_CUP_LIGHT_ON, BYTES_POWER, CONTROLL_CHARACTERISTIC,
+                    COFFE_OFF, COFFE_ON, DOMAIN, DOPPIO_OFF, DEBUG, DOPPIO_ON,
+                    ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF, ESPRESSO_ON,
+                    HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
+                    NAME_CHARACTERISTIC, STEAM_OFF, STEAM_ON)
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -185,7 +185,7 @@ class DelongiPrimadonna:
                     bytearray(BYTES_CUP_LIGHT_OFF))
                 _LOGGER.warning('written')
             except pygatt.exceptions.NotConnectedError as error:
-                await self._not_connected_handler()
+                await self._not_connected_handler(error)
 
     async def beverage_start(self, beverage: AvailableBeverage) -> None:
         """Start beverage"""
@@ -227,9 +227,9 @@ class DelongiPrimadonna:
         if self.connected:
             try:
                 data = self._device.char_read(
-                    NAME_CHARACTERISTIC).decode("utf-8")
+                    NAME_CHARACTERISTIC).decode('utf-8')
                 self.hostname = data
-            except pygatt.exceptions.NotificationTimeout as error:
+            except pygatt.exceptions.NotificationTimeout:
                 _LOGGER.warn('Notification timeout')
             except pygatt.exceptions.NotConnectedError as error:
                 await self._not_connected_handler(error)
