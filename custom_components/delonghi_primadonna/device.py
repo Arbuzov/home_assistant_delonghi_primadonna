@@ -1,19 +1,21 @@
 """Delongi primadonna device description"""
-import logging
+import asyncio
 from binascii import hexlify
+import logging
 
-import pygatt
 from homeassistant.backports.enum import StrEnum
 from homeassistant.const import CONF_MAC, CONF_NAME
 from homeassistant.core import ServiceRegistry
 from homeassistant.helpers import device_registry as dr
+import pygatt
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
                     BYTES_CUP_LIGHT_ON, BYTES_POWER, CHARACTERISTIC, COFFE_OFF,
-                    COFFE_ON, DOMAIN, DOPPIO_OFF, DOPPIO_ON, ESPRESSO2_OFF,
+                    COFFE_ON, DOMAIN, DOPPIO_OFF, DEBUG, DOPPIO_ON, ESPRESSO2_OFF,
                     ESPRESSO2_ON, ESPRESSO_OFF, ESPRESSO_ON, HOTWATER_OFF,
                     HOTWATER_ON, LONG_OFF, LONG_ON, NAME_CHARACTERISTIC,
                     STEAM_OFF, STEAM_ON)
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -102,7 +104,7 @@ class DelongiPrimadonna:
         self.services = services
         self.cooking = AvailableBeverage.NONE
         self._adapter = pygatt.GATTToolBackend()
-        self._adapter.start(reset_on_start=False, initialization_timeout=10)
+        self._adapter.start(reset_on_start=False)
         self._device = None
 
     def __del__(self):
@@ -110,6 +112,7 @@ class DelongiPrimadonna:
 
     async def _notify_on_error(self, error):
         """Add UI notification on error"""
+        _LOGGER.error('Error %s %s', type(error), error)
         await self.services.async_call(
             'persistent_notification',
             'create',
@@ -131,7 +134,21 @@ class DelongiPrimadonna:
         return self._device
 
     def _handle_data(self, handle, value):
-        _LOGGER.info("Received data: %s", hexlify(value))
+        _LOGGER.info("Received data: %s", hexlify(value, ' '))
+        self.services.call(
+            'persistent_notification',
+            'create',
+            {
+                'message': hexlify(value, ' ').decode('utf-8'),
+                'title': f'{self.name} {self.mac}',
+                'notification_id': self.mac
+            }
+        )
+
+    async def _not_connected_handler(self, error):
+        self._device = None
+        await self._notify_on_error(error)
+        await self._connect()
 
     @property
     def connected(self):
@@ -146,8 +163,7 @@ class DelongiPrimadonna:
                     CHARACTERISTIC,
                     bytearray(BYTES_POWER))
             except pygatt.exceptions.NotConnectedError as error:
-                await self._notify_on_error(error)
-                await self._connect()
+                await self._not_connected_handler()
 
     async def cup_light_on(self) -> None:
         """Turn the cup light on."""
@@ -158,8 +174,7 @@ class DelongiPrimadonna:
                     CHARACTERISTIC,
                     bytearray(BYTES_CUP_LIGHT_ON))
             except pygatt.exceptions.NotConnectedError as error:
-                await self._notify_on_error(error)
-                await self._connect()
+                await self._not_connected_handler(error)
 
     async def cup_light_off(self) -> None:
         """Turn the cup light off."""
@@ -171,8 +186,7 @@ class DelongiPrimadonna:
                     bytearray(BYTES_CUP_LIGHT_OFF))
                 _LOGGER.warning('written')
             except pygatt.exceptions.NotConnectedError as error:
-                await self._notify_on_error(error)
-                await self._connect()
+                await self._not_connected_handler()
 
     async def beverage_start(self, beverage: AvailableBeverage) -> None:
         """Start beverage"""
@@ -183,8 +197,7 @@ class DelongiPrimadonna:
                     CHARACTERISTIC,
                     bytearray(BEVERAGE_COMMANDS.get(beverage).on))
             except pygatt.exceptions.NotConnectedError as error:
-                await self._notify_on_error(error)
-                await self._connect()
+                await self._not_connected_handler(error)
             finally:
                 self.cooking = AvailableBeverage.NONE
 
@@ -197,18 +210,27 @@ class DelongiPrimadonna:
                     CHARACTERISTIC,
                     bytearray(BEVERAGE_COMMANDS.get(self.cooking).off))
             except pygatt.exceptions.NotConnectedError as error:
-                await self._notify_on_error(error)
-                await self._connect()
+                await self._not_connected_handler(error)
             finally:
                 self.cooking = AvailableBeverage.NONE
+
+    async def debug(self):
+        await self._connect()
+        if self.connected:
+            try:
+                self._device.char_write(CHARACTERISTIC,
+                                        bytearray(DEBUG))
+            except pygatt.exceptions.NotConnectedError as error:
+                await self._not_connected_handler(error)
 
     async def get_device_name(self):
         await self._connect()
         if self.connected:
             try:
                 data = self._device.char_read(
-                    NAME_CHARACTERISTIC).decode("utf-8")
+                    DEBUG).decode("utf-8")
                 self.hostname = data
+            except pygatt.exceptions.NotificationTimeout as error:
+                _LOGGER.warn('Notification timeout')
             except pygatt.exceptions.NotConnectedError as error:
-                await self._notify_on_error(error)
-                await self._connect()
+                await self._not_connected_handler(error)

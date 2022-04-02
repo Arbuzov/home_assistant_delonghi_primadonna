@@ -21,7 +21,8 @@ async def async_setup_entry(
         DelongiPrimadonnaEspresso2Button(delongh_device),
         DelongiPrimadonnaAmericanoButton(delongh_device),
         DelongiPrimadonnaEspressoButton(delongh_device),
-        DelongiPrimadonnaCancelButton(delongh_device)
+        DelongiPrimadonnaCancelButton(delongh_device),
+        DelongiPrimadonnaDebugButton(delongh_device)
     ])
     return True
 
@@ -104,3 +105,11 @@ class DelongiPrimadonnaCancelButton(DelonghiDeviceEntity, ButtonEntity):
 
     async def async_press(self):
         await self.device.beverage_cancel()
+
+
+class DelongiPrimadonnaDebugButton(DelonghiDeviceEntity, ButtonEntity):
+
+    _attr_name = 'Debug'
+
+    async def async_press(self):
+        await self.device.debug()
