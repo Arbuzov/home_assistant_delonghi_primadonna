@@ -1,4 +1,5 @@
 """Delongi primadonna device description"""
+import datetime
 import logging
 from binascii import hexlify
 
@@ -104,6 +105,8 @@ class DelongiPrimadonna:
         self._adapter = pygatt.GATTToolBackend()
         self._adapter.start(reset_on_start=False)
         self._device = None
+        self._error_count = 0
+        self._first_error = None
 
     def __del__(self):
         self._adapter.stop()
@@ -111,14 +114,28 @@ class DelongiPrimadonna:
     async def _notify_on_error(self, error):
         """Add UI notification on error"""
         _LOGGER.error('Error %s %s', type(error), error)
+        if self._error_count == 0:
+            self._first_error = datetime.now().strftime('%d/%m/%Y, %H:%M:%S')
+        self._error_count = self._error_count + 1
         await self.services.async_call(
             'persistent_notification',
             'create',
             {
-                'message': error,
+                'message': 'First error at ' +
+                self._first_error + ' total errors ' + self._error_count,
                 'title': f'{self.name} {self.mac}',
                 'notification_id': self.mac
             }
+        )
+
+    async def _dismiss_notification(self):
+        """Remove UI notification the error dismissed"""
+        self._error_count = 0
+        self._first_error = None
+        await self.services.async_call(
+            'persistent_notification',
+            'dismiss',
+            {'notification_id': self.mac}
         )
 
     async def _connect(self):
@@ -127,6 +144,7 @@ class DelongiPrimadonna:
                 self._device = self._adapter.connect(self.mac, timeout=20)
                 self._device.subscribe(
                     CONTROLL_CHARACTERISTIC, callback=self._handle_data)
+                self._dismiss_notification()
             except pygatt.exceptions.NotConnectedError:
                 self._device = None
         return self._device
