@@ -1,7 +1,7 @@
 """Delongi primadonna device description"""
-import datetime
 import logging
 from binascii import hexlify
+from datetime import datetime
 
 import pygatt
 from homeassistant.backports.enum import StrEnum
@@ -124,7 +124,7 @@ class DelongiPrimadonna:
                 'message': 'First error at ' +
                 self._first_error + ' total errors ' + self._error_count,
                 'title': f'{self.name} {self.mac}',
-                'notification_id': self.mac
+                'notification_id': f'{self.mac}_err'
             }
         )
 
@@ -135,7 +135,7 @@ class DelongiPrimadonna:
         await self.services.async_call(
             'persistent_notification',
             'dismiss',
-            {'notification_id': self.mac}
+            {'notification_id': f'{self.mac}_err'}
         )
 
     async def _connect(self):
@@ -157,7 +157,7 @@ class DelongiPrimadonna:
             {
                 'message': hexlify(value, ' ').decode('utf-8'),
                 'title': f'{self.name} {self.mac}',
-                'notification_id': self.mac
+                'notification_id': f'{self.mac}_debug'
             }
         )
 
