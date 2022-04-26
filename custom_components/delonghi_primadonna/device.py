@@ -1,13 +1,13 @@
 """Delongi primadonna device description"""
-import logging
 from binascii import hexlify
 from datetime import datetime
+import logging
 
-import pygatt
 from homeassistant.backports.enum import StrEnum
 from homeassistant.const import CONF_MAC, CONF_NAME
 from homeassistant.core import ServiceRegistry
 from homeassistant.helpers import device_registry as dr
+import pygatt
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
                     BYTES_CUP_LIGHT_ON, BYTES_POWER, COFFE_OFF, COFFE_ON,
@@ -15,6 +15,7 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
                     DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF,
                     ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
                     NAME_CHARACTERISTIC, STEAM_OFF, STEAM_ON)
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -156,7 +157,7 @@ class DelongiPrimadonna:
             'create',
             {
                 'message': hexlify(value, ' ').decode('utf-8'),
-                'title': f'{self.name} {self.mac}',
+                'title': f'{self.name} {self.mac} debug',
                 'notification_id': f'{self.mac}_debug'
             }
         )
