@@ -32,7 +32,7 @@ class DelongiPrimadonnaPowerButton(DelonghiDeviceEntity, ButtonEntity):
     _attr_name = 'Turn on'
 
     async def async_press(self):
-        await self.device.power_on()
+        self.hass.async_create_task(self.device.power_on())
 
 
 class DelongiPrimadonnaLongButton(DelonghiDeviceEntity, ButtonEntity):
@@ -40,7 +40,8 @@ class DelongiPrimadonnaLongButton(DelonghiDeviceEntity, ButtonEntity):
     _attr_name = 'Prepare long'
 
     async def async_press(self):
-        await self.device.beverage_start(AvailableBeverage.LONG)
+        self.hass.async_create_task(
+            self.device.beverage_start(AvailableBeverage.LONG))
 
 
 class DelongiPrimadonnaCoffeeButton(DelonghiDeviceEntity, ButtonEntity):
@@ -48,7 +49,8 @@ class DelongiPrimadonnaCoffeeButton(DelonghiDeviceEntity, ButtonEntity):
     _attr_name = 'Prepare Coffee'
 
     async def async_press(self):
-        await self.device.beverage_start(AvailableBeverage.COFFEE)
+        self.hass.async_create_task(
+            self.device.beverage_start(AvailableBeverage.COFFEE))
 
 
 class DelongiPrimadonnaDopioButton(DelonghiDeviceEntity, ButtonEntity):
@@ -56,7 +58,8 @@ class DelongiPrimadonnaDopioButton(DelonghiDeviceEntity, ButtonEntity):
     _attr_name = 'Prepare Doppio+'
 
     async def async_press(self):
-        await self.device.beverage_start(AvailableBeverage.DOPIO)
+        self.hass.async_create_task(
+            self.device.beverage_start(AvailableBeverage.DOPIO))
 
 
 class DelongiPrimadonnaSteamButton(DelonghiDeviceEntity, ButtonEntity):
@@ -64,7 +67,8 @@ class DelongiPrimadonnaSteamButton(DelonghiDeviceEntity, ButtonEntity):
     _attr_name = 'Prepare Steam'
 
     async def async_press(self):
-        await self.device.beverage_start(AvailableBeverage.STEAM)
+        self.hass.async_create_task(
+            self.device.beverage_start(AvailableBeverage.STEAM))
 
 
 class DelongiPrimadonnaHotWaterButton(DelonghiDeviceEntity, ButtonEntity):
@@ -72,7 +76,8 @@ class DelongiPrimadonnaHotWaterButton(DelonghiDeviceEntity, ButtonEntity):
     _attr_name = 'Prepare Hot Water'
 
     async def async_press(self):
-        await self.device.beverage_start(AvailableBeverage.HOTWATER)
+        self.hass.async_create_task(
+            self.device.beverage_start(AvailableBeverage.HOTWATER))
 
 
 class DelongiPrimadonnaEspresso2Button(DelonghiDeviceEntity, ButtonEntity):
@@ -80,7 +85,8 @@ class DelongiPrimadonnaEspresso2Button(DelonghiDeviceEntity, ButtonEntity):
     _attr_name = 'Prepare x2 Espresso'
 
     async def async_press(self):
-        await self.device.beverage_start(AvailableBeverage.ESPRESSO2)
+        self.hass.async_create_task(
+            self.device.beverage_start(AvailableBeverage.ESPRESSO2))
 
 
 class DelongiPrimadonnaAmericanoButton(DelonghiDeviceEntity, ButtonEntity):
@@ -88,7 +94,8 @@ class DelongiPrimadonnaAmericanoButton(DelonghiDeviceEntity, ButtonEntity):
     _attr_name = 'Prepare Americano'
 
     async def async_press(self):
-        await self.device.beverage_start(AvailableBeverage.AMERICANO)
+        self.hass.async_create_task(
+            self.device.beverage_start(AvailableBeverage.AMERICANO))
 
 
 class DelongiPrimadonnaEspressoButton(DelonghiDeviceEntity, ButtonEntity):
@@ -96,7 +103,8 @@ class DelongiPrimadonnaEspressoButton(DelonghiDeviceEntity, ButtonEntity):
     _attr_name = 'Prepare Espresso'
 
     async def async_press(self):
-        await self.device.beverage_start(AvailableBeverage.ESPRESSO)
+        self.hass.async_create_task(
+            self.device.beverage_start(AvailableBeverage.ESPRESSO))
 
 
 class DelongiPrimadonnaCancelButton(DelonghiDeviceEntity, ButtonEntity):
@@ -104,7 +112,7 @@ class DelongiPrimadonnaCancelButton(DelonghiDeviceEntity, ButtonEntity):
     _attr_name = 'Cancel cooking'
 
     async def async_press(self):
-        await self.device.beverage_cancel()
+        self.hass.async_create_task(self.device.beverage_cancel())
 
 
 class DelongiPrimadonnaDebugButton(DelonghiDeviceEntity, ButtonEntity):
@@ -112,4 +120,4 @@ class DelongiPrimadonnaDebugButton(DelonghiDeviceEntity, ButtonEntity):
     _attr_name = 'Debug'
 
     async def async_press(self):
-        await self.device.debug()
+        self.hass.async_create_task(self.device.debug())
