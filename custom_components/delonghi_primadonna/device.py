@@ -5,7 +5,6 @@ import logging
 
 from homeassistant.backports.enum import StrEnum
 from homeassistant.const import CONF_MAC, CONF_NAME
-from homeassistant.core import HomeAssistant
 from homeassistant.core import ServiceRegistry
 from homeassistant.helpers import device_registry as dr
 import pygatt
@@ -56,12 +55,11 @@ BEVERAGE_COMMANDS = {
 class DelonghiDeviceEntity:
     """Entity class for the Delonghi devices"""
 
-    def __init__(self, delongh_device, hass: HomeAssistant):
+    def __init__(self, delongh_device):
         """Init entity with the device"""
         self._attr_unique_id = \
             f'{delongh_device.mac}_{self.__class__.__name__}'
         self.device: DelongiPrimadonna = delongh_device
-        self.hass = hass
 
     @property
     def device_info(self):

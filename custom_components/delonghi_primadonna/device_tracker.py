@@ -44,5 +44,4 @@ class DelongiPrimadonnaDeviceTracker(DelonghiDeviceEntity, ScannerEntity):
         return self.device.connected
 
     async def async_update(self):
-        """Updates the device status"""
-        self.hass.async_create_task(self.device.get_device_name())
+        await self.device.get_device_name()

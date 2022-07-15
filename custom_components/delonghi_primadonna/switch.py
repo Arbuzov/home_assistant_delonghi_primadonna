@@ -27,10 +27,10 @@ class DelongiPrimadonnaCupLightSwitch(DelonghiDeviceEntity, ToggleEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the device on."""
-        self.hass.async_create_task(self.device.cup_light_on())
+        await self.device.cup_light_on()
         self._attr_is_on = True
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the device off."""
-        self.hass.async_create_task(self.device.cup_light_off())
+        await self.device.cup_light_off()
         self._attr_is_on = False
