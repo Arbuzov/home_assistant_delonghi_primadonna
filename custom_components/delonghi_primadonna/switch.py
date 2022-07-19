@@ -14,7 +14,7 @@ async def async_setup_entry(
         async_add_entities: AddEntitiesCallback):
     delongh_device = hass.data[DOMAIN][entry.unique_id]
     async_add_entities([
-        DelongiPrimadonnaCupLightSwitch(delongh_device)
+        DelongiPrimadonnaCupLightSwitch(delongh_device, hass)
     ])
     return True
 

@@ -12,17 +12,17 @@ async def async_setup_entry(
         async_add_entities: AddEntitiesCallback):
     delongh_device: DelongiPrimadonna = hass.data[DOMAIN][entry.unique_id]
     async_add_entities([
-        DelongiPrimadonnaPowerButton(delongh_device),
-        DelongiPrimadonnaLongButton(delongh_device),
-        DelongiPrimadonnaCoffeeButton(delongh_device),
-        DelongiPrimadonnaDopioButton(delongh_device),
-        DelongiPrimadonnaSteamButton(delongh_device),
-        DelongiPrimadonnaHotWaterButton(delongh_device),
-        DelongiPrimadonnaEspresso2Button(delongh_device),
-        DelongiPrimadonnaAmericanoButton(delongh_device),
-        DelongiPrimadonnaEspressoButton(delongh_device),
-        DelongiPrimadonnaCancelButton(delongh_device),
-        DelongiPrimadonnaDebugButton(delongh_device)
+        DelongiPrimadonnaPowerButton(delongh_device, hass),
+        DelongiPrimadonnaLongButton(delongh_device, hass),
+        DelongiPrimadonnaCoffeeButton(delongh_device, hass),
+        DelongiPrimadonnaDopioButton(delongh_device, hass),
+        DelongiPrimadonnaSteamButton(delongh_device, hass),
+        DelongiPrimadonnaHotWaterButton(delongh_device, hass),
+        DelongiPrimadonnaEspresso2Button(delongh_device, hass),
+        DelongiPrimadonnaAmericanoButton(delongh_device, hass),
+        DelongiPrimadonnaEspressoButton(delongh_device, hass),
+        DelongiPrimadonnaCancelButton(delongh_device, hass),
+        DelongiPrimadonnaDebugButton(delongh_device, hass)
     ])
     return True
 

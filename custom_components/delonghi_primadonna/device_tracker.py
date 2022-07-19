@@ -16,7 +16,7 @@ async def async_setup_entry(
         async_add_entities: AddEntitiesCallback):
     delongh_device = hass.data[DOMAIN][entry.unique_id]
     async_add_entities([
-        DelongiPrimadonnaDeviceTracker(delongh_device)
+        DelongiPrimadonnaDeviceTracker(delongh_device, hass)
     ])
     return True
 

@@ -95,7 +95,7 @@ def sign_request(bytes):
 class DelongiPrimadonna:
     """Delongi Primadonna class"""
 
-    def __init__(self, config: dict, services: ServiceRegistry) -> None:
+    def __init__(self, config: dict, hass: HomeAssistant) -> None:
         """Initialize."""
         self.mac = config.get(CONF_MAC)
         self.name = config.get(CONF_NAME)
@@ -103,13 +103,14 @@ class DelongiPrimadonna:
         self.error_count = 0
         self.model = 'Prima Donna'
         self.friendly_name = ''
-        self.services = services
+        self.services = hass.services
         self.cooking = AvailableBeverage.NONE
         self._adapter = pygatt.GATTToolBackend()
         self._adapter.start(reset_on_start=False)
         self._device = None
         self._error_count = 0
         self._first_error = None
+        self.hass = hass
 
     def __del__(self):
         self._adapter.stop()
@@ -250,6 +251,6 @@ class DelongiPrimadonna:
                     NAME_CHARACTERISTIC).decode('utf-8')
                 self.hostname = data
             except pygatt.exceptions.NotificationTimeout:
-                _LOGGER.warn('Notification timeout')
+                _LOGGER.warning('Notification timeout')
             except pygatt.exceptions.NotConnectedError as error:
                 await self._not_connected_handler(error)
