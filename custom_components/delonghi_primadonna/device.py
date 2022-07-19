@@ -145,7 +145,7 @@ class DelongiPrimadonna:
                 self._device = self._adapter.connect(self.mac, timeout=20)
                 self._device.subscribe(
                     CONTROLL_CHARACTERISTIC, callback=self._handle_data)
-                self._dismiss_notification()
+                await self._dismiss_notification()
             except pygatt.exceptions.NotConnectedError:
                 self._device = None
         return self._device
