@@ -4,15 +4,15 @@
 
 ![Company logo](https://brands.home-assistant.io/delonghi_primadonna/logo.png)
 
+## Known issues
 
+* Delonghi device reports one status at once if you remove water tank first and than remove coffeecake container you got only one warning about the water
+* Delonghi device supports only one connection. You could not connect to device using the native application if you use this integration.
+* Delonghi device may not handle customer disconnection. Your device may die but dlonghi may think it`s still connected.
 
-# Working on the release procedure no new features will be added till the human readable version appears. The bugs will be fixed if they are
+## Component to integrate Delonghi coffee machine into the Home Assistant
 
-
-
-Component to integrate Delonghi caffee machine into the Home Assistant
-
-This component uses BLE to send commands to cafe machine
+This component establishes persistent Bluetooth connection to send commands to cafe machine
 
 ## Installation
 

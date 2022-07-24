@@ -1,14 +1,16 @@
 """Delongi primadonna device description"""
+import asyncio
+import logging
+import uuid
 from binascii import hexlify
 from datetime import datetime
-import logging
 
+from bleak import BleakClient
+from bleak.exc import BleakDBusError, BleakError
 from homeassistant.backports.enum import StrEnum
 from homeassistant.const import CONF_MAC, CONF_NAME
 from homeassistant.core import HomeAssistant
-from homeassistant.core import ServiceRegistry
 from homeassistant.helpers import device_registry as dr
-import pygatt
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
                     BYTES_CUP_LIGHT_ON, BYTES_POWER, COFFE_OFF, COFFE_ON,
@@ -16,7 +18,6 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
                     DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF,
                     ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
                     NAME_CHARACTERISTIC, STEAM_OFF, STEAM_ON)
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -95,162 +96,116 @@ def sign_request(bytes):
 class DelongiPrimadonna:
     """Delongi Primadonna class"""
 
-    def __init__(self, config: dict, hass: HomeAssistant) -> None:
-        """Initialize."""
+    def __init__(self, config: dict) -> None:
+        """Initialize device"""
         self.mac = config.get(CONF_MAC)
         self.name = config.get(CONF_NAME)
         self.hostname = ''
         self.error_count = 0
         self.model = 'Prima Donna'
         self.friendly_name = ''
-        self.services = hass.services
         self.cooking = AvailableBeverage.NONE
-        self._adapter = pygatt.GATTToolBackend()
-        self._adapter.start(reset_on_start=False)
-        self._device = None
         self._error_count = 0
         self._first_error = None
-        self.hass = hass
+        self._device_status = None
+        self.connected = False
+        self._client = BleakClient(self.mac, timeout=40)
 
     def __del__(self):
-        self._adapter.stop()
-
-    async def _notify_on_error(self, error):
-        """Add UI notification on error"""
-        _LOGGER.error('Error %s %s', type(error), error)
-        if self._error_count == 0:
-            self._first_error = datetime.now().strftime('%d/%m/%Y, %H:%M:%S')
-        self._error_count = self._error_count + 1
-        await self.services.async_call(
-            'persistent_notification',
-            'create',
-            {
-                'message': 'First error at ' +
-                self._first_error + ' total errors ' + self._error_count,
-                'title': f'{self.name} {self.mac}',
-                'notification_id': f'{self.mac}_err'
-            }
-        )
-
-    async def _dismiss_notification(self):
-        """Remove UI notification the error dismissed"""
-        self._error_count = 0
-        self._first_error = None
-        await self.services.async_call(
-            'persistent_notification',
-            'dismiss',
-            {'notification_id': f'{self.mac}_err'}
-        )
+        asyncio.create_task(self._client.disconnect())
 
     async def _connect(self):
-        if self._device is None:
-            try:
-                self._device = self._adapter.connect(self.mac, timeout=20)
-                self._device.subscribe(
-                    CONTROLL_CHARACTERISTIC, callback=self._handle_data)
-                await self._dismiss_notification()
-            except pygatt.exceptions.NotConnectedError:
-                self._device = None
-        return self._device
+        if not self._client.is_connected:
+            _LOGGER.info('Connect to %s', self.mac)
+            await self._client.connect()
+            await self._client.start_notify(uuid.UUID(CONTROLL_CHARACTERISTIC), self._handle_data)
 
-    def _handle_data(self, handle, value):
-        _LOGGER.info('Received data: %s', hexlify(value, ' '))
-        self.services.call(
-            'persistent_notification',
-            'create',
-            {
-                'message': hexlify(value, ' ').decode('utf-8'),
-                'title': f'{self.name} {self.mac} debug',
-                'notification_id': f'{self.mac}_debug'
-            }
-        )
-
-    async def _not_connected_handler(self, error):
-        self._device = None
-        await self._notify_on_error(error)
-        await self._connect()
-
-    @property
-    def connected(self):
-        return self._device is not None
+    def _handle_data(self, sender, value):
+        if self._device_status != hexlify(value, ' '):
+            _LOGGER.info('Received data: %s from %s',
+                         hexlify(value, ' '), sender)
+        self._device_status = hexlify(value, ' ')
 
     async def power_on(self) -> None:
         """Turn the device on."""
         await self._connect()
-        if self.connected:
-            try:
-                self._device.char_write(
-                    CONTROLL_CHARACTERISTIC,
-                    bytearray(BYTES_POWER))
-            except pygatt.exceptions.NotConnectedError as error:
-                await self._not_connected_handler(error)
+        try:
+            await self._client.write_gatt_char(
+                uuid.UUID(CONTROLL_CHARACTERISTIC),
+                bytearray(BYTES_POWER))
+        except BleakError as error:
+            self.connected = False
+            _LOGGER.warning('BleakError: %s', error)
 
     async def cup_light_on(self) -> None:
         """Turn the cup light on."""
         await self._connect()
-        if self.connected:
-            try:
-                self._device.char_write(
-                    CONTROLL_CHARACTERISTIC,
-                    bytearray(BYTES_CUP_LIGHT_ON))
-            except pygatt.exceptions.NotConnectedError as error:
-                await self._not_connected_handler(error)
+        try:
+            await self._client.write_gatt_char(
+                CONTROLL_CHARACTERISTIC,
+                bytearray(BYTES_CUP_LIGHT_ON))
+        except BleakError as error:
+            self.connected = False
+            _LOGGER.warning('BleakError: %s', error)
 
     async def cup_light_off(self) -> None:
         """Turn the cup light off."""
         await self._connect()
-        if self.connected:
-            try:
-                self._device.char_write(
-                    CONTROLL_CHARACTERISTIC,
-                    bytearray(BYTES_CUP_LIGHT_OFF))
-                _LOGGER.warning('written')
-            except pygatt.exceptions.NotConnectedError as error:
-                await self._not_connected_handler(error)
+        try:
+            await self._client.write_gatt_char(
+                CONTROLL_CHARACTERISTIC,
+                bytearray(BYTES_CUP_LIGHT_OFF))
+            _LOGGER.warning('written')
+        except BleakError as error:
+            self.connected = False
+            _LOGGER.warning('BleakError: %s', error)
 
     async def beverage_start(self, beverage: AvailableBeverage) -> None:
         """Start beverage"""
         await self._connect()
-        if self.connected:
-            try:
-                self._device.char_write(
-                    CONTROLL_CHARACTERISTIC,
-                    bytearray(BEVERAGE_COMMANDS.get(beverage).on))
-            except pygatt.exceptions.NotConnectedError as error:
-                await self._not_connected_handler(error)
-            finally:
-                self.cooking = AvailableBeverage.NONE
+        try:
+            await self._client.write_gatt_char(
+                CONTROLL_CHARACTERISTIC,
+                bytearray(BEVERAGE_COMMANDS.get(beverage).on))
+        except BleakError as error:
+            self.connected = False
+            _LOGGER.warning('BleakError: %s', error)
+        finally:
+            self.cooking = AvailableBeverage.NONE
 
     async def beverage_cancel(self) -> None:
         """Cancel beverage"""
         await self._connect()
         if self.connected and self.cooking != AvailableBeverage.NONE:
             try:
-                self._device.char_write(
+                await self._client.write_gatt_char(
                     CONTROLL_CHARACTERISTIC,
                     bytearray(BEVERAGE_COMMANDS.get(self.cooking).off))
-            except pygatt.exceptions.NotConnectedError as error:
-                await self._not_connected_handler(error)
+            except BleakError as error:
+                self.connected = False
+                _LOGGER.warning('BleakError: %s', error)
             finally:
                 self.cooking = AvailableBeverage.NONE
 
     async def debug(self):
         await self._connect()
-        if self.connected:
-            try:
-                self._device.char_write(CONTROLL_CHARACTERISTIC,
-                                        bytearray(DEBUG))
-            except pygatt.exceptions.NotConnectedError as error:
-                await self._not_connected_handler(error)
+        try:
+            await self._client.write_gatt_char(
+                uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG))
+        except BleakError as error:
+            self.connected = False
+            _LOGGER.warning('BleakError: %s', error)
 
     async def get_device_name(self):
-        await self._connect()
-        if self.connected:
-            try:
-                data = self._device.char_read(
-                    NAME_CHARACTERISTIC).decode('utf-8')
-                self.hostname = data
-            except pygatt.exceptions.NotificationTimeout:
-                _LOGGER.warning('Notification timeout')
-            except pygatt.exceptions.NotConnectedError as error:
-                await self._not_connected_handler(error)
+        try:
+            await self._connect()
+            self.hostname = bytes(await self._client.read_gatt_char(uuid.UUID(NAME_CHARACTERISTIC))).decode('utf-8')
+            await self._client.write_gatt_char(
+                uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG))
+            self.connected = True
+        except BleakDBusError as error:
+            self.connected = False
+            _LOGGER.warning('BleakDBusError: %s', error)
+        except BleakError as error:
+            self.connected = False
+            _LOGGER.warning('BleakError: %s', error)
