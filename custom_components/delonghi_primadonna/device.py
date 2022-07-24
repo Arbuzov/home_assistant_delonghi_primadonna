@@ -3,7 +3,6 @@ import asyncio
 import logging
 import uuid
 from binascii import hexlify
-from datetime import datetime
 
 from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
@@ -118,7 +117,10 @@ class DelongiPrimadonna:
         if not self._client.is_connected:
             _LOGGER.info('Connect to %s', self.mac)
             await self._client.connect()
-            await self._client.start_notify(uuid.UUID(CONTROLL_CHARACTERISTIC), self._handle_data)
+            await self._client.start_notify(
+              uuid.UUID(CONTROLL_CHARACTERISTIC),
+              self._handle_data
+            )
 
     def _handle_data(self, sender, value):
         if self._device_status != hexlify(value, ' '):
@@ -199,7 +201,11 @@ class DelongiPrimadonna:
     async def get_device_name(self):
         try:
             await self._connect()
-            self.hostname = bytes(await self._client.read_gatt_char(uuid.UUID(NAME_CHARACTERISTIC))).decode('utf-8')
+            self.hostname = bytes(
+              await self._client.read_gatt_char(
+                uuid.UUID(NAME_CHARACTERISTIC)
+              )
+            ).decode('utf-8')
             await self._client.write_gatt_char(
                 uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG))
             self.connected = True
