@@ -12,7 +12,21 @@
 
 ## Component to integrate Delonghi coffee machine into the Home Assistant
 
-This component establishes persistent Bluetooth connection to send commands to cafe machine
+This component establishes persistent Bluetooth connection to send commands to cafe machine. If any parallel connection will be set the integration will not work.
+### Events
+
+This integration triggers events in case of device state is changed.
+
+The event looks like following:
+
+```
+{
+   'data' : "b'd0 12 75 0f 01 05 00 00 00 07 00 00 00 00 00 00 00 9d 61'"
+   'type' : 'status'
+   'description' : 'DeviceOK'
+}
+```
+There is only two event type available status and process. The list of available events can be found [here](./custom_components/delonghi_primadonna/device.py#L69)
 
 ## Installation
 

@@ -1,10 +1,9 @@
 """Delongi primadonna device description"""
-import asyncio
 import logging
 import uuid
 from binascii import hexlify
 
-from bleak import BleakClient
+from bleak import BleakClient, BleakScanner
 from bleak.exc import BleakDBusError, BleakError
 from homeassistant.backports.enum import StrEnum
 from homeassistant.const import CONF_MAC, CONF_NAME
@@ -13,10 +12,13 @@ from homeassistant.helpers import device_registry as dr
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
                     BYTES_CUP_LIGHT_ON, BYTES_POWER, COFFE_OFF, COFFE_ON,
-                    CONTROLL_CHARACTERISTIC, DEBUG, DOMAIN, DOPPIO_OFF,
+                    COFFEE_GROUNDS_CONTAINER_DETACHED,
+                    COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
+                    DEBUG, DEVICE_READY, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
                     DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF,
                     ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
-                    NAME_CHARACTERISTIC, STEAM_OFF, STEAM_ON)
+                    NAME_CHARACTERISTIC, STEAM_OFF, STEAM_ON, WATER_SHORTAGE,
+                    WATER_TANK_DETACHED)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,11 +36,24 @@ class AvailableBeverage(StrEnum):
     NONE = 'none'
 
 
+class NotificationType(StrEnum):
+
+    STATUS = 'status'
+    PROCESS = 'process'
+
+
 class BeverageCommand:
 
     def __init__(self, on, off):
         self.on = on
         self.off = off
+
+
+class BeverageNotify:
+
+    def __init__(self, kind, description):
+        self.kind = str(kind)
+        self.description = str(description)
 
 
 BEVERAGE_COMMANDS = {
@@ -50,6 +65,21 @@ BEVERAGE_COMMANDS = {
     AvailableBeverage.ESPRESSO: BeverageCommand(ESPRESSO_ON, ESPRESSO_OFF),
     AvailableBeverage.AMERICANO: BeverageCommand(AMERICANO_ON, AMERICANO_OFF),
     AvailableBeverage.ESPRESSO2: BeverageCommand(ESPRESSO2_ON, ESPRESSO2_OFF)
+}
+
+DEVICE_NOTIFICATION = {
+    str(bytearray(DEVICE_READY)): BeverageNotify(
+        NotificationType.STATUS, 'DeviceOK'),
+    str(bytearray(DEVICE_TURNOFF)): BeverageNotify(
+        NotificationType.STATUS, 'DeviceOFF'),
+    str(bytearray(WATER_TANK_DETACHED)): BeverageNotify(
+        NotificationType.STATUS, 'NoWaterTank'),
+    str(bytearray(WATER_SHORTAGE)): BeverageNotify(
+        NotificationType.STATUS, 'NoWater'),
+    str(bytearray(COFFEE_GROUNDS_CONTAINER_DETACHED)): BeverageNotify(
+        NotificationType.STATUS, 'NoGroundsContainer'),
+    str(bytearray(COFFEE_GROUNDS_CONTAINER_FULL)): BeverageNotify(
+        NotificationType.STATUS, 'GroundsContainerFull')
 }
 
 
@@ -77,55 +107,77 @@ class DelonghiDeviceEntity:
         }
 
 
-def sign_request(bytes):
+def sign_request(message):
     """Request signer"""
     deviser = 0x1d0f
-    for item in bytes[:len(bytes) - 2]:
+    for item in message[:len(message) - 2]:
         i3 = (((deviser << 8) | (deviser >> 8)) &
               0x0000ffff) ^ (item & 0xffff)
         i4 = i3 ^ ((i3 & 0xff) >> 4)
         i5 = i4 ^ ((i4 << 12) & 0x0000ffff)
         deviser = i5 ^ (((i5 & 0xff) << 5) & 0x0000ffff)
     signature = list((deviser & 0x0000ffff).to_bytes(2, byteorder='big'))
-    bytes[len(bytes) - 2] = signature[0]
-    bytes[len(bytes) - 1] = signature[1]
-    return bytes
+    message[len(message) - 2] = signature[0]
+    message[len(message) - 1] = signature[1]
+    return message
 
 
 class DelongiPrimadonna:
     """Delongi Primadonna class"""
 
-    def __init__(self, config: dict) -> None:
+    def __init__(self, config: dict, hass: HomeAssistant) -> None:
         """Initialize device"""
         self.mac = config.get(CONF_MAC)
         self.name = config.get(CONF_NAME)
         self.hostname = ''
-        self.error_count = 0
         self.model = 'Prima Donna'
         self.friendly_name = ''
         self.cooking = AvailableBeverage.NONE
-        self._error_count = 0
-        self._first_error = None
         self._device_status = None
         self.connected = False
-        self._client = BleakClient(self.mac, timeout=40)
+        self._client = None
+        self._hass = hass
 
-    def __del__(self):
-        asyncio.create_task(self._client.disconnect())
+    async def disconnect(self):
+        _LOGGER.info('Disconnect from %s', self.mac)
+        await self._client.disconnect()
 
     async def _connect(self):
-        if not self._client.is_connected:
+        if (self._client is None) or (not self._client.is_connected):
+            device = await BleakScanner.find_device_by_address(
+                self.mac,
+                timeout=60.0)
+            if not device:
+                raise BleakError(
+                    f'A device with address {self.mac} could not be found.')
+            self._client = BleakClient(device)
             _LOGGER.info('Connect to %s', self.mac)
             await self._client.connect()
             await self._client.start_notify(
-              uuid.UUID(CONTROLL_CHARACTERISTIC),
-              self._handle_data
+                uuid.UUID(CONTROLL_CHARACTERISTIC),
+                self._handle_data
             )
+
+    def _event_trigger(self, value):
+        event_data = {'data': str(hexlify(value, ' '))}
+
+        if str(bytearray(value)) in DEVICE_NOTIFICATION:
+            event_data.setdefault(
+                'type',
+                DEVICE_NOTIFICATION.get(str(bytearray(value))).kind)
+            event_data.setdefault(
+                'description',
+                DEVICE_NOTIFICATION.get(str(bytearray(value))).description)
+
+        self._hass.bus.async_fire(
+            f'{DOMAIN}_event', event_data)
+        _LOGGER.info('Event triggered: %s', event_data)
 
     def _handle_data(self, sender, value):
         if self._device_status != hexlify(value, ' '):
             _LOGGER.info('Received data: %s from %s',
                          hexlify(value, ' '), sender)
+            self._event_trigger(value)
         self._device_status = hexlify(value, ' ')
 
     async def power_on(self) -> None:
@@ -202,9 +254,9 @@ class DelongiPrimadonna:
         try:
             await self._connect()
             self.hostname = bytes(
-              await self._client.read_gatt_char(
-                uuid.UUID(NAME_CHARACTERISTIC)
-              )
+                await self._client.read_gatt_char(
+                    uuid.UUID(NAME_CHARACTERISTIC)
+                )
             ).decode('utf-8')
             await self._client.write_gatt_char(
                 uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG))
