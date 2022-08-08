@@ -135,12 +135,14 @@ class DelongiPrimadonna:
         self.cooking = AvailableBeverage.NONE
         self._device_status = None
         self.connected = False
+        self.active = False
         self._client = None
         self._hass = hass
 
     async def disconnect(self):
         _LOGGER.info('Disconnect from %s', self.mac)
-        await self._client.disconnect()
+        if (self._client is not None) and self._client.is_connected:
+            await self._client.disconnect()
 
     async def _connect(self):
         if (self._client is None) or (not self._client.is_connected):

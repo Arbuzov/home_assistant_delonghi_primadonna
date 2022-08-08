@@ -3,7 +3,7 @@
   "name": "Delonghi Primadonna",
   "config_flow": true,
   "documentation": "https://github.com/Arbuzov/home_assistant_delonghi_primadonna",
-  "requirements": ["bleak==0.14.3"],
+  "requirements": ["bleak==0.15.1"],
   "ssdp": [],
   "zeroconf": [],
   "homekit": {},
@@ -13,5 +13,5 @@
   ],
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/Arbuzov/home_assistant_delonghi_primadonna/issues",
-  "version": "1.1.1"
+  "version": "1.1.2"
 }
