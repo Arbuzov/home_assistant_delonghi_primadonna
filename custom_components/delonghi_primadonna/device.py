@@ -1,11 +1,13 @@
 """Delongi primadonna device description"""
+import asyncio
 import logging
 import uuid
 from binascii import hexlify
 
-from bleak import BleakClient, BleakScanner
+from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
 from homeassistant.backports.enum import StrEnum
+from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
@@ -146,9 +148,11 @@ class DelongiPrimadonna:
 
     async def _connect(self):
         if (self._client is None) or (not self._client.is_connected):
-            device = await BleakScanner.find_device_by_address(
+            device = await bluetooth.async_get_scanner(self._hass)\
+                .find_device_by_address(
                 self.mac,
-                timeout=60.0)
+                timeout=60.0
+            )
             if not device:
                 raise BleakError(
                     f'A device with address {self.mac} could not be found.')
@@ -269,3 +273,6 @@ class DelongiPrimadonna:
         except BleakError as error:
             self.connected = False
             _LOGGER.warning('BleakError: %s', error)
+        except asyncio.exceptions.TimeoutError as error:
+            self.connected = False
+            _LOGGER.warning('TimeoutError: %s', error)
