@@ -20,7 +20,7 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
                     DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF,
                     ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
                     NAME_CHARACTERISTIC, STEAM_OFF, STEAM_ON, WATER_SHORTAGE,
-                    WATER_TANK_DETACHED)
+                    WATER_TANK_DETACHED, START_COFFEE)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -81,7 +81,9 @@ DEVICE_NOTIFICATION = {
     str(bytearray(COFFEE_GROUNDS_CONTAINER_DETACHED)): BeverageNotify(
         NotificationType.STATUS, 'NoGroundsContainer'),
     str(bytearray(COFFEE_GROUNDS_CONTAINER_FULL)): BeverageNotify(
-        NotificationType.STATUS, 'GroundsContainerFull')
+        NotificationType.STATUS, 'GroundsContainerFull'),
+    str(bytearray(START_COFFEE)): BeverageNotify(
+        NotificationType.STATUS, 'START_COFFEE')
 }
 
 
