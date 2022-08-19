@@ -30,6 +30,11 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
         self.selected_option = AVAILABLE_PROFILES.keys()[0]
 
     @property
+    def name(self):
+        """Name of the entity."""
+        return "Profile"
+
+    @property
     def options(self) -> list[str]:
         """Return a set of selectable options."""
         return AVAILABLE_PROFILES.keys()
