@@ -7,7 +7,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 
 from .const import DOMAIN, AVAILABLE_PROFILES
-from .device import AvailableBeverage, DelonghiDeviceEntity, DelongiPrimadonna
+from .device import DelonghiDeviceEntity, DelongiPrimadonna
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ async def async_setup_entry(
 
 
 class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
-    """A select implementation for esphome."""
+    """A select implementation for profile selection."""
 
     def __init__(self, delongh_device, hass: HomeAssistant) -> None:
         super().__init__(delongh_device, hass)

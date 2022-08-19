@@ -89,7 +89,8 @@ DEVICE_NOTIFICATION = {
 
 class DelonghiDeviceEntity:
     """Entity class for the Delonghi devices"""
-
+    _attr_has_entity_name = True
+    
     def __init__(self, delongh_device, hass: HomeAssistant):
         """Init entity with the device"""
         self._attr_unique_id = \
