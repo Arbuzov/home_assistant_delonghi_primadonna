@@ -22,7 +22,9 @@ async def async_setup_entry(
         DelongiPrimadonnaAmericanoButton(delongh_device, hass),
         DelongiPrimadonnaEspressoButton(delongh_device, hass),
         DelongiPrimadonnaCancelButton(delongh_device, hass),
-        DelongiPrimadonnaDebugButton(delongh_device, hass)
+        DelongiPrimadonnaDebugButton(delongh_device, hass),
+        DelongiPrimadonnaProfileButton(delongh_device, hass, 1),
+        DelongiPrimadonnaProfileButton(delongh_device, hass, 2)
     ])
     return True
 
@@ -121,3 +123,13 @@ class DelongiPrimadonnaDebugButton(DelonghiDeviceEntity, ButtonEntity):
 
     async def async_press(self):
         self.hass.async_create_task(self.device.debug())
+
+class DelongiPrimadonnaProfileButton(DelonghiDeviceEntity, ButtonEntity):
+
+    def __init__(self, delongh_device, hass: HomeAssistant, profile_id: int) -> None:
+        super().__init__(delongh_device, hass)
+        self.profile_id = profile_id
+        self._attr_name = f'Select profile {self.profile_id}'
+
+    async def async_press(self):
+        self.hass.async_create_task(self.device.select_profile(self.profile_id))

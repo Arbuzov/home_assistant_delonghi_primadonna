@@ -276,3 +276,17 @@ class DelongiPrimadonna:
         except asyncio.exceptions.TimeoutError as error:
             self.connected = False
             _LOGGER.warning('TimeoutError: %s', error)
+
+    async def select_profile(self, profile_id) -> None:
+        """select a profile."""
+        await self._connect()
+        try:
+            message = [0x0d, 0x06, 0xa9, 0xf0, profile_id, 0xd7, 0xc0]
+            sign_request(message)
+            _LOGGER.info('Select Profile: %s', hexlify(message, ' '))
+            await self._client.write_gatt_char(
+                CONTROLL_CHARACTERISTIC,
+                bytearray(message))
+        except BleakError as error:
+            self.connected = False
+            _LOGGER.warning('BleakError: %s', error)
