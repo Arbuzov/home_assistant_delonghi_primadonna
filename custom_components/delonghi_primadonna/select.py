@@ -27,7 +27,7 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
     def __init__(self, delongh_device, hass: HomeAssistant) -> None:
         super().__init__(delongh_device, hass)
         _LOGGER.info("Create Select Entity")
-        self.selected_option = AVAILABLE_PROFILES.keys()[0]
+        self.selected_option = list(AVAILABLE_PROFILES.keys())[0]
 
     @property
     def name(self):
