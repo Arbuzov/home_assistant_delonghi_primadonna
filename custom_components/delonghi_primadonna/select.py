@@ -24,7 +24,7 @@ async def async_setup_entry(
 class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
     """A select implementation for esphome."""
 
-    def __init__(self, delongh_device, hass: HomeAssistant, profile_id) -> None:
+    def __init__(self, delongh_device, hass: HomeAssistant) -> None:
         super().__init__(delongh_device, hass)
         _LOGGER.info("Create Select Entity")
         self.selected_option = AVAILABLE_PROFILES[0]

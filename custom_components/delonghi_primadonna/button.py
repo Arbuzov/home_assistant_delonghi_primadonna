@@ -133,7 +133,7 @@ class DelongiPrimadonnaProfileButton(DelonghiDeviceEntity, ButtonEntity):
         _LOGGER.info(f"Create Profile Button {profile_id}")
         super().__init__(delongh_device, hass)
         self.profile_id = profile_id
-        self._attr_name = f"Select profile {profile_id}"
+        self._attr_name = f"Select the profile {profile_id}"
         _LOGGER.info(f"Create Profile Button with name: {self._attr_name}")
 
     async def async_press(self):
