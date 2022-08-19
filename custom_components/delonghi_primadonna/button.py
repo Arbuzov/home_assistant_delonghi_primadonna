@@ -1,3 +1,5 @@
+import logging
+
 from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -6,6 +8,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import DOMAIN
 from .device import AvailableBeverage, DelonghiDeviceEntity, DelongiPrimadonna
 
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(
         hass: HomeAssistant, entry: ConfigEntry,
@@ -126,10 +129,11 @@ class DelongiPrimadonnaDebugButton(DelonghiDeviceEntity, ButtonEntity):
 
 class DelongiPrimadonnaProfileButton(DelonghiDeviceEntity, ButtonEntity):
 
-    def __init__(self, delongh_device, hass: HomeAssistant, profile_id: int) -> None:
+    def __init__(self, delongh_device, hass: HomeAssistant, profile_id) -> None:
+        _LOGGER.info(f"Create Profile Button {profile_id}")
         super().__init__(delongh_device, hass)
         self.profile_id = profile_id
-        self._attr_name = f'Select profile {self.profile_id}'
+        self._attr_name = f"Select profile {profile_id}"
 
     async def async_press(self):
         self.hass.async_create_task(self.device.select_profile(self.profile_id))

@@ -285,7 +285,7 @@ class DelongiPrimadonna:
         try:
             message = [0x0d, 0x06, 0xa9, 0xf0, profile_id, 0xd7, 0xc0]
             sign_request(message)
-            _LOGGER.info('Select Profile: %s', hexlify(message, ' '))
+            _LOGGER.info('Select Profile: %s', hexlify(bytearray(message), ' '))
             await self._client.write_gatt_char(
                 CONTROLL_CHARACTERISTIC,
                 bytearray(message))
