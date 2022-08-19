@@ -27,12 +27,12 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
     def __init__(self, delongh_device, hass: HomeAssistant) -> None:
         super().__init__(delongh_device, hass)
         _LOGGER.info("Create Select Entity")
-        self.selected_option = AVAILABLE_PROFILES[0]
+        self.selected_option = AVAILABLE_PROFILES.keys()[0]
 
     @property
     def options(self) -> list[str]:
         """Return a set of selectable options."""
-        return AVAILABLE_PROFILES
+        return AVAILABLE_PROFILES.keys()
 
     @property
     def current_option(self) -> str:
@@ -41,6 +41,6 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
-        profile_id = int(option[-1])
+        profile_id = AVAILABLE_PROFILES.get(option)
         self.hass.async_create_task(self.device.select_profile(profile_id))
         self.selected_option = option
