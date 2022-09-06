@@ -6,8 +6,16 @@
   "codeowners": [
     "@arbuzov"
   ],
+  "bluetooth": [
+    {
+      "service_data_uuid": "00035b03-58e6-07dd-021a-08123a000301"
+    },
+    {
+      "service_uuid": "00035b03-58e6-07dd-021a-08123a000300"
+    }
+  ],
   "dependencies": ["bluetooth"],
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/Arbuzov/home_assistant_delonghi_primadonna/issues",
-  "version": "1.2.1"
+  "version": "1.2.2"
 }
