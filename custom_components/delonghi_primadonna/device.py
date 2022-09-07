@@ -148,18 +148,24 @@ class DelongiPrimadonna:
             await self._client.disconnect()
 
     async def _connect(self):
+        _LOGGER.info('Init connection')
         if (self._client is None) or (not self._client.is_connected):
-            self._device = await bluetooth.async_get_scanner(self._hass)\
-                .find_device_by_address(
+            _LOGGER.info('Start connection')
+            scanner = bluetooth.async_get_scanner(self._hass)
+            _LOGGER.info('Got scanner')
+            self._device = await scanner.find_device_by_address(
                 self.mac,
                 timeout=60.0
             )
+            _LOGGER.info('Got device')
             if not self._device:
                 raise BleakError(
                     f'A device with address {self.mac} could not be found.')
             self._client = BleakClient(self._device)
             _LOGGER.info('Connect to %s', self.mac)
+            _LOGGER.info('Connecting')
             await self._client.connect()
+            _LOGGER.info('Connected')
             await self._client.start_notify(
                 uuid.UUID(CONTROLL_CHARACTERISTIC),
                 self._handle_data
@@ -258,6 +264,7 @@ class DelongiPrimadonna:
             _LOGGER.warning('BleakError: %s', error)
 
     async def get_device_name(self):
+        _LOGGER.info('Getting device name')
         try:
             await self._connect()
             self.hostname = bytes(
