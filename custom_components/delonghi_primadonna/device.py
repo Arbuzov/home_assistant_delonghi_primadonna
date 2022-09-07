@@ -1,11 +1,12 @@
 """Delongi primadonna device description"""
 import asyncio
+from binascii import hexlify
 import logging
 import uuid
-from binascii import hexlify
 
 from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
+
 from homeassistant.backports.enum import StrEnum
 from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_NAME
@@ -21,6 +22,7 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
                     ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
                     NAME_CHARACTERISTIC, STEAM_OFF, STEAM_ON, WATER_SHORTAGE,
                     WATER_TANK_DETACHED)
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -148,28 +150,29 @@ class DelongiPrimadonna:
             await self._client.disconnect()
 
     async def _connect(self):
-        _LOGGER.info('Init connection')
         if (self._client is None) or (not self._client.is_connected):
-            _LOGGER.info('Start connection')
+            _LOGGER.warning('Start connection')
+
             scanner = bluetooth.async_get_scanner(self._hass)
-            _LOGGER.info('Got scanner')
-            self._device = await scanner.find_device_by_address(
-                self.mac,
-                timeout=60.0
+            _LOGGER.warning('Got scanner')
+            self._device = await bluetooth.async_ble_device_from_address(
+                self.mac
             )
-            _LOGGER.info('Got device')
+            _LOGGER.warning('Got device')
             if not self._device:
                 raise BleakError(
                     f'A device with address {self.mac} could not be found.')
-            self._client = BleakClient(self._device)
-            _LOGGER.info('Connect to %s', self.mac)
-            _LOGGER.info('Connecting')
-            await self._client.connect()
-            _LOGGER.info('Connected')
-            await self._client.start_notify(
-                uuid.UUID(CONTROLL_CHARACTERISTIC),
-                self._handle_data
-            )
+
+            #self._client = BleakClient(self._device)
+            #_LOGGER.warning('Connect to %s %s', self.mac,
+            #                self._client.is_connected)
+            # await self._client.connect()
+            #_LOGGER.warning('Connected')
+
+            # await self._client.start_notify(
+            #    uuid.UUID(CONTROLL_CHARACTERISTIC),
+            #    self._handle_data
+            #)
 
     def _event_trigger(self, value):
         event_data = {'data': str(hexlify(value, ' '))}
@@ -264,17 +267,20 @@ class DelongiPrimadonna:
             _LOGGER.warning('BleakError: %s', error)
 
     async def get_device_name(self):
-        _LOGGER.info('Getting device name')
         try:
             await self._connect()
-            self.hostname = bytes(
-                await self._client.read_gatt_char(
-                    uuid.UUID(NAME_CHARACTERISTIC)
-                )
-            ).decode('utf-8')
-            await self._client.write_gatt_char(
-                uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG))
-            self.connected = True
+            async with BleakClient(self._device) as client:
+                _LOGGER.warning('Got connection')
+                self.hostname = bytes(
+                    await client.read_gatt_char(
+                        uuid.UUID(NAME_CHARACTERISTIC)
+                    )
+                ).decode('utf-8')
+                _LOGGER.warning('Data read')
+                await client.write_gatt_char(
+                    uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG))
+                _LOGGER.warning('Data wrote')
+                self.connected = True
         except BleakDBusError as error:
             self.connected = False
             _LOGGER.warning('BleakDBusError: %s', error)
