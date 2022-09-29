@@ -2,5 +2,5 @@
   "name": "Delongi Primadonna",
   "render_readme": true,
   "homeassistant": "2022.8.2",
-  "country": "RU"
+  "hide_default_branch": true
 }

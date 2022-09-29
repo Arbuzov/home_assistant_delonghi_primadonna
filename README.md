@@ -44,3 +44,9 @@ Or manually copy all files from this repository in custom_components/delonghi_pr
 * Enter the name and the MAC address
 
 ![Charts](./images/image.png)
+
+
+## Compartible devices
+
+* Delonghi Primadonna
+* Please add...
