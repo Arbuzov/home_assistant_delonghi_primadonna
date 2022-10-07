@@ -149,10 +149,10 @@ class DelongiPrimadonna:
 
     async def _connect(self):
         if (self._client is None) or (not self._client.is_connected):
-            self._device = await bluetooth.async_get_scanner(self._hass)\
-                .find_device_by_address(
+            self._device = bluetooth.async_ble_device_from_address(
+                self._hass,
                 self.mac,
-                timeout=60.0
+                connectable=True
             )
             if not self._device:
                 raise BleakError(
@@ -277,3 +277,6 @@ class DelongiPrimadonna:
         except asyncio.exceptions.TimeoutError as error:
             self.connected = False
             _LOGGER.warning('TimeoutError: %s', error)
+        except asyncio.exceptions.CancelledError as error:
+            self.connected = False
+            _LOGGER.warning('CancelledError: %s', error)
