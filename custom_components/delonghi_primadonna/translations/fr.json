@@ -1,0 +1,20 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Le dispositif est déjà configuré"
+        },
+        "error": {
+            "cannot_connect": "chec de la connexion",
+            "invalid_auth": "Authentification invalide",
+            "unknown": "Erreur inattendue"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "mac": "MAC",
+                    "name": "Nom"
+                }
+            }
+        }
+    }
+}

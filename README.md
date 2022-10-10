@@ -53,4 +53,5 @@ Copy all files from this repository in custom_components/delonghi_primadonna to 
 ## Compartible devices
 
 * De'Longhi Primadonna Class ECAM 550.55
+* De'Longhi Dinamica Class ECAM 370.95
 * Please add...
