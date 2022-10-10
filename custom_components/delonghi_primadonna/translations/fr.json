@@ -4,7 +4,7 @@
             "already_configured": "Le dispositif est déjà configuré"
         },
         "error": {
-            "cannot_connect": "chec de la connexion",
+            "cannot_connect": "Echec de la connexion",
             "invalid_auth": "Authentification invalide",
             "unknown": "Erreur inattendue"
         },
