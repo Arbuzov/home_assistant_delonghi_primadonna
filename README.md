@@ -54,4 +54,6 @@ Copy all files from this repository in custom_components/delonghi_primadonna to 
 
 * De'Longhi Primadonna Class ECAM 550.55
 * De'Longhi Dinamica Plus Class ECAM 370.95
+* De'Longhi Maestosa EPAM 960.75.GLM
+* De'Longhi ECAM 650.85.MS
 * Please add...
