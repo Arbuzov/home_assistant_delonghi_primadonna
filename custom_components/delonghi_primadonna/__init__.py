@@ -11,7 +11,7 @@ from .const import DOMAIN
 from .device import DelongiPrimadonna
 
 PLATFORMS: list[str] = [Platform.SWITCH, Platform.BUTTON,
-                        Platform.BINARY_SENSOR, Platform.DEVICE_TRACKER]
+                        Platform.DEVICE_TRACKER, Platform.SENSOR]
 
 _LOGGER = logging.getLogger(__name__)
 

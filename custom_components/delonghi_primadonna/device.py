@@ -1,11 +1,12 @@
 """Delongi primadonna device description"""
 import asyncio
+from binascii import hexlify
 import logging
 import uuid
-from binascii import hexlify
 
 from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
+
 from homeassistant.backports.enum import StrEnum
 from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_NAME
@@ -22,6 +23,7 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
                     NAME_CHARACTERISTIC, STEAM_OFF, STEAM_ON, WATER_SHORTAGE,
                     WATER_TANK_DETACHED)
 
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -36,6 +38,9 @@ class AvailableBeverage(StrEnum):
     AMERICANO = 'americano'
     ESPRESSO2 = 'espresso2'
     NONE = 'none'
+
+
+NOZZLE_STATE = {0: 'DETACHED', 1: 'STEAM', 4: 'MILK'}
 
 
 class NotificationType(StrEnum):
@@ -141,6 +146,8 @@ class DelongiPrimadonna:
         self._client = None
         self._hass = hass
         self._device = None
+        self.notify = False
+        self.steam_nozzle = None
 
     async def disconnect(self):
         _LOGGER.info('Disconnect from %s', self.mac)
@@ -165,10 +172,16 @@ class DelongiPrimadonna:
                 self._handle_data
             )
 
-    def _event_trigger(self, value):
+    async def _event_trigger(self, value):
+
         event_data = {'data': str(hexlify(value, ' '))}
 
+        notification_message = str(hexlify(value, ' ')).replace(
+            ' ', ', 0x').replace('b\'', '[0x').replace('\'', ']')
+
         if str(bytearray(value)) in DEVICE_NOTIFICATION:
+            notification_message = DEVICE_NOTIFICATION.get(
+                str(bytearray(value))).description
             event_data.setdefault(
                 'type',
                 DEVICE_NOTIFICATION.get(str(bytearray(value))).kind)
@@ -178,13 +191,27 @@ class DelongiPrimadonna:
 
         self._hass.bus.async_fire(
             f'{DOMAIN}_event', event_data)
+
+        if self.notify:
+            await self._hass.services.async_call(
+                'persistent_notification',
+                'create',
+                {
+                    'message': notification_message,
+                    'title': f'{self.name} {self.mac}',
+                    'notification_id': f'{self.mac}_err'
+                }
+            )
         _LOGGER.info('Event triggered: %s', event_data)
 
-    def _handle_data(self, sender, value):
+    async def _handle_data(self, sender, value):
+
+        self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
+
         if self._device_status != hexlify(value, ' '):
             _LOGGER.info('Received data: %s from %s',
                          hexlify(value, ' '), sender)
-            self._event_trigger(value)
+            await self._event_trigger(value)
         self._device_status = hexlify(value, ' ')
 
     async def power_on(self) -> None:

@@ -21,8 +21,8 @@ async def async_setup_entry(
         DelongiPrimadonnaEspresso2Button(delongh_device, hass),
         DelongiPrimadonnaAmericanoButton(delongh_device, hass),
         DelongiPrimadonnaEspressoButton(delongh_device, hass),
-        DelongiPrimadonnaCancelButton(delongh_device, hass),
-        DelongiPrimadonnaDebugButton(delongh_device, hass)
+        DelongiPrimadonnaCancelButton(delongh_device, hass)
+        #DelongiPrimadonnaDebugButton(delongh_device, hass)
     ])
     return True
 
