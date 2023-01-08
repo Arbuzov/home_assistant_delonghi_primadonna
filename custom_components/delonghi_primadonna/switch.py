@@ -15,7 +15,7 @@ async def async_setup_entry(
     delongh_device = hass.data[DOMAIN][entry.unique_id]
     async_add_entities([
         DelongiPrimadonnaCupLightSwitch(delongh_device, hass),
-        DelongiPrimadonnaHANotificationSwitch(delongh_device, hass)
+        DelongiPrimadonnaNotificationSwitch(delongh_device, hass)
     ])
     return True
 
@@ -37,13 +37,14 @@ class DelongiPrimadonnaCupLightSwitch(DelonghiDeviceEntity, ToggleEntity):
         self._attr_is_on = False
 
 
-class DelongiPrimadonnaHANotificationSwitch(DelonghiDeviceEntity, ToggleEntity):
-    '''This switch enable HA side bar notification on device status change'''
+class DelongiPrimadonnaNotificationSwitch(DelonghiDeviceEntity, ToggleEntity):
+    """This switch enable HA side bar notification on device status change"""
 
     _attr_name = 'Enable notification'
-    _attr_icon = 'mdi:bullhorn-variant'
+    _attr_icon = 'mdi:magnify-expand'
 
-    async def async_is_on(self, **kwargs: Any) -> None:
+    @property
+    def is_on(self, **kwargs: Any) -> None:
         """Checks is the notification ON."""
         return self.device.notify
 

@@ -1,5 +1,4 @@
-from homeassistant.components.sensor import (SensorDeviceClass,
-                                             SensorEntity)
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
