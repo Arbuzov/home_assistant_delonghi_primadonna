@@ -1,0 +1,20 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Urządzenie jest już skonfigurowane"
+        },
+        "error": {
+            "cannot_connect": "Błąd połączenia",
+            "invalid_auth": "Nieprawidłowe uwierzytelnienie",
+            "unknown": "Niespodziewany błąd"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "mac": "MAC",
+                    "name": "Nazwa"
+                }
+            }
+        }
+    }
+}
