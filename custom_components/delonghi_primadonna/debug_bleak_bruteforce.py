@@ -1,12 +1,10 @@
 import asyncio
-import binascii
 import uuid
 from binascii import hexlify
 
 from bleak import BleakClient, BleakScanner
-from bleak.exc import BleakError
 
-MAC = "00:A0:50:82:75:CA"
+MAC = '00:A0:50:82:75:CA'
 NAME_CHARACTERISTIC = '00002A00-0000-1000-8000-00805F9B34FB'
 GENERAL_SERVICE = '00001801-0000-1000-8000-00805f9b34fb'
 BYTES_POWER = [0x0d, 0x07, 0x84, 0x0f, 0x02, 0x01, 0x55, 0x12]
@@ -33,17 +31,19 @@ def handle_data(sender, value):
 
 
 async def main(ble_address: str):
-    device = await BleakScanner.find_device_by_address(ble_address, timeout=20.0)
+    await BleakScanner.find_device_by_address(ble_address, timeout=20.0)
     async with BleakClient(ble_address) as client:
         await client.start_notify(
             uuid.UUID(CONTROLL_CHARACTERISTIC),
             handle_data
         )
         services = await client.get_services()
-        print("Services:")
+        print('Services:')
         for service in services:
             print(service)
-        value = bytes(await client.read_gatt_char(uuid.UUID(NAME_CHARACTERISTIC))).decode('utf-8')
+        value = bytes(await client.read_gatt_char(
+            uuid.UUID(NAME_CHARACTERISTIC)
+        )).decode('utf-8')
         print(value)
 
         print(BYTES_POWER)
@@ -56,8 +56,10 @@ async def main(ble_address: str):
                     new_bytes[5] = z
                     new_bytes = sign_request(new_bytes)
                     print(new_bytes)
-                    await client.write_gatt_char(CONTROLL_CHARACTERISTIC,
-                                                 bytearray(new_bytes))
+                    await client.write_gatt_char(
+                        CONTROLL_CHARACTERISTIC,
+                        bytearray(new_bytes)
+                    )
                     await asyncio.sleep(4)
 
 asyncio.run(main(MAC))
