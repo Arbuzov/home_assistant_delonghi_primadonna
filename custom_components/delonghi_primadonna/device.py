@@ -38,7 +38,7 @@ class AvailableBeverage(StrEnum):
     NONE = 'none'
 
 
-NOZZLE_STATE = {0: 'DETACHED', 1: 'STEAM', 4: 'MILK'}
+NOZZLE_STATE = {-1: 'UNKNOWN', 0: 'DETACHED', 1: 'STEAM', 4: 'MILK'}
 
 
 class NotificationType(StrEnum):
@@ -145,7 +145,7 @@ class DelongiPrimadonna:
         self._hass = hass
         self._device = None
         self.notify = False
-        self.steam_nozzle = None
+        self.steam_nozzle = NOZZLE_STATE[-1]
 
     async def disconnect(self):
         _LOGGER.info('Disconnect from %s', self.mac)

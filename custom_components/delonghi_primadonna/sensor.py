@@ -4,7 +4,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
-from .device import AvailableBeverage, DelonghiDeviceEntity
+from .device import AvailableBeverage, DelonghiDeviceEntity, NOZZLE_STATE
 
 
 async def async_setup_entry(
@@ -20,8 +20,9 @@ async def async_setup_entry(
 
 class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
 
-    _attr_state_class = SensorDeviceClass.ENUM
+    _attr_device_class = SensorDeviceClass.ENUM
     _attr_name = 'Nozzle'
+    _attr_options = list(NOZZLE_STATE.values())
 
     @property
     def native_value(self):
