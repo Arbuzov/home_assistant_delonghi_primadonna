@@ -204,7 +204,8 @@ class DelongiPrimadonna:
 
     async def _handle_data(self, sender, value):
 
-        self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
+        if len(value) > 4:
+            self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
 
         if self._device_status != hexlify(value, ' '):
             _LOGGER.info('Received data: %s from %s',

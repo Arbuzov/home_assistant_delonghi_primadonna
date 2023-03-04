@@ -4,3 +4,4 @@
 /.settings/
 .ptp-sync-folder
 __pycache__
+/fabfile.py
