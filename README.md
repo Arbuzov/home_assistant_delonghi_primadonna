@@ -58,4 +58,5 @@ Copy all files from this repository in custom_components/delonghi_primadonna to 
 * De'Longhi ECAM 650.85.MS
 * De'Longhi ECAM 550.55.W
 * De'Longhi ECAM 650.55.MS EX:1
+* De'Longhi Eletta Explore 450.65.G
 * Please add...
