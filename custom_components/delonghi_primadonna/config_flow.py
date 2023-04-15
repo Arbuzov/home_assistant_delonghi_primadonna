@@ -37,8 +37,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, discovery_info: BluetoothServiceInfoBleak
     ) -> FlowResult:
         """Handle the bluetooth discovery step."""
-        _LOGGER.warning('Discovered Delonghi device: %s %s',
-                        discovery_info.address, discovery_info.name)
+        _LOGGER.info(
+            'Discovered Delonghi device: %s %s',
+            discovery_info.address,
+            discovery_info.name)
 
         await self.async_set_unique_id(discovery_info.address)
         self._abort_if_unique_id_configured()

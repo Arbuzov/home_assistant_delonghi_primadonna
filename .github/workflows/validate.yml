@@ -5,22 +5,25 @@ on:
   pull_request:
 
 jobs:
-  validate:
+  hacs:
     runs-on: "ubuntu-latest"
     steps:
-      - uses: "actions/checkout@v2"
-      - name: HACS validation
-        uses: "hacs/action@main"
+      - uses: "actions/checkout@v3.5.0"
+      
+      - uses: "hacs/action@main"
+        name: HACS validation
         with:
           category: "integration"
+
+      - uses: "home-assistant/actions/hassfest@master"
           
   lint:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.5.0
 
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 

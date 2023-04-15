@@ -11,7 +11,7 @@ from .const import DOMAIN
 from .device import DelongiPrimadonna
 
 PLATFORMS: list[str] = [Platform.SWITCH, Platform.BUTTON,
-                        Platform.BINARY_SENSOR, Platform.DEVICE_TRACKER, Platform.SELECT]
+                        Platform.DEVICE_TRACKER, Platform.SENSOR, Platform.SELECT]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN] = {}
     delonghi_device = DelongiPrimadonna(entry.data, hass)
     hass.data[DOMAIN][entry.unique_id] = delonghi_device
-    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
 

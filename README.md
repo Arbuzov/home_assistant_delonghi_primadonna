@@ -30,9 +30,13 @@ There is only two event type available status and process. The list of available
 
 ## Installation
 
-Install using HACS.
+#### HACS
+[Add this repository into HACS as custom repository.](https://hacs.xyz/docs/faq/custom_repositories/)
 
-Or manually copy all files from this repository in custom_components/delonghi_primadonna to your <config directory>/custom_components/delonghi_primadonna/ directory.
+[Install using HACS.](https://hacs.xyz/docs/navigation/overview)
+
+#### Manual
+Copy all files from this repository in custom_components/delonghi_primadonna to your <config directory>/custom_components/delonghi_primadonna/ directory.
 
 ## Configuration
 
@@ -44,3 +48,15 @@ Or manually copy all files from this repository in custom_components/delonghi_pr
 * Enter the name and the MAC address
 
 ![Charts](./images/image.png)
+
+
+## Compartible devices
+
+* De'Longhi ECAM 550.55
+* De'Longhi Dinamica Plus Class ECAM 370.95
+* De'Longhi Maestosa EPAM 960.75.GLM
+* De'Longhi ECAM 650.85.MS
+* De'Longhi ECAM 550.55.W
+* De'Longhi ECAM 650.55.MS EX:1
+* De'Longhi Eletta Explore 450.65.G
+* Please add...

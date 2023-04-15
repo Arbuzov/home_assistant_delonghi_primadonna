@@ -1,12 +1,11 @@
 """Delongi primadonna device description"""
 import asyncio
-from binascii import hexlify
 import logging
 import uuid
+from binascii import hexlify
 
 from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
-
 from homeassistant.backports.enum import StrEnum
 from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_NAME
@@ -23,7 +22,6 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
                     NAME_CHARACTERISTIC, STEAM_OFF, STEAM_ON, WATER_SHORTAGE,
                     WATER_TANK_DETACHED, START_COFFEE)
 
-
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -38,6 +36,9 @@ class AvailableBeverage(StrEnum):
     AMERICANO = 'americano'
     ESPRESSO2 = 'espresso2'
     NONE = 'none'
+
+
+NOZZLE_STATE = {-1: 'UNKNOWN', 0: 'DETACHED', 1: 'STEAM', 4: 'MILK'}
 
 
 class NotificationType(StrEnum):
@@ -146,6 +147,8 @@ class DelongiPrimadonna:
         self._client = None
         self._hass = hass
         self._device = None
+        self.notify = False
+        self.steam_nozzle = NOZZLE_STATE[-1]
 
     async def disconnect(self):
         _LOGGER.info('Disconnect from %s', self.mac)
@@ -154,33 +157,32 @@ class DelongiPrimadonna:
 
     async def _connect(self):
         if (self._client is None) or (not self._client.is_connected):
-            _LOGGER.warning('Start connection')
-
-            scanner = bluetooth.async_get_scanner(self._hass)
-            _LOGGER.warning('Got scanner')
-            self._device = await bluetooth.async_ble_device_from_address(
-                self.mac
+            self._device = bluetooth.async_ble_device_from_address(
+                self._hass,
+                self.mac,
+                connectable=True
             )
-            _LOGGER.warning('Got device')
             if not self._device:
                 raise BleakError(
                     f'A device with address {self.mac} could not be found.')
+            self._client = BleakClient(self._device)
+            _LOGGER.info('Connect to %s', self.mac)
+            await self._client.connect()
+            await self._client.start_notify(
+                uuid.UUID(CONTROLL_CHARACTERISTIC),
+                self._handle_data
+            )
 
-            #self._client = BleakClient(self._device)
-            #_LOGGER.warning('Connect to %s %s', self.mac,
-            #                self._client.is_connected)
-            # await self._client.connect()
-            #_LOGGER.warning('Connected')
+    async def _event_trigger(self, value):
 
-            # await self._client.start_notify(
-            #    uuid.UUID(CONTROLL_CHARACTERISTIC),
-            #    self._handle_data
-            #)
-
-    def _event_trigger(self, value):
         event_data = {'data': str(hexlify(value, ' '))}
 
+        notification_message = str(hexlify(value, ' ')).replace(
+            ' ', ', 0x').replace("b'", '[0x').replace("'", ']')
+
         if str(bytearray(value)) in DEVICE_NOTIFICATION:
+            notification_message = DEVICE_NOTIFICATION.get(
+                str(bytearray(value))).description
             event_data.setdefault(
                 'type',
                 DEVICE_NOTIFICATION.get(str(bytearray(value))).kind)
@@ -190,13 +192,28 @@ class DelongiPrimadonna:
 
         self._hass.bus.async_fire(
             f'{DOMAIN}_event', event_data)
+
+        if self.notify:
+            await self._hass.services.async_call(
+                'persistent_notification',
+                'create',
+                {
+                    'message': notification_message,
+                    'title': f'{self.name} {self.mac}',
+                    'notification_id': f'{self.mac}_err'
+                }
+            )
         _LOGGER.info('Event triggered: %s', event_data)
 
-    def _handle_data(self, sender, value):
+    async def _handle_data(self, sender, value):
+
+        if len(value) > 4:
+            self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
+
         if self._device_status != hexlify(value, ' '):
             _LOGGER.info('Received data: %s from %s',
                          hexlify(value, ' '), sender)
-            self._event_trigger(value)
+            await self._event_trigger(value)
         self._device_status = hexlify(value, ' ')
 
     async def power_on(self) -> None:
@@ -272,18 +289,14 @@ class DelongiPrimadonna:
     async def get_device_name(self):
         try:
             await self._connect()
-            async with BleakClient(self._device) as client:
-                _LOGGER.warning('Got connection')
-                self.hostname = bytes(
-                    await client.read_gatt_char(
-                        uuid.UUID(NAME_CHARACTERISTIC)
-                    )
-                ).decode('utf-8')
-                _LOGGER.warning('Data read')
-                await client.write_gatt_char(
-                    uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG))
-                _LOGGER.warning('Data wrote')
-                self.connected = True
+            self.hostname = bytes(
+                await self._client.read_gatt_char(
+                    uuid.UUID(NAME_CHARACTERISTIC)
+                )
+            ).decode('utf-8')
+            await self._client.write_gatt_char(
+                uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG))
+            self.connected = True
         except BleakDBusError as error:
             self.connected = False
             _LOGGER.warning('BleakDBusError: %s', error)
@@ -293,6 +306,9 @@ class DelongiPrimadonna:
         except asyncio.exceptions.TimeoutError as error:
             self.connected = False
             _LOGGER.warning('TimeoutError: %s', error)
+        except asyncio.exceptions.CancelledError as error:
+            self.connected = False
+            _LOGGER.warning('CancelledError: %s', error)
 
     async def select_profile(self, profile_id) -> None:
         """select a profile."""
