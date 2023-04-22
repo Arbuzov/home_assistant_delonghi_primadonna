@@ -1,12 +1,11 @@
 """Delongi primadonna device description"""
 import asyncio
-from binascii import hexlify
 import logging
 import uuid
+from binascii import hexlify
 
 from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
-
 from homeassistant.backports.enum import StrEnum
 from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_NAME
@@ -22,7 +21,6 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
                     ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
                     NAME_CHARACTERISTIC, STEAM_OFF, STEAM_ON, WATER_SHORTAGE,
                     WATER_TANK_DETACHED)
-
 
 _LOGGER = logging.getLogger(__name__)
 
