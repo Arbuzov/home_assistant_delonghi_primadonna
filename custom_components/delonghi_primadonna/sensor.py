@@ -4,7 +4,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
-from .device import NOZZLE_STATE, AvailableBeverage, DelonghiDeviceEntity
+from .device import (DEVICE_STATUS, NOZZLE_STATE, SERVICE_STATE,
+                     AvailableBeverage, DelonghiDeviceEntity)
 
 
 async def async_setup_entry(
@@ -14,6 +15,7 @@ async def async_setup_entry(
     async_add_entities([
         DelongiPrimadonnaNozzleSensor(delongh_device, hass),
         DelongiPrimadonnaCookingSensor(delongh_device, hass),
+        DelongiPrimadonnaServiceSensor(delongh_device, hass),
     ])
     return True
 
@@ -35,6 +37,40 @@ class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
             result = 'mdi:coffee-off-outline'
         if self.device.steam_nozzle == 'MILK':
             result = 'mdi:coffee-outline'
+        return result
+
+
+class DelongiPrimadonnaServiceSensor(DelonghiDeviceEntity, SensorEntity):
+
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_name = 'Service'
+    _attr_options = list(SERVICE_STATE.values())
+
+    @property
+    def native_value(self):
+        return self.device.service
+
+    @property
+    def icon(self):
+        result = 'mdi:thumb-up-outline'
+        if self.device.steam_nozzle == 'DESCALING':
+            result = 'mdi:thumb-down-outline'
+        return result
+
+
+class DelongiPrimadonnaStatusSensor(DelonghiDeviceEntity, SensorEntity):
+
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_name = 'Status'
+    _attr_options = list(DEVICE_STATUS.values())
+
+    @property
+    def native_value(self):
+        return self.device.status
+
+    @property
+    def icon(self):
+        result = 'mdi:thumb-up-outline'
         return result
 
 
