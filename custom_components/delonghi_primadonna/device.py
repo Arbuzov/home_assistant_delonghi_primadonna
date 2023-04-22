@@ -162,7 +162,7 @@ class DelongiPrimadonna:
         self.notify = False
         self.steam_nozzle = NOZZLE_STATE[-1]
         self.service = SERVICE_STATE[0]
-        self.status = DEVICE_STATUS[0]
+        self.status = DEVICE_STATUS[5]
 
     async def disconnect(self):
         _LOGGER.info('Disconnect from %s', self.mac)
@@ -181,7 +181,7 @@ class DelongiPrimadonna:
                     f'A device with address {self.mac} could not be found.')
             self._client = BleakClient(self._device)
             _LOGGER.info('Connect to %s', self.mac)
-            await self._client.connect(timeout=20.0)
+            await self._client.connect()
             await self._client.start_notify(
                 uuid.UUID(CONTROLL_CHARACTERISTIC),
                 self._handle_data
