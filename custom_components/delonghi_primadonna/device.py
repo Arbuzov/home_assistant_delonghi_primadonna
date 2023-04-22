@@ -1,11 +1,12 @@
 """Delongi primadonna device description"""
 import asyncio
+from binascii import hexlify
 import logging
 import uuid
-from binascii import hexlify
 
 from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
+
 from homeassistant.backports.enum import StrEnum
 from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_NAME
@@ -21,6 +22,7 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
                     ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
                     NAME_CHARACTERISTIC, STEAM_OFF, STEAM_ON, WATER_SHORTAGE,
                     WATER_TANK_DETACHED)
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -181,7 +183,7 @@ class DelongiPrimadonna:
                     f'A device with address {self.mac} could not be found.')
             self._client = BleakClient(self._device)
             _LOGGER.info('Connect to %s', self.mac)
-            await self._client.connect()
+            await self._client.connect(timeout=20.0)
             await self._client.start_notify(
                 uuid.UUID(CONTROLL_CHARACTERISTIC),
                 self._handle_data
@@ -322,7 +324,7 @@ class DelongiPrimadonna:
             _LOGGER.warning('BleakError: %s', error)
         except asyncio.exceptions.TimeoutError as error:
             self.connected = False
-            _LOGGER.warning('TimeoutError: %s', error)
+            _LOGGER.warning('TimeoutError: %s at device connection', error)
         except asyncio.exceptions.CancelledError as error:
             self.connected = False
             _LOGGER.warning('CancelledError: %s', error)
