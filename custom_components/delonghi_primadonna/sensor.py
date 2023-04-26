@@ -14,14 +14,17 @@ async def async_setup_entry(
     delongh_device = hass.data[DOMAIN][entry.unique_id]
     async_add_entities([
         DelongiPrimadonnaNozzleSensor(delongh_device, hass),
-        DelongiPrimadonnaCookingSensor(delongh_device, hass),
         DelongiPrimadonnaServiceSensor(delongh_device, hass),
+        DelongiPrimadonnaStatusSensor(delongh_device, hass),
     ])
     return True
 
 
 class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
-
+    '''
+    Check the connected steam nozzle
+    Steam or milk pot
+    '''
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_name = 'Nozzle'
     _attr_options = list(NOZZLE_STATE.values())
@@ -41,7 +44,10 @@ class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
 
 
 class DelongiPrimadonnaServiceSensor(DelonghiDeviceEntity, SensorEntity):
-
+    '''
+    Checks if the device need some service maintenance
+    Change filter or descale
+    '''
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_name = 'Service'
     _attr_options = list(SERVICE_STATE.values())
@@ -71,21 +77,4 @@ class DelongiPrimadonnaStatusSensor(DelonghiDeviceEntity, SensorEntity):
     @property
     def icon(self):
         result = 'mdi:thumb-up-outline'
-        return result
-
-
-class DelongiPrimadonnaCookingSensor(DelonghiDeviceEntity, SensorEntity):
-
-    _attr_device_class = SensorDeviceClass.ENUM
-    _attr_name = 'Cooking'
-
-    @property
-    def native_value(self):
-        return self.device.cooking
-
-    @property
-    def icon(self):
-        result = 'mdi:coffee-to-go'
-        if self.device.cooking == AvailableBeverage.NONE:
-            result = 'mdi:coffee'
         return result
