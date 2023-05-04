@@ -10,8 +10,11 @@ from homeassistant.core import HomeAssistant
 from .const import DOMAIN
 from .device import DelongiPrimadonna
 
-PLATFORMS: list[str] = [Platform.SWITCH, Platform.BUTTON,
-                        Platform.DEVICE_TRACKER, Platform.SENSOR, Platform.SELECT]
+PLATFORMS: list[str] = [Platform.SWITCH,
+                        Platform.BUTTON,
+                        Platform.DEVICE_TRACKER,
+                        Platform.SENSOR,
+                        Platform.SELECT]
 
 _LOGGER = logging.getLogger(__name__)
 

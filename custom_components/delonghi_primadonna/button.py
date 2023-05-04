@@ -1,5 +1,3 @@
-import logging
-
 from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -7,6 +5,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
 from .device import AvailableBeverage, DelonghiDeviceEntity, DelongiPrimadonna
+
 
 async def async_setup_entry(
         hass: HomeAssistant, entry: ConfigEntry,
@@ -121,4 +120,3 @@ class DelongiPrimadonnaDebugButton(DelonghiDeviceEntity, ButtonEntity):
 
     async def async_press(self):
         self.hass.async_create_task(self.device.debug())
-

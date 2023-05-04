@@ -19,8 +19,8 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
                     DEBUG, DEVICE_READY, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
                     DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF,
                     ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
-                    NAME_CHARACTERISTIC, STEAM_OFF, STEAM_ON, WATER_SHORTAGE,
-                    WATER_TANK_DETACHED, START_COFFEE)
+                    NAME_CHARACTERISTIC, START_COFFEE, STEAM_OFF, STEAM_ON,
+                    WATER_SHORTAGE, WATER_TANK_DETACHED)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -93,7 +93,7 @@ DEVICE_NOTIFICATION = {
 class DelonghiDeviceEntity:
     """Entity class for the Delonghi devices"""
     _attr_has_entity_name = True
-    
+
     def __init__(self, delongh_device, hass: HomeAssistant):
         """Init entity with the device"""
         self._attr_unique_id = \
@@ -316,7 +316,8 @@ class DelongiPrimadonna:
         try:
             message = [0x0d, 0x06, 0xa9, 0xf0, profile_id, 0xd7, 0xc0]
             sign_request(message)
-            _LOGGER.info('Select Profile: %s', hexlify(bytearray(message), ' '))
+            _LOGGER.info('Select Profile: %s',
+                         hexlify(bytearray(message), ' '))
             await self._client.write_gatt_char(
                 CONTROLL_CHARACTERISTIC,
                 bytearray(message))
