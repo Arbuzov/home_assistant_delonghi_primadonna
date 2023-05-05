@@ -38,7 +38,22 @@ class AvailableBeverage(StrEnum):
     NONE = 'none'
 
 
-NOZZLE_STATE = {-1: 'UNKNOWN', 0: 'DETACHED', 1: 'STEAM', 4: 'MILK'}
+NOZZLE_STATE = {
+    -1: 'UNKNOWN',
+    0: 'DETACHED',
+    1: 'STEAM',
+    4: 'MILK'
+}
+
+SERVICE_STATE = {0: 'OK', 4: 'DESCALING'}
+
+DEVICE_STATUS = {
+    3: 'COOKING',
+    4: 'NOZZLE_DETACHED',
+    5: 'OK',
+    13: 'COFFEE_GROUNDS_CONTAINER_DETACHED',
+    21: 'WATER_TANK_DETACHED'
+}
 
 
 class NotificationType(StrEnum):
@@ -149,6 +164,8 @@ class DelongiPrimadonna:
         self._device = None
         self.notify = False
         self.steam_nozzle = NOZZLE_STATE[-1]
+        self.service = SERVICE_STATE[0]
+        self.status = DEVICE_STATUS[5]
 
     async def disconnect(self):
         _LOGGER.info('Disconnect from %s', self.mac)
@@ -209,7 +226,10 @@ class DelongiPrimadonna:
 
         if len(value) > 4:
             self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
-
+        if len(value) > 8:
+            self.service = SERVICE_STATE.get(value[8], SERVICE_STATE.get(0))
+        if len(value) > 6:
+            self.status = DEVICE_STATUS.get(value[6], DEVICE_STATUS.get(5))
         if self._device_status != hexlify(value, ' '):
             _LOGGER.info('Received data: %s from %s',
                          hexlify(value, ' '), sender)
@@ -305,7 +325,7 @@ class DelongiPrimadonna:
             _LOGGER.warning('BleakError: %s', error)
         except asyncio.exceptions.TimeoutError as error:
             self.connected = False
-            _LOGGER.warning('TimeoutError: %s', error)
+            _LOGGER.warning('TimeoutError: %s at device connection', error)
         except asyncio.exceptions.CancelledError as error:
             self.connected = False
             _LOGGER.warning('CancelledError: %s', error)
