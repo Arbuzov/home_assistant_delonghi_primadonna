@@ -19,8 +19,8 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
                     DEBUG, DEVICE_READY, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
                     DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF,
                     ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
-                    NAME_CHARACTERISTIC, STEAM_OFF, STEAM_ON, WATER_SHORTAGE,
-                    WATER_TANK_DETACHED)
+                    NAME_CHARACTERISTIC, START_COFFEE, STEAM_OFF, STEAM_ON,
+                    WATER_SHORTAGE, WATER_TANK_DETACHED)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -99,12 +99,15 @@ DEVICE_NOTIFICATION = {
     str(bytearray(COFFEE_GROUNDS_CONTAINER_DETACHED)): BeverageNotify(
         NotificationType.STATUS, 'NoGroundsContainer'),
     str(bytearray(COFFEE_GROUNDS_CONTAINER_FULL)): BeverageNotify(
-        NotificationType.STATUS, 'GroundsContainerFull')
+        NotificationType.STATUS, 'GroundsContainerFull'),
+    str(bytearray(START_COFFEE)): BeverageNotify(
+        NotificationType.STATUS, 'START_COFFEE')
 }
 
 
 class DelonghiDeviceEntity:
     """Entity class for the Delonghi devices"""
+    _attr_has_entity_name = True
 
     def __init__(self, delongh_device, hass: HomeAssistant):
         """Init entity with the device"""
@@ -326,3 +329,18 @@ class DelongiPrimadonna:
         except asyncio.exceptions.CancelledError as error:
             self.connected = False
             _LOGGER.warning('CancelledError: %s', error)
+
+    async def select_profile(self, profile_id) -> None:
+        """select a profile."""
+        await self._connect()
+        try:
+            message = [0x0d, 0x06, 0xa9, 0xf0, profile_id, 0xd7, 0xc0]
+            sign_request(message)
+            _LOGGER.info('Select Profile: %s',
+                         hexlify(bytearray(message), ' '))
+            await self._client.write_gatt_char(
+                CONTROLL_CHARACTERISTIC,
+                bytearray(message))
+        except BleakError as error:
+            self.connected = False
+            _LOGGER.warning('BleakError: %s', error)
