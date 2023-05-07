@@ -1,0 +1,25 @@
+name: Create Release
+
+on:
+    push:
+      branches:
+        - develop
+
+jobs:
+    build:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v2
+        - name: Get Version
+          id: get_version
+          run: |
+              echo ::set-output name=version::$(cat custom_components/delonghi_primadonna/manifest.json | jq -r '.version')
+        - name: Create Release
+          uses: marvinpinto/action-automatic-releases@latest
+          with:
+              repo_token: ${{ secrets.GITHUB_TOKEN }}
+              title: Test release ${{ steps.get_version.outputs.version }}
+              automatic_release_tag: ${{ steps.get_version.outputs.version }}
+              draft: false
+              prerelease: true
