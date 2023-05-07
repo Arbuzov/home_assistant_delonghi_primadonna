@@ -21,7 +21,7 @@ async def async_setup_entry(
 
 
 class DelongiPrimadonnaCupLightSwitch(DelonghiDeviceEntity, ToggleEntity):
-
+    """This switch enable/disable the cup light"""
     _attr_name = 'Cups light'
     _attr_is_on = False
     _attr_icon = 'mdi:lightbulb'

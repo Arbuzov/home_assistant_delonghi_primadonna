@@ -1,8 +1,8 @@
 """Delongi primadonna device description"""
 import asyncio
-from binascii import hexlify
 import logging
 import uuid
+from binascii import hexlify
 
 from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
@@ -22,12 +22,11 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
                     NAME_CHARACTERISTIC, STEAM_OFF, STEAM_ON, WATER_SHORTAGE,
                     WATER_TANK_DETACHED)
 
-
 _LOGGER = logging.getLogger(__name__)
 
 
 class AvailableBeverage(StrEnum):
-
+    """Coffee machine available beverages"""
     STEAM = 'steam'
     LONG = 'long'
     COFFEE = 'coffee'
@@ -58,20 +57,20 @@ DEVICE_STATUS = {
 
 
 class NotificationType(StrEnum):
-
+    """Coffee machine notification types"""
     STATUS = 'status'
     PROCESS = 'process'
 
 
 class BeverageCommand:
-
+    """Coffee machine beverage commands"""
     def __init__(self, on, off):
         self.on = on
         self.off = off
 
 
 class BeverageNotify:
-
+    """Coffee machine beverage notifications"""
     def __init__(self, kind, description):
         self.kind = str(kind)
         self.description = str(description)
@@ -167,11 +166,16 @@ class DelongiPrimadonna:
         self.status = DEVICE_STATUS[5]
 
     async def disconnect(self):
+        """Disconnect from the device"""
         _LOGGER.info('Disconnect from %s', self.mac)
         if (self._client is not None) and self._client.is_connected:
             await self._client.disconnect()
 
     async def _connect(self):
+        """
+        Connect to the device
+        :raises BleakError: if the device is not found
+        """
         self._connecting = True
         try:
             if (self._client is None) or (not self._client.is_connected):
@@ -182,7 +186,8 @@ class DelongiPrimadonna:
                 )
                 if not self._device:
                     raise BleakError(
-                        f'A device with address {self.mac} could not be found.')
+                        f'A device with address {self.mac} \
+                            could not be found.')
                 self._client = BleakClient(self._device)
                 _LOGGER.info('Connect to %s', self.mac)
                 await self._client.connect()
@@ -196,7 +201,10 @@ class DelongiPrimadonna:
         self._connecting = False
 
     async def _event_trigger(self, value):
-
+        """
+        Trigger event
+        :param value: event value
+        """
         event_data = {'data': str(hexlify(value, ' '))}
 
         notification_message = str(hexlify(value, ' ')).replace(
@@ -228,13 +236,12 @@ class DelongiPrimadonna:
         _LOGGER.info('Event triggered: %s', event_data)
 
     async def _handle_data(self, sender, value):
-
         if len(value) > 4:
             self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
-        if len(value) > 8:
-            self.service = SERVICE_STATE.get(value[8], SERVICE_STATE.get(0))
-        if len(value) > 6:
-            self.status = DEVICE_STATUS.get(value[6], DEVICE_STATUS.get(5))
+        if len(value) > 7:
+            self.service = SERVICE_STATE.get(value[7], SERVICE_STATE.get(0))
+        if len(value) > 5:
+            self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS.get(5))
         if self._device_status != hexlify(value, ' '):
             _LOGGER.info('Received data: %s from %s',
                          hexlify(value, ' '), sender)
@@ -303,6 +310,7 @@ class DelongiPrimadonna:
                 self.cooking = AvailableBeverage.NONE
 
     async def debug(self):
+        """Debug"""
         await self._connect()
         try:
             await self._client.write_gatt_char(
@@ -312,6 +320,10 @@ class DelongiPrimadonna:
             _LOGGER.warning('BleakError: %s', error)
 
     async def get_device_name(self):
+        """
+        Get device name
+        :return: device name
+        """
         try:
             await self._connect()
             self.hostname = bytes(
