@@ -1,3 +1,7 @@
+"""_summary_
+Returns:
+    _type_: _description_
+"""
 import logging
 
 from homeassistant.components.device_tracker.config_entry import ScannerEntity
