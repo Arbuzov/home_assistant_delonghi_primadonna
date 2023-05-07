@@ -5,7 +5,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
 from .device import (DEVICE_STATUS, NOZZLE_STATE, SERVICE_STATE,
-                     AvailableBeverage, DelonghiDeviceEntity)
+                     DelonghiDeviceEntity)
 
 
 async def async_setup_entry(
@@ -21,10 +21,10 @@ async def async_setup_entry(
 
 
 class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
-    '''
+    """
     Check the connected steam nozzle
     Steam or milk pot
-    '''
+    """
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_name = 'Nozzle'
     _attr_options = list(NOZZLE_STATE.values())
@@ -44,10 +44,10 @@ class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
 
 
 class DelongiPrimadonnaServiceSensor(DelonghiDeviceEntity, SensorEntity):
-    '''
+    """
     Checks if the device need some service maintenance
     Change filter or descale
-    '''
+    """
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_name = 'Service'
     _attr_options = list(SERVICE_STATE.values())
@@ -65,7 +65,9 @@ class DelongiPrimadonnaServiceSensor(DelonghiDeviceEntity, SensorEntity):
 
 
 class DelongiPrimadonnaStatusSensor(DelonghiDeviceEntity, SensorEntity):
-
+    """
+    Shows the actual device status
+    """
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_name = 'Status'
     _attr_options = list(DEVICE_STATUS.values())

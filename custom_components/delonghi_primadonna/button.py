@@ -27,7 +27,7 @@ async def async_setup_entry(
 
 
 class DelongiPrimadonnaPowerButton(DelonghiDeviceEntity, ButtonEntity):
-
+    """This button turns on the device"""
     _attr_name = 'Turn on ECAM'
 
     async def async_press(self):
@@ -35,7 +35,7 @@ class DelongiPrimadonnaPowerButton(DelonghiDeviceEntity, ButtonEntity):
 
 
 class DelongiPrimadonnaLongButton(DelonghiDeviceEntity, ButtonEntity):
-
+    """This button starts lungo preparing"""
     _attr_name = 'Prepare long'
 
     async def async_press(self):
@@ -44,7 +44,7 @@ class DelongiPrimadonnaLongButton(DelonghiDeviceEntity, ButtonEntity):
 
 
 class DelongiPrimadonnaCoffeeButton(DelonghiDeviceEntity, ButtonEntity):
-
+    """This button starts coffee preparing"""
     _attr_name = 'Prepare Coffee'
 
     async def async_press(self):
@@ -53,7 +53,7 @@ class DelongiPrimadonnaCoffeeButton(DelonghiDeviceEntity, ButtonEntity):
 
 
 class DelongiPrimadonnaDopioButton(DelonghiDeviceEntity, ButtonEntity):
-
+    """This button starts doppio+ preparing"""
     _attr_name = 'Prepare Doppio+'
 
     async def async_press(self):
@@ -62,7 +62,7 @@ class DelongiPrimadonnaDopioButton(DelonghiDeviceEntity, ButtonEntity):
 
 
 class DelongiPrimadonnaSteamButton(DelonghiDeviceEntity, ButtonEntity):
-
+    """This button starts steam preparing"""
     _attr_name = 'Prepare Steam'
 
     async def async_press(self):
@@ -71,7 +71,7 @@ class DelongiPrimadonnaSteamButton(DelonghiDeviceEntity, ButtonEntity):
 
 
 class DelongiPrimadonnaHotWaterButton(DelonghiDeviceEntity, ButtonEntity):
-
+    """This button starts hot water preparing"""
     _attr_name = 'Prepare Hot Water'
 
     async def async_press(self):
@@ -80,7 +80,7 @@ class DelongiPrimadonnaHotWaterButton(DelonghiDeviceEntity, ButtonEntity):
 
 
 class DelongiPrimadonnaEspresso2Button(DelonghiDeviceEntity, ButtonEntity):
-
+    """This button starts x2 espresso preparing"""
     _attr_name = 'Prepare x2 Espresso'
 
     async def async_press(self):
@@ -89,7 +89,7 @@ class DelongiPrimadonnaEspresso2Button(DelonghiDeviceEntity, ButtonEntity):
 
 
 class DelongiPrimadonnaAmericanoButton(DelonghiDeviceEntity, ButtonEntity):
-
+    """This button starts americano preparing"""
     _attr_name = 'Prepare Americano'
 
     async def async_press(self):
@@ -98,7 +98,7 @@ class DelongiPrimadonnaAmericanoButton(DelonghiDeviceEntity, ButtonEntity):
 
 
 class DelongiPrimadonnaEspressoButton(DelonghiDeviceEntity, ButtonEntity):
-
+    """This button starts espresso preparing"""
     _attr_name = 'Prepare Espresso'
 
     async def async_press(self):
@@ -107,7 +107,7 @@ class DelongiPrimadonnaEspressoButton(DelonghiDeviceEntity, ButtonEntity):
 
 
 class DelongiPrimadonnaCancelButton(DelonghiDeviceEntity, ButtonEntity):
-
+    """This button cancels preparing"""
     _attr_name = 'Cancel cooking'
 
     async def async_press(self):
@@ -115,7 +115,7 @@ class DelongiPrimadonnaCancelButton(DelonghiDeviceEntity, ButtonEntity):
 
 
 class DelongiPrimadonnaDebugButton(DelonghiDeviceEntity, ButtonEntity):
-
+    """This button enables debug mode"""
     _attr_name = 'Debug'
 
     async def async_press(self):
