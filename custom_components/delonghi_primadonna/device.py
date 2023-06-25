@@ -27,6 +27,7 @@ _LOGGER = logging.getLogger(__name__)
 
 class AvailableBeverage(StrEnum):
     """Coffee machine available beverages"""
+    NONE = 'none'
     STEAM = 'steam'
     LONG = 'long'
     COFFEE = 'coffee'
@@ -35,7 +36,6 @@ class AvailableBeverage(StrEnum):
     ESPRESSO = 'espresso'
     AMERICANO = 'americano'
     ESPRESSO2 = 'espresso2'
-    NONE = 'none'
 
 
 NOZZLE_STATE = {
@@ -167,6 +167,7 @@ class DelongiPrimadonna:
         self.steam_nozzle = NOZZLE_STATE[-1]
         self.service = SERVICE_STATE[0]
         self.status = DEVICE_STATUS[5]
+        self.is_on = False
 
     async def disconnect(self):
         """Disconnect from the device"""

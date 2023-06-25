@@ -27,6 +27,7 @@ class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
     """
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_name = 'Nozzle'
+    
     _attr_options = list(NOZZLE_STATE.values())
 
     @property
