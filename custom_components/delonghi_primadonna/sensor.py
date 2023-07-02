@@ -1,4 +1,5 @@
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.components.binary_sensor import BinarySensorEntity, BinarySensorDeviceClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -14,7 +15,8 @@ async def async_setup_entry(
     delongh_device = hass.data[DOMAIN][entry.unique_id]
     async_add_entities([
         DelongiPrimadonnaNozzleSensor(delongh_device, hass),
-        DelongiPrimadonnaServiceSensor(delongh_device, hass),
+        DelongiPrimadonnaDescaleSensor(delongh_device, hass),
+        DelongiPrimadonnaFilterSensor(delongh_device, hass),
         DelongiPrimadonnaStatusSensor(delongh_device, hass),
     ])
     return True
@@ -44,27 +46,6 @@ class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
         return result
 
 
-class DelongiPrimadonnaServiceSensor(DelonghiDeviceEntity, SensorEntity):
-    """
-    Checks if the device need some service maintenance
-    Change filter or descale
-    """
-    _attr_device_class = SensorDeviceClass.ENUM
-    _attr_name = 'Service'
-    _attr_options = list(SERVICE_STATE.values())
-
-    @property
-    def native_value(self):
-        return self.device.service
-
-    @property
-    def icon(self):
-        result = 'mdi:thumb-up-outline'
-        if self.device.steam_nozzle == 'DESCALING':
-            result = 'mdi:thumb-down-outline'
-        return result
-
-
 class DelongiPrimadonnaStatusSensor(DelonghiDeviceEntity, SensorEntity):
     """
     Shows the actual device status
@@ -81,3 +62,54 @@ class DelongiPrimadonnaStatusSensor(DelonghiDeviceEntity, SensorEntity):
     def icon(self):
         result = 'mdi:thumb-up-outline'
         return result
+
+
+class DelongiPrimadonnaDescaleSensor(DelonghiDeviceEntity, BinarySensorEntity):
+    """
+    Checks if the device need some service maintenance
+    Change filter or descale
+    """
+    _attr_device_class = BinarySensorDeviceClass.PROBLEM
+    _attr_name = 'Service'
+    _attr_options = list(SERVICE_STATE.values())
+
+    @property
+    def native_value(self):
+        return self.device.service
+
+    @property
+    def is_on(self) -> bool:
+        return bool((self.device.service >> 3) % 2)
+
+    @property
+    def icon(self):
+        result = 'mdi:dishwasher'
+        if self.is_on():
+            result = 'mdi:dishwasher-alert'
+        return result
+
+
+class DelongiPrimadonnaFilterSensor(DelonghiDeviceEntity, BinarySensorEntity):
+    """
+    Checks if the device need some service maintenance
+    Change filter or descale
+    """
+    _attr_device_class = BinarySensorDeviceClass.PROBLEM
+    _attr_name = 'Service'
+    _attr_options = list(SERVICE_STATE.values())
+
+    @property
+    def native_value(self):
+        return self.device.service
+
+    @property
+    def is_on(self) -> bool:
+        return bool((self.device.service >> 4) % 2)
+
+    @property
+    def icon(self):
+        result = 'mdi:filter'
+        if self.is_on():
+            result = 'mdi:filter-off'
+        return result
+
