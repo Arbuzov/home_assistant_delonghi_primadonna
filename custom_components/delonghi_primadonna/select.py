@@ -42,3 +42,7 @@ class BeverageSelect(DelonghiDeviceEntity, SelectEntity):
     _attr_name = 'Beverage'
     _attr_options = [*AvailableBeverage]
     _attr_current_option = [*AvailableBeverage][0]
+    
+    async def async_select_option(self, option: str) -> None:
+        """Select beverage action"""
+        _LOGGER.warning("Beverage %s", option)
