@@ -234,7 +234,7 @@ class DelongiPrimadonna:
                 {
                     'message': notification_message,
                     'title': f'{self.name} {self.mac}',
-                    'notification_id': f'{self.mac}_err'
+                    'notification_id': f'{self.mac}_err_{uuid.uuid4()}'
                 }
             )
         _LOGGER.info('Event triggered: %s', event_data)
