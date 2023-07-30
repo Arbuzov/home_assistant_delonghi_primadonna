@@ -1,5 +1,6 @@
+from homeassistant.components.binary_sensor import (BinarySensorDeviceClass,
+                                                    BinarySensorEntity)
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
-from homeassistant.components.binary_sensor import BinarySensorEntity, BinarySensorDeviceClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -29,7 +30,7 @@ class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
     """
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_name = 'Nozzle'
-    
+
     _attr_options = list(NOZZLE_STATE.values())
 
     @property
@@ -89,7 +90,9 @@ class DelongiPrimadonnaDescaleSensor(DelonghiDeviceEntity, BinarySensorEntity):
         return result
 
 
-class DelongiPrimadonnaFilterSensor(DelonghiDeviceEntity, BinarySensorEntity):
+class DelongiPrimadonnaFilterSensor(
+        DelonghiDeviceEntity,
+        BinarySensorEntity):
     """
     Checks if the device need some service maintenance
     Change filter or descale
@@ -112,4 +115,3 @@ class DelongiPrimadonnaFilterSensor(DelonghiDeviceEntity, BinarySensorEntity):
         if self.is_on():
             result = 'mdi:filter-off'
         return result
-
