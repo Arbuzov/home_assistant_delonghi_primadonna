@@ -6,8 +6,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
-from .device import (DEVICE_STATUS, NOZZLE_STATE, SERVICE_STATE,
-                     DelonghiDeviceEntity)
+from .device import (DEVICE_STATUS, NOZZLE_STATE, DelonghiDeviceEntity)
 
 
 async def async_setup_entry(
@@ -67,12 +66,10 @@ class DelongiPrimadonnaStatusSensor(DelonghiDeviceEntity, SensorEntity):
 
 class DelongiPrimadonnaDescaleSensor(DelonghiDeviceEntity, BinarySensorEntity):
     """
-    Checks if the device need some service maintenance
-    Change filter or descale
+    Shows if the device needs descaling
     """
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
-    _attr_name = 'Service'
-    _attr_options = list(SERVICE_STATE.values())
+    _attr_name = 'Descaling'
 
     @property
     def native_value(self):
@@ -94,12 +91,10 @@ class DelongiPrimadonnaFilterSensor(
         DelonghiDeviceEntity,
         BinarySensorEntity):
     """
-    Checks if the device need some service maintenance
-    Change filter or descale
+    Shows if the filter need to be changed
     """
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
-    _attr_name = 'Service'
-    _attr_options = list(SERVICE_STATE.values())
+    _attr_name = 'Filter'
 
     @property
     def native_value(self):
