@@ -59,5 +59,5 @@ class EnergySaveModeSelect(DelonghiDeviceEntity, SelectEntity):
 
     async def async_select_option(self, option: str) -> None:
         """Select energy save mode action"""
-        _LOGGER.warning("Energy save mode is not implemented yet")
+        _LOGGER.warning('Energy save mode is not implemented yet')
 
