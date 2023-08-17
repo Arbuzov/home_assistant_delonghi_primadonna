@@ -45,6 +45,7 @@ NOZZLE_STATE = {
     4: 'MILK'
 }
 
+# Skipable maintanence states
 SERVICE_STATE = {0: 'OK', 4: 'DESCALING'}
 
 DEVICE_STATUS = {
@@ -150,19 +151,19 @@ class DelongiPrimadonna:
 
     def __init__(self, config: dict, hass: HomeAssistant) -> None:
         """Initialize device"""
+        self._device_status = None
+        self._client = None
+        self._hass = hass
+        self._device = None
+        self._connecting = False
         self.mac = config.get(CONF_MAC)
         self.name = config.get(CONF_NAME)
         self.hostname = ''
         self.model = 'Prima Donna'
         self.friendly_name = ''
         self.cooking = AvailableBeverage.NONE
-        self._device_status = None
         self.connected = False
         self.active = False
-        self._client = None
-        self._hass = hass
-        self._device = None
-        self._connecting = False
         self.notify = False
         self.steam_nozzle = NOZZLE_STATE[-1]
         self.service = SERVICE_STATE[0]
@@ -243,7 +244,7 @@ class DelongiPrimadonna:
         if len(value) > 4:
             self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
         if len(value) > 7:
-            self.service = SERVICE_STATE.get(value[7], SERVICE_STATE.get(0))
+            self.service = value[7]
         if len(value) > 5:
             self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS.get(5))
         if self._device_status != hexlify(value, ' '):

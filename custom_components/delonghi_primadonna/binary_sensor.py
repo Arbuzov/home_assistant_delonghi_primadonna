@@ -3,9 +3,9 @@ from homeassistant.components.binary_sensor import (BinarySensorDeviceClass,
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from .device import (DelonghiDeviceEntity)
 
 from .const import DOMAIN
+from .device import DelonghiDeviceEntity
 
 
 async def async_setup_entry(
@@ -32,13 +32,13 @@ class DelongiPrimadonnaDescaleSensor(DelonghiDeviceEntity, BinarySensorEntity):
 
     @property
     def is_on(self) -> bool:
-        return False  # bool((self.device.service >> 3) % 2)
+        return bool((self.device.service >> 3) % 2)
 
     @property
     def icon(self):
         result = 'mdi:dishwasher'
-        # if self.is_on():
-        #     result = 'mdi:dishwasher-alert'
+        if self.is_on():
+            result = 'mdi:dishwasher-alert'
         return result
 
 
@@ -57,11 +57,11 @@ class DelongiPrimadonnaFilterSensor(
 
     @property
     def is_on(self) -> bool:
-        return False  # bool((self.device.service >> 4) % 2)
+        return bool((self.device.service >> 4) % 2)
 
     @property
     def icon(self):
         result = 'mdi:filter'
-        # if self.is_on():
-        #     result = 'mdi:filter-off'
+        if self.is_on():
+            result = 'mdi:filter-off'
         return result

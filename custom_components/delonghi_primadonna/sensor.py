@@ -4,7 +4,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
-from .device import (DEVICE_STATUS, NOZZLE_STATE, DelonghiDeviceEntity)
+from .device import DEVICE_STATUS, NOZZLE_STATE, DelonghiDeviceEntity
 
 
 async def async_setup_entry(
