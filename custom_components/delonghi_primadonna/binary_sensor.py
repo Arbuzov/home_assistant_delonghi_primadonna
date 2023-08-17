@@ -3,9 +3,9 @@ from homeassistant.components.binary_sensor import (BinarySensorDeviceClass,
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from .device import (DelonghiDeviceEntity)
 
 from .const import DOMAIN
-from .device import DEVICE_STATUS, NOZZLE_STATE, DelonghiDeviceEntity
 
 
 async def async_setup_entry(
