@@ -2,5 +2,6 @@
   "name": "Delonghi Primadonna",
   "render_readme": true,
   "homeassistant": "2023.1.1",
-  "hide_default_branch": true
+  "hide_default_branch": true,
+  "filename": "DelonghiPrimadonna.js"
 }

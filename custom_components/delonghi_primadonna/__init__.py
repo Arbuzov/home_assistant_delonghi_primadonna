@@ -11,6 +11,7 @@ from .const import DOMAIN
 from .device import DelongiPrimadonna
 
 PLATFORMS: list[str] = [Platform.BUTTON,
+                        Platform.BINARY_SENSOR,
                         Platform.SENSOR,
                         Platform.SELECT,
                         Platform.SWITCH,
