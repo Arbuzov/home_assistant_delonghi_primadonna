@@ -32,7 +32,7 @@ class DelongiPrimadonnaDescaleSensor(DelonghiDeviceEntity, BinarySensorEntity):
 
     @property
     def is_on(self) -> bool:
-        return bool((self.device.service >> 3) % 2)
+        return False  # bool((self.device.service >> 3) % 2)
 
     @property
     def icon(self):
@@ -57,7 +57,7 @@ class DelongiPrimadonnaFilterSensor(
 
     @property
     def is_on(self) -> bool:
-        return bool((self.device.service >> 4) % 2)
+        return False  # bool((self.device.service >> 4) % 2)
 
     @property
     def icon(self):
