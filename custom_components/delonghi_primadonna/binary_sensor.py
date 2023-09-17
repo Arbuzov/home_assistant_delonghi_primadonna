@@ -15,8 +15,34 @@ async def async_setup_entry(
     async_add_entities([
         DelongiPrimadonnaDescaleSensor(delongh_device, hass),
         DelongiPrimadonnaFilterSensor(delongh_device, hass),
+        DelongiPrimadonnaEnabledSensor(delongh_device, hass),
     ])
     return True
+
+
+class DelongiPrimadonnaEnabledSensor(DelonghiDeviceEntity, BinarySensorEntity):
+    """
+    Shows if the device up and running
+    """
+    _attr_device_class = BinarySensorDeviceClass.RUNNING
+    _attr_name = 'Enabled'
+    
+    @property
+    def icon(self) -> str:
+        """Return the icon of the device."""
+        if self.device.is_on:
+            return 'mdi:coffee-maker-check'
+        if self.device.connected:
+            return 'mdi:coffee-maker-check-outline'
+        return 'mdi:coffee-maker-outline'
+
+    @property
+    def native_value(self):
+        return self.device.is_on
+
+    @property
+    def is_on(self) -> bool:
+        return self.device.is_on
 
 
 class DelongiPrimadonnaDescaleSensor(DelonghiDeviceEntity, BinarySensorEntity):

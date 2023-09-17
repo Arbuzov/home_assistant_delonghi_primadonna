@@ -26,8 +26,15 @@ async def async_setup_entry(
 
 
 class DelongiPrimadonnaDeviceTracker(DelonghiDeviceEntity, ScannerEntity):
-    """This device tracker tracks the device status"""
-    _attr_icon = 'mdi:coffee-maker'
+    
+    @property
+    def icon(self) -> str:
+        """Return the icon of the device."""
+        if self.device.is_on:
+            return 'mdi:coffee-maker-check'
+        if self.device.connected:
+            return 'mdi:coffee-maker-check-outline'
+        return 'mdi:coffee-maker-outline'
 
     @property
     def mac_address(self) -> str:

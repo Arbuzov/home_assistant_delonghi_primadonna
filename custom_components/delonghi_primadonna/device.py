@@ -163,7 +163,6 @@ class DelongiPrimadonna:
         self.friendly_name = ''
         self.cooking = AvailableBeverage.NONE
         self.connected = False
-        self.active = False
         self.notify = False
         self.steam_nozzle = NOZZLE_STATE[-1]
         self.service = SERVICE_STATE[0]
@@ -241,6 +240,8 @@ class DelongiPrimadonna:
         _LOGGER.info('Event triggered: %s', event_data)
 
     async def _handle_data(self, sender, value):
+        if len(value) > 9:
+            self.is_on = (value[9] > 0)
         if len(value) > 4:
             self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
         if len(value) > 7:
