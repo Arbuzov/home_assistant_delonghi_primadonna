@@ -165,7 +165,7 @@ class DelongiPrimadonna:
         self.connected = False
         self.notify = False
         self.steam_nozzle = NOZZLE_STATE[-1]
-        self.service = SERVICE_STATE[0]
+        self.service = 0
         self.status = DEVICE_STATUS[5]
         self.is_on = False
 
