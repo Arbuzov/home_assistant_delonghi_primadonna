@@ -5,7 +5,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import ToggleEntity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN
+from .const import DOMAIN, ENTITY_CATEGORY
 from .device import DelonghiDeviceEntity
 
 
@@ -26,6 +26,11 @@ class DelongiPrimadonnaCupLightSwitch(DelonghiDeviceEntity, ToggleEntity):
     _attr_is_on = False
     _attr_icon = 'mdi:lightbulb'
 
+    @property
+    def entity_category(self, **kwargs: Any) -> None:
+        """Return the category of the entity."""
+        return EntityCategory.CONFIG
+    
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the device on."""
         self.hass.async_create_task(self.device.cup_light_on())
@@ -47,6 +52,11 @@ class DelongiPrimadonnaNotificationSwitch(DelonghiDeviceEntity, ToggleEntity):
     def is_on(self, **kwargs: Any) -> None:
         """Checks is the notification ON."""
         return self.device.notify
+
+    @property
+    def entity_category(self, **kwargs: Any) -> None:
+        """Return the category of the entity."""
+        return EntityCategory.DIAGNOSTIC
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the notification on."""
