@@ -18,8 +18,10 @@ Please join
 
 |Codes for Dinamica Plus                                 | Details                            |Notification|
 |--------------------------------------------------------|------------------------------------|------------|
-|d0 12 75 0f 02 00 01 00 00 01 01 00 00 00 00 00 00 bc 86|Turning on                          |
-|d0 12 75 0f 02 04 01 00 00 07 00 00 00 00 00 00 00 89 f8|`Milk Carafe` is in the `Frothing` position||
+|d0 12 75 0f 02 00 01 00 00 01 01 00 00 00 00 00 00 bc 86|Start-up message 1 - Turning on     ||
+|d0 12 75 0f 02 02 01 00 00 01 05 1d 00 00 00 00 00 2f 6d|Start-up message 2 - Unknown?       ||
+|d0 12 75 0f 02 00 01 00 00 01 07 64 00 00 00 00 00 44 1a|Start-up message 3 - Unknown?       ||
+|d0 12 75 0f 02 04 01 00 00 07 00 00 00 00 00 00 00 89 f8|Start-up message 4 / `Milk Carafe` is in the `Frothing` position||
 |d0 12 75 0f 01 15 00 00 00 01 00 00 00 00 00 00 00 2a fa|Removed `Water Tank`                  |NoWaterTank|
 |                                                        |Inserted `Water Tank`                       |DeviceOK|
 |d0 12 75 0f 01 05 00 00 00 0b 03 07 00 00 00 00 00 9c 15|Started `Hot Water`                 ||
