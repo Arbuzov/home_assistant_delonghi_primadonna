@@ -5,7 +5,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN
+from .const import DOMAIN, ENTITY_CATEGORY
 from .device import DelonghiDeviceEntity, DelongiPrimadonna
 
 _LOGGER = logging.getLogger(__name__)
@@ -24,7 +24,12 @@ class DebugInput(DelonghiDeviceEntity, TextEntity):
     
     async def async_set_value(self, value: str) -> None:
         await self.device.send_command(value)
-        
+    
+    @property
+    def entity_category(self, **kwargs: Any) -> None:
+        """Return the category of the entity."""
+        return EntityCategory.DIAGNOSTIC
+    
     @property
     def available(self) -> bool:
         return device.notify
