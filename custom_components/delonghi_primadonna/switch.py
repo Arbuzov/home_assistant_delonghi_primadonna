@@ -38,7 +38,9 @@ class DelongiPrimadonnaCupLightSwitch(DelonghiDeviceEntity, ToggleEntity):
 
 
 class DelongiPrimadonnaNotificationSwitch(DelonghiDeviceEntity, ToggleEntity):
-    """This switch enable HA side bar notification on device status change used for debug purposes"""
+    """This switch enable HA side bar notification
+       on device status change used for debug purposes
+    """
 
     _attr_name = 'Enable notification'
     _attr_icon = 'mdi:magnify-expand'

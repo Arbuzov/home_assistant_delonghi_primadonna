@@ -10,6 +10,7 @@ from .device import DelonghiDeviceEntity, DelongiPrimadonna
 
 _LOGGER = logging.getLogger(__name__)
 
+
 async def async_setup_entry(
         hass: HomeAssistant, entry: ConfigEntry,
         async_add_entities: AddEntitiesCallback):
@@ -18,6 +19,7 @@ async def async_setup_entry(
         DebugInput(delongh_device, hass)
     ])
     return True
+
 
 class DebugInput(DelonghiDeviceEntity, TextEntity):
     """Implementation debug input."""
