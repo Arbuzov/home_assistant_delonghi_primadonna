@@ -18,21 +18,28 @@ Please join
 
 |Codes for Dinamica Plus                                 | Details                            |Notification|
 |--------------------------------------------------------|------------------------------------|------------|
-|d0 12 75 0f 02 00 01 00 00 01 01 00 00 00 00 00 00 bc 86|Start-up message 1 - Turning on     ||
-|d0 12 75 0f 02 02 01 00 00 01 05 1d 00 00 00 00 00 2f 6d|Start-up message 2 - Unknown?       ||
-|d0 12 75 0f 02 00 01 00 00 01 07 64 00 00 00 00 00 44 1a|Start-up message 3 - Unknown?       ||
-|d0 12 75 0f 02 04 01 00 00 07 00 00 00 00 00 00 00 89 f8|Start-up message 4 / `Milk Carafe` is in the `Frothing` position||
-|d0 12 75 0f 01 15 00 00 00 01 00 00 00 00 00 00 00 2a fa|Removed `Water Tank`                  |NoWaterTank|
-|                                                        |Inserted `Water Tank`                       |DeviceOK|
-|d0 12 75 0f 01 05 00 00 00 0b 03 07 00 00 00 00 00 9c 15|Started `Hot Water`                 ||
-|d0 12 75 0f 00 04 00 00 00 07 00 00 00 00 00 00 00 db 77|Removed `Hot Water Nozzle`           ||
-|d0 12 75 0f 02 04 01 00 00 0a 02 00 00 00 00 00 00 bf 7f|Starting `unknown` beverage?||
+|**Sequences**|||
+|d0 12 75 0f 02 00 01 00 00 01 01 00 00 00 00 00 00 bc 86|Sequence 1 - Powered on             ||
+|d0 12 75 0f 02 02 01 00 00 01 05 1d 00 00 00 00 00 2f 6d|Sequence 2 - Unknown?               ||
+|d0 12 75 0f 02 00 01 00 00 01 07 64 00 00 00 00 00 44 1a|Sequence 3 - Unknown?               ||
+|d0 12 75 0f 02 04 01 00 00 07 00 00 00 00 00 00 00 89 f8|Sequence 4 - Ready (`Milk Carafe` is in the `Frothing` position)||
+|d0 12 75 0f 02 00 01 00 00 00 03 64 00 00 00 00 00 c2 0f|Sequence 5 - Power off              ||
+|**Cleaning**|||
+|d0 12 75 0f 04 05 01 00 40 0c 03 0d 00 00 00 00 00 1a 51|Started cleaning `Milk Carafe` spout (nozzle in `Clean` position)||
+|d0 12 75 0f 04 05 01 00 00 07 00 00 00 00 00 00 00 05 e6|Finished cleaning `Milk Carafe` spout (nozzle in `Clean` position)||
+|d0 12 75 0f 02 00 01 00 00 08 02 00 00 00 00 00 00 3d 0d|Started `rinsing` machine||
+|d0 12 75 0f 02 02 01 00 00 08 05 43 00 00 00 00 00 86 53|Finished `rinsing` machine - Unknown?||
+|**Insert / Remove**|||
+|                                                        |Inserted `Water Tank`               |DeviceOK|
+|d0 12 75 0f 01 15 00 00 00 01 00 00 00 00 00 00 00 2a fa|Removed `Water Tank`                |NoWaterTank|
+|                                                        |Inserted `Hot Water Nozzle`         ||
+|d0 12 75 0f 00 04 00 00 00 07 00 00 00 00 00 00 00 db 77|Removed `Hot Water Nozzle`          ||
+|**Beverages**|||
+|d0 12 75 0f 01 05 00 00 00 0b 03 07 00 00 00 00 00 9c 15|Started `Hot Water` beverage        ||
+|d0 12 75 0f 02 04 01 00 00 0a 02 00 00 00 00 00 00 bf 7f|Starting `Latte Machiato` beverage?||
 |d0 12 75 0f 02 00 01 00 40 07 0e 64 00 00 00 00 00 b0 c4|Finished / cancelled `unknown` beverage?||
-|d0 12 75 0f 04 05 01 00 40 0c 03 0d 00 00 00 00 00 1a 51|Started cleaning Milk Carafe spout (nozzle in `Clean` position)||
-|d0 12 75 0f 04 05 01 00 00 07 00 00 00 00 00 00 00 05 e6|Finished cleaning Milk Carafe spout (nozzle in `Clean` position)||
+|**Profiles**|||
 |d0 07 a9 f0 01 00 3b 3c|Set Profile 1 response||
 |d0 07 a9 f0 02 00 6e 6f|Set Profile 2 response||
 |d0 07 a9 f0 03 00 5d 5e|Set Profile 3 response||
 |d0 07 a9 f0 04 01 d4 e8|Set Profile Guest response||
-|d0 12 75 0f 02 04 01 00 00 02 01 00 00 00 00 00 00 79 27|Unknown - may be power off?||
-|d0 12 75 0f 02 00 01 00 00 00 03 64 00 00 00 00 00 c2 0f|Unknown - may be power off?||
