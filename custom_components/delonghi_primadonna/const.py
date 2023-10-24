@@ -1,4 +1,5 @@
 """Constants for the oiot integration."""
+from homeassistant.const import EntityCategory
 
 DOMAIN = 'delonghi_primadonna'
 
@@ -15,6 +16,12 @@ AVAILABLE_PROFILES = {
     'Profile 2': 2,
     'Profile 3': 3,
     'Guest': 4
+}
+
+ENTITY_CATEGORY = {
+    "None": None,
+    "Configuration": EntityCategory.CONFIG,
+    "Diagnostic": EntityCategory.DIAGNOSTIC,
 }
 
 """
