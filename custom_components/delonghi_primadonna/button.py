@@ -13,15 +13,6 @@ async def async_setup_entry(
     delongh_device: DelongiPrimadonna = hass.data[DOMAIN][entry.unique_id]
     async_add_entities([
         DelongiPrimadonnaPowerButton(delongh_device, hass)
-        # DelongiPrimadonnaLongButton(delongh_device, hass),
-        # DelongiPrimadonnaCoffeeButton(delongh_device, hass),
-        # DelongiPrimadonnaDopioButton(delongh_device, hass),
-        # DelongiPrimadonnaSteamButton(delongh_device, hass),
-        # DelongiPrimadonnaHotWaterButton(delongh_device, hass),
-        # DelongiPrimadonnaEspresso2Button(delongh_device, hass),
-        # DelongiPrimadonnaAmericanoButton(delongh_device, hass),
-        # DelongiPrimadonnaEspressoButton(delongh_device, hass),
-        # DelongiPrimadonnaCancelButton(delongh_device, hass)
     ])
     return True
 
@@ -33,90 +24,3 @@ class DelongiPrimadonnaPowerButton(DelonghiDeviceEntity, ButtonEntity):
     async def async_press(self):
         self.hass.async_create_task(self.device.power_on())
 
-
-class DelongiPrimadonnaLongButton(DelonghiDeviceEntity, ButtonEntity):
-    """This button starts lungo preparing"""
-    _attr_name = 'Prepare long'
-
-    async def async_press(self):
-        self.hass.async_create_task(
-            self.device.beverage_start(AvailableBeverage.LONG))
-
-
-class DelongiPrimadonnaCoffeeButton(DelonghiDeviceEntity, ButtonEntity):
-    """This button starts coffee preparing"""
-    _attr_name = 'Prepare Coffee'
-
-    async def async_press(self):
-        self.hass.async_create_task(
-            self.device.beverage_start(AvailableBeverage.COFFEE))
-
-
-class DelongiPrimadonnaDopioButton(DelonghiDeviceEntity, ButtonEntity):
-    """This button starts doppio+ preparing"""
-    _attr_name = 'Prepare Doppio+'
-
-    async def async_press(self):
-        self.hass.async_create_task(
-            self.device.beverage_start(AvailableBeverage.DOPIO))
-
-
-class DelongiPrimadonnaSteamButton(DelonghiDeviceEntity, ButtonEntity):
-    """This button starts steam preparing"""
-    _attr_name = 'Prepare Steam'
-
-    async def async_press(self):
-        self.hass.async_create_task(
-            self.device.beverage_start(AvailableBeverage.STEAM))
-
-
-class DelongiPrimadonnaHotWaterButton(DelonghiDeviceEntity, ButtonEntity):
-    """This button starts hot water preparing"""
-    _attr_name = 'Prepare Hot Water'
-
-    async def async_press(self):
-        self.hass.async_create_task(
-            self.device.beverage_start(AvailableBeverage.HOTWATER))
-
-
-class DelongiPrimadonnaEspresso2Button(DelonghiDeviceEntity, ButtonEntity):
-    """This button starts x2 espresso preparing"""
-    _attr_name = 'Prepare x2 Espresso'
-
-    async def async_press(self):
-        self.hass.async_create_task(
-            self.device.beverage_start(AvailableBeverage.ESPRESSO2))
-
-
-class DelongiPrimadonnaAmericanoButton(DelonghiDeviceEntity, ButtonEntity):
-    """This button starts americano preparing"""
-    _attr_name = 'Prepare Americano'
-
-    async def async_press(self):
-        self.hass.async_create_task(
-            self.device.beverage_start(AvailableBeverage.AMERICANO))
-
-
-class DelongiPrimadonnaEspressoButton(DelonghiDeviceEntity, ButtonEntity):
-    """This button starts espresso preparing"""
-    _attr_name = 'Prepare Espresso'
-
-    async def async_press(self):
-        self.hass.async_create_task(
-            self.device.beverage_start(AvailableBeverage.ESPRESSO))
-
-
-class DelongiPrimadonnaCancelButton(DelonghiDeviceEntity, ButtonEntity):
-    """This button cancels preparing"""
-    _attr_name = 'Cancel cooking'
-
-    async def async_press(self):
-        self.hass.async_create_task(self.device.beverage_cancel())
-
-
-class DelongiPrimadonnaDebugButton(DelonghiDeviceEntity, ButtonEntity):
-    """This button enables debug mode"""
-    _attr_name = 'Debug'
-
-    async def async_press(self):
-        self.hass.async_create_task(self.device.debug())

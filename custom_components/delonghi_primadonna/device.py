@@ -367,3 +367,18 @@ class DelongiPrimadonna:
         except BleakError as error:
             self.connected = False
             _LOGGER.warning('BleakError: %s', error)
+            
+    async def send_command(self, command: str) -> None:
+        """select a profile."""
+        await self._connect()
+        try:
+            message = [int(x, 16) for x in command.split(' ')]
+            sign_request(message)
+            _LOGGER.info('Send command: %s',
+                         hexlify(bytearray(message), ' '))
+            await self._client.write_gatt_char(
+                CONTROLL_CHARACTERISTIC,
+                bytearray(message))
+        except BleakError as error:
+            self.connected = False
+            _LOGGER.warning('BleakError: %s', error)

@@ -15,6 +15,7 @@ PLATFORMS: list[str] = [Platform.BUTTON,
                         Platform.SENSOR,
                         Platform.SELECT,
                         Platform.SWITCH,
+                        Platform.TEXT,
                         Platform.DEVICE_TRACKER]
 
 
