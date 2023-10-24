@@ -32,3 +32,5 @@ Please join
 |d0 07 a9 f0 02 00 6e 6f|Set Profile 2 response||
 |d0 07 a9 f0 03 00 5d 5e|Set Profile 3 response||
 |d0 07 a9 f0 04 01 d4 e8|Set Profile Guest response||
+|d0 12 75 0f 02 04 01 00 00 02 01 00 00 00 00 00 00 79 27|Unknown - may be power off?||
+|d0 12 75 0f 02 00 01 00 00 00 03 64 00 00 00 00 00 c2 0f|Unknown - may be power off?||
