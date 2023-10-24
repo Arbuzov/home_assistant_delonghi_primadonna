@@ -25,6 +25,6 @@ class DebugInput(DelonghiDeviceEntity, TextEntity):
     async def async_set_value(self, value: str) -> None:
         await self.device.send_command(value)
         
-    @property
-    def available(self) -> bool:
-        return self.device.notify
+    # @property
+    # def available(self) -> bool:
+    #     return self.device.notify
