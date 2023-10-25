@@ -72,7 +72,7 @@ class DelongiPrimadonnaDescaleSensor(DelonghiDeviceEntity, BinarySensorEntity):
     @property
     def icon(self):
         result = 'mdi:dishwasher'
-        if self.is_on():
+        if self.is_on:
             result = 'mdi:dishwasher-alert'
         return result
 
@@ -97,6 +97,6 @@ class DelongiPrimadonnaFilterSensor(DelonghiDeviceEntity, BinarySensorEntity):
     @property
     def icon(self):
         result = 'mdi:filter'
-        if self.is_on():
+        if self.is_on:
             result = 'mdi:filter-off'
         return result
