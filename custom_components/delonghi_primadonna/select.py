@@ -30,7 +30,7 @@ async def async_setup_entry(
 class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
     """Implementation for profile selection."""
 
-    _attr_name = "Profile"
+    _attr_name = 'Profile'
     _attr_options = list(AVAILABLE_PROFILES.keys())
     _attr_current_option = list(AVAILABLE_PROFILES.keys())[0]
 
@@ -44,7 +44,7 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
 class BeverageSelect(DelonghiDeviceEntity, SelectEntity):
     """Beverage start implementation by the select"""
 
-    _attr_name = "Beverage"
+    _attr_name = 'Beverage'
     _attr_options = [*AvailableBeverage]
     _attr_current_option = [*AvailableBeverage][0]
 
@@ -56,8 +56,14 @@ class BeverageSelect(DelonghiDeviceEntity, SelectEntity):
 class EnergySaveModeSelect(DelonghiDeviceEntity, SelectEntity):
     """Energy save mode management"""
 
-    _attr_name = "Energy Save Mode"
-    _attr_options = ["15min", "30min", "1h", "2h", "3h"]
+    _attr_name = 'Energy Save Mode'
+    _attr_options = [
+        '15min',
+        '30min',
+        '1h',
+        '2h',
+        '3h'
+    ]
     _attr_current_option = "15min"
 
     async def async_select_option(self, option: str) -> None:
