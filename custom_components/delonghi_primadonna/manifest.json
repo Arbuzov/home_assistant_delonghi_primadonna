@@ -1,6 +1,6 @@
 {
   "domain": "delonghi_primadonna",
-  "name": "Delonghi Primadonna",
+  "name": "DeLonghi BLE",
   "bluetooth": [
     {
       "service_data_uuid": "00035b03-58e6-07dd-021a-08123a000301"
