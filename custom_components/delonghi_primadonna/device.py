@@ -39,7 +39,13 @@ class AvailableBeverage(StrEnum):
     ESPRESSO2 = 'espresso2'
 
 
-NOZZLE_STATE = {-1: 'UNKNOWN', 0: 'DETACHED', 1: 'STEAM', 4: 'MILK'}
+NOZZLE_STATE = {
+    -1: 'UNKNOWN',
+    0: 'DETACHED',
+    1: 'STEAM',
+    2: 'UNKNOWN'  # May also be Detached
+    4: 'MILK'
+}
 
 # Skipable maintanence states
 SERVICE_STATE = {0: 'OK', 4: 'DESCALING'}

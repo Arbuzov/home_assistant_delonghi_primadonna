@@ -3,6 +3,7 @@ import logging
 from homeassistant.components.text import TextEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.const import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
@@ -30,3 +31,12 @@ class DebugInput(DelonghiDeviceEntity, TextEntity):
     @property
     def available(self) -> bool:
         return self.device.notify
+    
+    @property
+    def entity_category(self, **kwargs: Any) -> None:
+        """Return the category of the entity."""
+        return EntityCategory.DIAGNOSTIC
+    
+    @property
+    def available(self) -> bool:
+        return device.notify
