@@ -42,6 +42,7 @@ NOZZLE_STATE = {
     -1: 'UNKNOWN',
     0: 'DETACHED',
     1: 'STEAM',
+    2: 'UNKNOWN_2',  # May also be Detached
     4: 'MILK'
 }
 
