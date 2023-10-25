@@ -59,7 +59,7 @@ class EnergySaveModeSelect(DelonghiDeviceEntity, SelectEntity):
     """Energy save mode management"""
 
     _attr_name = 'Energy Save Mode'
-    _attr_options = ['15min', '3h']
+    _attr_options = ['15min', '30min', '1h', '2h', '3h']
     _attr_current_option = '15min'
     
     @property
