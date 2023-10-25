@@ -29,7 +29,7 @@ class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
     """
 
     _attr_device_class = SensorDeviceClass.ENUM
-    _attr_name = "Nozzle"
+    _attr_name = 'Nozzle'
 
     _attr_options = list(NOZZLE_STATE.values())
 
@@ -39,11 +39,11 @@ class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
 
     @property
     def icon(self):
-        result = "mdi:coffee"
-        if self.device.steam_nozzle == "DETACHED":
-            result = "mdi:coffee-off-outline"
-        if self.device.steam_nozzle == "MILK":
-            result = "mdi:coffee-outline"
+        result = 'mdi:coffee'
+        if self.device.steam_nozzle == 'DETACHED':
+            result = 'mdi:coffee-off-outline'
+        if self.device.steam_nozzle == 'MILK':
+            result = 'mdi:coffee-outline'
         return result
 
 
@@ -53,7 +53,7 @@ class DelongiPrimadonnaStatusSensor(DelonghiDeviceEntity, SensorEntity):
     """
 
     _attr_device_class = SensorDeviceClass.ENUM
-    _attr_name = "Status"
+    _attr_name = 'Status'
     _attr_options = list(DEVICE_STATUS.values())
 
     @property
@@ -62,5 +62,5 @@ class DelongiPrimadonnaStatusSensor(DelonghiDeviceEntity, SensorEntity):
 
     @property
     def icon(self):
-        result = "mdi:thumb-up-outline"
+        result = 'mdi:thumb-up-outline'
         return result
