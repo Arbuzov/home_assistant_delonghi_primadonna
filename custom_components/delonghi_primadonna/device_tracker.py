@@ -16,25 +16,22 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
-        hass: HomeAssistant, entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback):
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+):
     delongh_device = hass.data[DOMAIN][entry.unique_id]
-    async_add_entities([
-        DelongiPrimadonnaDeviceTracker(delongh_device, hass)
-    ])
+    async_add_entities([DelongiPrimadonnaDeviceTracker(delongh_device, hass)])
     return True
 
 
 class DelongiPrimadonnaDeviceTracker(DelonghiDeviceEntity, ScannerEntity):
-    
     @property
     def icon(self) -> str:
         """Return the icon of the device."""
         if self.device.is_on:
-            return 'mdi:coffee-maker-check'
+            return "mdi:coffee-maker-check"
         if self.device.connected:
-            return 'mdi:coffee-maker-check-outline'
-        return 'mdi:coffee-maker-outline'
+            return "mdi:coffee-maker-check-outline"
+        return "mdi:coffee-maker-outline"
 
     @property
     def mac_address(self) -> str:
@@ -49,7 +46,7 @@ class DelongiPrimadonnaDeviceTracker(DelonghiDeviceEntity, ScannerEntity):
     @property
     def source_type(self) -> str:
         """Return the source type, eg gps or router, of the device."""
-        return 'router'
+        return "router"
 
     @property
     def is_connected(self) -> bool:
