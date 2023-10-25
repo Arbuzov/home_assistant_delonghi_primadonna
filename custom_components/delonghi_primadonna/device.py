@@ -111,14 +111,18 @@ BEVERAGE_COMMANDS = {
 }
 
 DEVICE_NOTIFICATION = {
-    str(bytearray(DEVICE_READY)): BeverageNotify(NotificationType.STATUS, "DeviceOK"),
+    str(bytearray(DEVICE_READY)): BeverageNotify(
+        NotificationType.STATUS, "DeviceOK"
+    ),
     str(bytearray(DEVICE_TURNOFF)): BeverageNotify(
         NotificationType.STATUS, "DeviceOFF"
     ),
     str(bytearray(WATER_TANK_DETACHED)): BeverageNotify(
         NotificationType.STATUS, "NoWaterTank"
     ),
-    str(bytearray(WATER_SHORTAGE)): BeverageNotify(NotificationType.STATUS, "NoWater"),
+    str(bytearray(WATER_SHORTAGE)): BeverageNotify(
+        NotificationType.STATUS, "NoWater"
+    ),
     str(bytearray(COFFEE_GROUNDS_CONTAINER_DETACHED)): BeverageNotify(
         NotificationType.STATUS, "NoGroundsContainer"
     ),
@@ -138,7 +142,7 @@ class DelonghiDeviceEntity:
 
     def __init__(self, delongh_device, hass: HomeAssistant):
         """Init entity with the device"""
-        self._attr_unique_id = f"{delongh_device.mac}_{self.__class__.__name__}"
+        self._attr_unique_id = f"{delongh_device.mac}_{self.__class__.__name__}"  # noqa: E501
         self.device: DelongiPrimadonna = delongh_device
         self.hass = hass
 
@@ -273,7 +277,7 @@ class DelongiPrimadonna:
         if len(value) > 5:
             self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS.get(5))
         if self._device_status != hexlify(value, " "):
-            _LOGGER.info("Received data: %s from %s", hexlify(value, " "), sender)
+            _LOGGER.info("Received data: %s from %s", hexlify(value, " "), sender)  # noqa: E501
             await self._event_trigger(value)
         self._device_status = hexlify(value, " ")
 
@@ -316,7 +320,7 @@ class DelongiPrimadonna:
         await self._connect()
         try:
             await self._client.write_gatt_char(
-                CONTROLL_CHARACTERISTIC, bytearray(BEVERAGE_COMMANDS.get(beverage).on)
+                CONTROLL_CHARACTERISTIC, bytearray(BEVERAGE_COMMANDS.get(beverage).on)  # noqa: E501
             )
         except BleakError as error:
             self.connected = False
@@ -358,7 +362,7 @@ class DelongiPrimadonna:
         try:
             await self._connect()
             self.hostname = bytes(
-                await self._client.read_gatt_char(uuid.UUID(NAME_CHARACTERISTIC))
+                await self._client.read_gatt_char(uuid.UUID(NAME_CHARACTERISTIC))  # noqa: E501
             ).decode("utf-8")
             await self._client.write_gatt_char(
                 uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG)
@@ -383,7 +387,7 @@ class DelongiPrimadonna:
         try:
             message = [0x0D, 0x06, 0xA9, 0xF0, profile_id, 0xD7, 0xC0]
             sign_request(message)
-            _LOGGER.info("Select Profile: %s", hexlify(bytearray(message), " "))
+            _LOGGER.info("Select Profile: %s", hexlify(bytearray(message), " "))  # noqa: E501
             await self._client.write_gatt_char(
                 CONTROLL_CHARACTERISTIC, bytearray(message)
             )
