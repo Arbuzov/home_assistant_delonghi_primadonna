@@ -51,36 +51,36 @@ _LOGGER = logging.getLogger(__name__)
 class AvailableBeverage(StrEnum):
     """Coffee machine available beverages"""
 
-    NONE = "none"
-    STEAM = "steam"
-    LONG = "long"
-    COFFEE = "coffee"
-    DOPIO = "dopio"
-    HOTWATER = "hot_water"
-    ESPRESSO = "espresso"
-    AMERICANO = "americano"
-    ESPRESSO2 = "espresso2"
+    NONE = 'none'
+    STEAM = 'steam'
+    LONG = 'long'
+    COFFEE = 'coffee'
+    DOPIO = 'dopio'
+    HOTWATER = 'hot_water'
+    ESPRESSO = 'espresso'
+    AMERICANO = 'americano'
+    ESPRESSO2 = 'espresso2'
 
 
-NOZZLE_STATE = {-1: "UNKNOWN", 0: "DETACHED", 1: "STEAM", 4: "MILK"}
+NOZZLE_STATE = {-1: 'UNKNOWN', 0: 'DETACHED', 1: 'STEAM', 4: 'MILK'}
 
 # Skipable maintanence states
-SERVICE_STATE = {0: "OK", 4: "DESCALING"}
+SERVICE_STATE = {0: 'OK', 4: 'DESCALING'}
 
 DEVICE_STATUS = {
-    3: "COOKING",
-    4: "NOZZLE_DETACHED",
-    5: "OK",
-    13: "COFFEE_GROUNDS_CONTAINER_DETACHED",
-    21: "WATER_TANK_DETACHED",
+    3: 'COOKING',
+    4: 'NOZZLE_DETACHED',
+    5: 'OK',
+    13: 'COFFEE_GROUNDS_CONTAINER_DETACHED',
+    21: 'WATER_TANK_DETACHED',
 }
 
 
 class NotificationType(StrEnum):
     """Coffee machine notification types"""
 
-    STATUS = "status"
-    PROCESS = "process"
+    STATUS = 'status'
+    PROCESS = 'process'
 
 
 class BeverageCommand:
@@ -112,25 +112,25 @@ BEVERAGE_COMMANDS = {
 
 DEVICE_NOTIFICATION = {
     str(bytearray(DEVICE_READY)): BeverageNotify(
-        NotificationType.STATUS, "DeviceOK"
+        NotificationType.STATUS, 'DeviceOK'
     ),
     str(bytearray(DEVICE_TURNOFF)): BeverageNotify(
-        NotificationType.STATUS, "DeviceOFF"
+        NotificationType.STATUS, 'DeviceOFF'
     ),
     str(bytearray(WATER_TANK_DETACHED)): BeverageNotify(
-        NotificationType.STATUS, "NoWaterTank"
+        NotificationType.STATUS, 'NoWaterTank'
     ),
     str(bytearray(WATER_SHORTAGE)): BeverageNotify(
-        NotificationType.STATUS, "NoWater"
+        NotificationType.STATUS, 'NoWater'
     ),
     str(bytearray(COFFEE_GROUNDS_CONTAINER_DETACHED)): BeverageNotify(
-        NotificationType.STATUS, "NoGroundsContainer"
+        NotificationType.STATUS, 'NoGroundsContainer'
     ),
     str(bytearray(COFFEE_GROUNDS_CONTAINER_FULL)): BeverageNotify(
-        NotificationType.STATUS, "GroundsContainerFull"
+        NotificationType.STATUS, 'GroundsContainerFull'
     ),
     str(bytearray(START_COFFEE)): BeverageNotify(
-        NotificationType.STATUS, "START_COFFEE"
+        NotificationType.STATUS, 'START_COFFEE'
     ),
 }
 
@@ -142,7 +142,7 @@ class DelonghiDeviceEntity:
 
     def __init__(self, delongh_device, hass: HomeAssistant):
         """Init entity with the device"""
-        self._attr_unique_id = f"{delongh_device.mac}_{self.__class__.__name__}"  # noqa: E501
+        self._attr_unique_id = f'{delongh_device.mac}_{self.__class__.__name__}'  # noqa: E501
         self.device: DelongiPrimadonna = delongh_device
         self.hass = hass
 
@@ -150,11 +150,11 @@ class DelonghiDeviceEntity:
     def device_info(self):
         """Shared device info information"""
         return {
-            "identifiers": {(DOMAIN, self.device.mac)},
-            "connections": {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
-            "name": self.device.name,
-            "manufacturer": "Delongi",
-            "model": self.device.model,
+            'identifiers': {(DOMAIN, self.device.mac)},
+            'connections': {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
+            'name': self.device.name,
+            'manufacturer': 'Delongi',
+            'model': self.device.model,
         }
 
 
@@ -166,7 +166,7 @@ def sign_request(message):
         i4 = i3 ^ ((i3 & 0xFF) >> 4)
         i5 = i4 ^ ((i4 << 12) & 0x0000FFFF)
         deviser = i5 ^ (((i5 & 0xFF) << 5) & 0x0000FFFF)
-    signature = list((deviser & 0x0000FFFF).to_bytes(2, byteorder="big"))
+    signature = list((deviser & 0x0000FFFF).to_bytes(2, byteorder='big'))
     message[len(message) - 2] = signature[0]
     message[len(message) - 1] = signature[1]
     return message
@@ -184,9 +184,9 @@ class DelongiPrimadonna:
         self._connecting = False
         self.mac = config.get(CONF_MAC)
         self.name = config.get(CONF_NAME)
-        self.hostname = ""
-        self.model = "Prima Donna"
-        self.friendly_name = ""
+        self.hostname = ''
+        self.model = 'Prima Donna'
+        self.friendly_name = ''
         self.cooking = AvailableBeverage.NONE
         self.connected = False
         self.notify = False
@@ -197,7 +197,7 @@ class DelongiPrimadonna:
 
     async def disconnect(self):
         """Disconnect from the device"""
-        _LOGGER.info("Disconnect from %s", self.mac)
+        _LOGGER.info('Disconnect from %s', self.mac)
         if (self._client is not None) and self._client.is_connected:
             await self._client.disconnect()
 
@@ -214,11 +214,11 @@ class DelongiPrimadonna:
                 )
                 if not self._device:
                     raise BleakError(
-                        f"A device with address {self.mac} \
-                            could not be found."
+                        f'A device with address {self.mac} \
+                            could not be found.'
                     )
                 self._client = BleakClient(self._device)
-                _LOGGER.info("Connect to %s", self.mac)
+                _LOGGER.info('Connect to %s', self.mac)
                 await self._client.connect()
                 await self._client.start_notify(
                     uuid.UUID(CONTROLL_CHARACTERISTIC), self._handle_data
@@ -233,13 +233,13 @@ class DelongiPrimadonna:
         Trigger event
         :param value: event value
         """
-        event_data = {"data": str(hexlify(value, " "))}
+        event_data = {'data': str(hexlify(value, ' '))}
 
         notification_message = (
-            str(hexlify(value, " "))
-            .replace(" ", ", 0x")
-            .replace("b'", "[0x")
-            .replace("'", "]")
+            str(hexlify(value, ' '))
+            .replace(' ', ', 0x')
+            .replace("b'", '[0x')
+            .replace("'", ']')
         )
 
         if str(bytearray(value)) in DEVICE_NOTIFICATION:
@@ -247,25 +247,25 @@ class DelongiPrimadonna:
                 str(bytearray(value))
             ).description
             event_data.setdefault(
-                "type", DEVICE_NOTIFICATION.get(str(bytearray(value))).kind
+                'type', DEVICE_NOTIFICATION.get(str(bytearray(value))).kind
             )
             event_data.setdefault(
-                "description",
+                'description',
                 DEVICE_NOTIFICATION.get(str(bytearray(value))).description,
             )
-        self._hass.bus.async_fire(f"{DOMAIN}_event", event_data)
+        self._hass.bus.async_fire(f'{DOMAIN}_event', event_data)
 
         if self.notify:
             await self._hass.services.async_call(
-                "persistent_notification",
-                "create",
+                'persistent_notification',
+                'create',
                 {
-                    "message": notification_message,
-                    "title": f"{self.name} {self.mac}",
-                    "notification_id": f"{self.mac}_err_{uuid.uuid4()}",
+                    'message': notification_message,
+                    'title': f'{self.name} {self.mac}',
+                    'notification_id': f'{self.mac}_err_{uuid.uuid4()}',
                 },
             )
-        _LOGGER.info("Event triggered: %s", event_data)
+        _LOGGER.info('Event triggered: %s', event_data)
 
     async def _handle_data(self, sender, value):
         if len(value) > 9:
@@ -276,10 +276,10 @@ class DelongiPrimadonna:
             self.service = value[7]
         if len(value) > 5:
             self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS.get(5))
-        if self._device_status != hexlify(value, " "):
-            _LOGGER.info("Received data: %s from %s", hexlify(value, " "), sender)  # noqa: E501
+        if self._device_status != hexlify(value, ' '):
+            _LOGGER.info('Received data: %s from %s', hexlify(value, ' '), sender)  # noqa: E501
             await self._event_trigger(value)
-        self._device_status = hexlify(value, " ")
+        self._device_status = hexlify(value, ' ')
 
     async def power_on(self) -> None:
         """Turn the device on."""
@@ -290,7 +290,7 @@ class DelongiPrimadonna:
             )
         except BleakError as error:
             self.connected = False
-            _LOGGER.warning("BleakError: %s", error)
+            _LOGGER.warning('BleakError: %s', error)
 
     async def cup_light_on(self) -> None:
         """Turn the cup light on."""
@@ -301,7 +301,7 @@ class DelongiPrimadonna:
             )
         except BleakError as error:
             self.connected = False
-            _LOGGER.warning("BleakError: %s", error)
+            _LOGGER.warning('BleakError: %s', error)
 
     async def cup_light_off(self) -> None:
         """Turn the cup light off."""
@@ -310,10 +310,10 @@ class DelongiPrimadonna:
             await self._client.write_gatt_char(
                 CONTROLL_CHARACTERISTIC, bytearray(BYTES_CUP_LIGHT_OFF)
             )
-            _LOGGER.warning("written")
+            _LOGGER.warning('written')
         except BleakError as error:
             self.connected = False
-            _LOGGER.warning("BleakError: %s", error)
+            _LOGGER.warning('BleakError: %s', error)
 
     async def beverage_start(self, beverage: AvailableBeverage) -> None:
         """Start beverage"""
@@ -324,7 +324,7 @@ class DelongiPrimadonna:
             )
         except BleakError as error:
             self.connected = False
-            _LOGGER.warning("BleakError: %s", error)
+            _LOGGER.warning('BleakError: %s', error)
         finally:
             self.cooking = AvailableBeverage.NONE
 
@@ -339,7 +339,7 @@ class DelongiPrimadonna:
                 )
             except BleakError as error:
                 self.connected = False
-                _LOGGER.warning("BleakError: %s", error)
+                _LOGGER.warning('BleakError: %s', error)
             finally:
                 self.cooking = AvailableBeverage.NONE
 
@@ -352,7 +352,7 @@ class DelongiPrimadonna:
             )
         except BleakError as error:
             self.connected = False
-            _LOGGER.warning("BleakError: %s", error)
+            _LOGGER.warning('BleakError: %s', error)
 
     async def get_device_name(self):
         """
@@ -363,23 +363,23 @@ class DelongiPrimadonna:
             await self._connect()
             self.hostname = bytes(
                 await self._client.read_gatt_char(uuid.UUID(NAME_CHARACTERISTIC))  # noqa: E501
-            ).decode("utf-8")
+            ).decode('utf-8')
             await self._client.write_gatt_char(
                 uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG)
             )
             self.connected = True
         except BleakDBusError as error:
             self.connected = False
-            _LOGGER.warning("BleakDBusError: %s", error)
+            _LOGGER.warning('BleakDBusError: %s', error)
         except BleakError as error:
             self.connected = False
-            _LOGGER.warning("BleakError: %s", error)
+            _LOGGER.warning('BleakError: %s', error)
         except asyncio.exceptions.TimeoutError as error:
             self.connected = False
-            _LOGGER.info("TimeoutError: %s at device connection", error)
+            _LOGGER.info('TimeoutError: %s at device connection', error)
         except asyncio.exceptions.CancelledError as error:
             self.connected = False
-            _LOGGER.warning("CancelledError: %s", error)
+            _LOGGER.warning('CancelledError: %s', error)
 
     async def select_profile(self, profile_id) -> None:
         """select a profile."""
@@ -387,24 +387,24 @@ class DelongiPrimadonna:
         try:
             message = [0x0D, 0x06, 0xA9, 0xF0, profile_id, 0xD7, 0xC0]
             sign_request(message)
-            _LOGGER.info("Select Profile: %s", hexlify(bytearray(message), " "))  # noqa: E501
+            _LOGGER.info('Select Profile: %s', hexlify(bytearray(message), ' '))  # noqa: E501
             await self._client.write_gatt_char(
                 CONTROLL_CHARACTERISTIC, bytearray(message)
             )
         except BleakError as error:
             self.connected = False
-            _LOGGER.warning("BleakError: %s", error)
+            _LOGGER.warning('BleakError: %s', error)
 
     async def send_command(self, command: str) -> None:
         """select a profile."""
         await self._connect()
         try:
-            message = [int(x, 16) for x in command.split(" ")]
+            message = [int(x, 16) for x in command.split(' ')]
             sign_request(message)
-            _LOGGER.info("Send command: %s", hexlify(bytearray(message), " "))
+            _LOGGER.info('Send command: %s', hexlify(bytearray(message), ' '))
             await self._client.write_gatt_char(
                 CONTROLL_CHARACTERISTIC, bytearray(message)
             )
         except BleakError as error:
             self.connected = False
-            _LOGGER.warning("BleakError: %s", error)
+            _LOGGER.warning('BleakError: %s', error)
