@@ -29,4 +29,4 @@ class DebugInput(DelonghiDeviceEntity, TextEntity):
 
     @property
     def available(self) -> bool:
-        return device.notify
+        return self.device.notify
