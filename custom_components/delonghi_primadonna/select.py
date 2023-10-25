@@ -12,21 +12,25 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
-        hass: HomeAssistant, entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback):
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback
+):
     delongh_device: DelongiPrimadonna = hass.data[DOMAIN][entry.unique_id]
-    async_add_entities([
-        ProfileSelect(delongh_device, hass),
-        BeverageSelect(delongh_device, hass),
-        EnergySaveModeSelect(delongh_device, hass)
-    ])
+    async_add_entities(
+        [
+            ProfileSelect(delongh_device, hass),
+            BeverageSelect(delongh_device, hass),
+            EnergySaveModeSelect(delongh_device, hass),
+        ]
+    )
     return True
 
 
 class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
     """Implementation for profile selection."""
 
-    _attr_name = 'Profile'
+    _attr_name = "Profile"
     _attr_options = list(AVAILABLE_PROFILES.keys())
     _attr_current_option = list(AVAILABLE_PROFILES.keys())[0]
 
@@ -40,23 +44,22 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
 class BeverageSelect(DelonghiDeviceEntity, SelectEntity):
     """Beverage start implementation by the select"""
 
-    _attr_name = 'Beverage'
+    _attr_name = "Beverage"
     _attr_options = [*AvailableBeverage]
     _attr_current_option = [*AvailableBeverage][0]
 
     async def async_select_option(self, option: str) -> None:
         """Select beverage action"""
-        self.hass.async_create_task(
-            self.device.beverage_start(option))
+        self.hass.async_create_task(self.device.beverage_start(option))
 
 
 class EnergySaveModeSelect(DelonghiDeviceEntity, SelectEntity):
     """Energy save mode management"""
 
-    _attr_name = 'Energy Save Mode'
-    _attr_options = ['15min', '30min', '1h', '2h', '3h']
-    _attr_current_option = '15min'
+    _attr_name = "Energy Save Mode"
+    _attr_options = ["15min", "30min", "1h", "2h", "3h"]
+    _attr_current_option = "15min"
 
     async def async_select_option(self, option: str) -> None:
         """Select energy save mode action"""
-        _LOGGER.warning('Energy save mode is not implemented yet')
+        _LOGGER.warning("Energy save mode is not implemented yet")

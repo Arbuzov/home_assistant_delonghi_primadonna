@@ -1,5 +1,7 @@
-from homeassistant.components.binary_sensor import (BinarySensorDeviceClass,
-                                                    BinarySensorEntity)
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -9,14 +11,18 @@ from .device import DelonghiDeviceEntity
 
 
 async def async_setup_entry(
-        hass: HomeAssistant, entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback):
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback
+):
     delongh_device = hass.data[DOMAIN][entry.unique_id]
-    async_add_entities([
-        DelongiPrimadonnaDescaleSensor(delongh_device, hass),
-        DelongiPrimadonnaFilterSensor(delongh_device, hass),
-        DelongiPrimadonnaEnabledSensor(delongh_device, hass),
-    ])
+    async_add_entities(
+        [
+            DelongiPrimadonnaDescaleSensor(delongh_device, hass),
+            DelongiPrimadonnaFilterSensor(delongh_device, hass),
+            DelongiPrimadonnaEnabledSensor(delongh_device, hass),
+        ]
+    )
     return True
 
 
@@ -24,17 +30,18 @@ class DelongiPrimadonnaEnabledSensor(DelonghiDeviceEntity, BinarySensorEntity):
     """
     Shows if the device up and running
     """
+
     _attr_device_class = BinarySensorDeviceClass.RUNNING
-    _attr_name = 'Enabled'
-    
+    _attr_name = "Enabled"
+
     @property
     def icon(self) -> str:
         """Return the icon of the device."""
         if self.device.is_on:
-            return 'mdi:coffee-maker-check'
+            return "mdi:coffee-maker-check"
         if self.device.connected:
-            return 'mdi:coffee-maker-check-outline'
-        return 'mdi:coffee-maker-outline'
+            return "mdi:coffee-maker-check-outline"
+        return "mdi:coffee-maker-outline"
 
     @property
     def native_value(self):
@@ -49,8 +56,9 @@ class DelongiPrimadonnaDescaleSensor(DelonghiDeviceEntity, BinarySensorEntity):
     """
     Shows if the device needs descaling
     """
+
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
-    _attr_name = 'Descaling'
+    _attr_name = "Descaling"
 
     @property
     def native_value(self):
@@ -62,20 +70,19 @@ class DelongiPrimadonnaDescaleSensor(DelonghiDeviceEntity, BinarySensorEntity):
 
     @property
     def icon(self):
-        result = 'mdi:dishwasher'
+        result = "mdi:dishwasher"
         if self.is_on():
-            result = 'mdi:dishwasher-alert'
+            result = "mdi:dishwasher-alert"
         return result
 
 
-class DelongiPrimadonnaFilterSensor(
-        DelonghiDeviceEntity,
-        BinarySensorEntity):
+class DelongiPrimadonnaFilterSensor(DelonghiDeviceEntity, BinarySensorEntity):
     """
     Shows if the filter need to be changed
     """
+
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
-    _attr_name = 'Filter'
+    _attr_name = "Filter"
 
     @property
     def native_value(self):
@@ -87,7 +94,7 @@ class DelongiPrimadonnaFilterSensor(
 
     @property
     def icon(self):
-        result = 'mdi:filter'
+        result = "mdi:filter"
         if self.is_on():
-            result = 'mdi:filter-off'
+            result = "mdi:filter-off"
         return result
