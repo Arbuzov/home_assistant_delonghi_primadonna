@@ -22,15 +22,11 @@ async def async_setup_entry(
 
 class DebugInput(DelonghiDeviceEntity, TextEntity):
     """Implementation debug input."""
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     
     async def async_set_value(self, value: str) -> None:
         await self.device.send_command(value)
-    
-    @property
-    def entity_category(self, **kwargs: Any) -> None:
-        """Return the category of the entity."""
-        return EntityCategory.DIAGNOSTIC
-    
+
     @property
     def available(self) -> bool:
         return device.notify
