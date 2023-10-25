@@ -1,5 +1,4 @@
 """Constants for the oiot integration."""
-
 DOMAIN = 'delonghi_primadonna'
 
 SERVICE = '00035b03-58e6-07dd-021a-08123a000300'
