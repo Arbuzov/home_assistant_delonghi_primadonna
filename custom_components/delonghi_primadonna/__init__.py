@@ -43,5 +43,5 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         await hass.data[DOMAIN][entry.unique_id].disconnect()
         hass.data[DOMAIN].pop(entry.unique_id)
-    _LOGGER.info("Unload %s", entry.unique_id)
+    _LOGGER.info('Unload %s', entry.unique_id)
     return unload_ok
