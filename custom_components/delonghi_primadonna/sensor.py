@@ -8,13 +8,17 @@ from .device import DEVICE_STATUS, NOZZLE_STATE, DelonghiDeviceEntity
 
 
 async def async_setup_entry(
-        hass: HomeAssistant, entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback):
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback
+):
     delongh_device = hass.data[DOMAIN][entry.unique_id]
-    async_add_entities([
-        DelongiPrimadonnaNozzleSensor(delongh_device, hass),
-        DelongiPrimadonnaStatusSensor(delongh_device, hass),
-    ])
+    async_add_entities(
+        [
+            DelongiPrimadonnaNozzleSensor(delongh_device, hass),
+            DelongiPrimadonnaStatusSensor(delongh_device, hass),
+        ]
+    )
     return True
 
 
@@ -23,6 +27,7 @@ class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
     Check the connected steam nozzle
     Steam or milk pot
     """
+
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = 'Nozzle'
@@ -47,6 +52,7 @@ class DelongiPrimadonnaStatusSensor(DelonghiDeviceEntity, SensorEntity):
     """
     Shows the actual device status
     """
+
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = 'Status'

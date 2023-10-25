@@ -11,19 +11,21 @@ from .device import DelonghiDeviceEntity, DelongiPrimadonna
 
 _LOGGER = logging.getLogger(__name__)
 
+
 async def async_setup_entry(
-        hass: HomeAssistant, entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback):
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback
+):
     delongh_device: DelongiPrimadonna = hass.data[DOMAIN][entry.unique_id]
-    async_add_entities([
-        DebugInput(delongh_device, hass)
-    ])
+    async_add_entities([DebugInput(delongh_device, hass)])
     return True
+
 
 class DebugInput(DelonghiDeviceEntity, TextEntity):
     """Implementation debug input."""
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    
+
     async def async_set_value(self, value: str) -> None:
         await self.device.send_command(value)
 
