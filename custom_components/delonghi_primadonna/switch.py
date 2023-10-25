@@ -1,9 +1,9 @@
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import ToggleEntity
-from homeassistant.const import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
@@ -36,7 +36,7 @@ class DelongiPrimadonnaCupLightSwitch(DelonghiDeviceEntity, ToggleEntity):
     def entity_category(self, **kwargs: Any) -> None:
         """Return the category of the entity."""
         return EntityCategory.CONFIG
-    
+
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the device on."""
         self.hass.async_create_task(self.device.cup_light_on())

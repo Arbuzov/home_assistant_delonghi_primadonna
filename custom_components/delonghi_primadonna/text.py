@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from homeassistant.components.text import TextEntity
 from homeassistant.config_entries import ConfigEntry
@@ -33,10 +34,8 @@ class DebugInput(DelonghiDeviceEntity, TextEntity):
     @property
     def available(self) -> bool:
         return self.device.notify
-    
+
     @property
     def entity_category(self, **kwargs: Any) -> None:
         """Return the category of the entity."""
         return EntityCategory.DIAGNOSTIC
-
-
