@@ -3,6 +3,7 @@ from typing import Any
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import ToggleEntity
+from homeassistant.const import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
@@ -10,22 +11,32 @@ from .device import DelonghiDeviceEntity
 
 
 async def async_setup_entry(
-        hass: HomeAssistant, entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback):
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback
+):
     delongh_device = hass.data[DOMAIN][entry.unique_id]
-    async_add_entities([
-        DelongiPrimadonnaCupLightSwitch(delongh_device, hass),
-        DelongiPrimadonnaNotificationSwitch(delongh_device, hass)
-    ])
+    async_add_entities(
+        [
+            DelongiPrimadonnaCupLightSwitch(delongh_device, hass),
+            DelongiPrimadonnaNotificationSwitch(delongh_device, hass),
+        ]
+    )
     return True
 
 
 class DelongiPrimadonnaCupLightSwitch(DelonghiDeviceEntity, ToggleEntity):
     """This switch enable/disable the cup light"""
+
     _attr_name = 'Cups light'
     _attr_is_on = False
     _attr_icon = 'mdi:lightbulb'
 
+    @property
+    def entity_category(self, **kwargs: Any) -> None:
+        """Return the category of the entity."""
+        return EntityCategory.CONFIG
+    
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the device on."""
         self.hass.async_create_task(self.device.cup_light_on())
@@ -49,6 +60,11 @@ class DelongiPrimadonnaNotificationSwitch(DelonghiDeviceEntity, ToggleEntity):
     def is_on(self, **kwargs: Any) -> None:
         """Checks is the notification ON."""
         return self.device.notify
+
+    @property
+    def entity_category(self, **kwargs: Any) -> None:
+        """Return the category of the entity."""
+        return EntityCategory.DIAGNOSTIC
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the notification on."""

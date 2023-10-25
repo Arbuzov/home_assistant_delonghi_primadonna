@@ -9,14 +9,18 @@ from .device import DelonghiDeviceEntity
 
 
 async def async_setup_entry(
-        hass: HomeAssistant, entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback):
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback
+):
     delongh_device = hass.data[DOMAIN][entry.unique_id]
-    async_add_entities([
-        DelongiPrimadonnaDescaleSensor(delongh_device, hass),
-        DelongiPrimadonnaFilterSensor(delongh_device, hass),
-        DelongiPrimadonnaEnabledSensor(delongh_device, hass),
-    ])
+    async_add_entities(
+        [
+            DelongiPrimadonnaDescaleSensor(delongh_device, hass),
+            DelongiPrimadonnaFilterSensor(delongh_device, hass),
+            DelongiPrimadonnaEnabledSensor(delongh_device, hass),
+        ]
+    )
     return True
 
 
@@ -24,9 +28,10 @@ class DelongiPrimadonnaEnabledSensor(DelonghiDeviceEntity, BinarySensorEntity):
     """
     Shows if the device up and running
     """
+
     _attr_device_class = BinarySensorDeviceClass.RUNNING
     _attr_name = 'Enabled'
-    
+
     @property
     def icon(self) -> str:
         """Return the icon of the device."""
@@ -49,6 +54,7 @@ class DelongiPrimadonnaDescaleSensor(DelonghiDeviceEntity, BinarySensorEntity):
     """
     Shows if the device needs descaling
     """
+
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
     _attr_name = 'Descaling'
 
@@ -63,17 +69,16 @@ class DelongiPrimadonnaDescaleSensor(DelonghiDeviceEntity, BinarySensorEntity):
     @property
     def icon(self):
         result = 'mdi:dishwasher'
-        if self.is_on():
+        if self.is_on:
             result = 'mdi:dishwasher-alert'
         return result
 
 
-class DelongiPrimadonnaFilterSensor(
-        DelonghiDeviceEntity,
-        BinarySensorEntity):
+class DelongiPrimadonnaFilterSensor(DelonghiDeviceEntity, BinarySensorEntity):
     """
     Shows if the filter need to be changed
     """
+
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
     _attr_name = 'Filter'
 
@@ -88,6 +93,6 @@ class DelongiPrimadonnaFilterSensor(
     @property
     def icon(self):
         result = 'mdi:filter'
-        if self.is_on():
+        if self.is_on:
             result = 'mdi:filter-off'
         return result
