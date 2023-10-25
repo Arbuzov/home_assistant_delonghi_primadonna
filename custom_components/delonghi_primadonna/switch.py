@@ -10,21 +10,24 @@ from .device import DelonghiDeviceEntity
 
 
 async def async_setup_entry(
-        hass: HomeAssistant, entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback):
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+):
     delongh_device = hass.data[DOMAIN][entry.unique_id]
-    async_add_entities([
-        DelongiPrimadonnaCupLightSwitch(delongh_device, hass),
-        DelongiPrimadonnaNotificationSwitch(delongh_device, hass)
-    ])
+    async_add_entities(
+        [
+            DelongiPrimadonnaCupLightSwitch(delongh_device, hass),
+            DelongiPrimadonnaNotificationSwitch(delongh_device, hass),
+        ]
+    )
     return True
 
 
 class DelongiPrimadonnaCupLightSwitch(DelonghiDeviceEntity, ToggleEntity):
     """This switch enable/disable the cup light"""
-    _attr_name = 'Cups light'
+
+    _attr_name = "Cups light"
     _attr_is_on = False
-    _attr_icon = 'mdi:lightbulb'
+    _attr_icon = "mdi:lightbulb"
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the device on."""
@@ -40,8 +43,8 @@ class DelongiPrimadonnaCupLightSwitch(DelonghiDeviceEntity, ToggleEntity):
 class DelongiPrimadonnaNotificationSwitch(DelonghiDeviceEntity, ToggleEntity):
     """This switch enable HA side bar notification on device status change used for debug purposes"""
 
-    _attr_name = 'Enable notification'
-    _attr_icon = 'mdi:magnify-expand'
+    _attr_name = "Enable notification"
+    _attr_icon = "mdi:magnify-expand"
 
     @property
     def is_on(self, **kwargs: Any) -> None:
