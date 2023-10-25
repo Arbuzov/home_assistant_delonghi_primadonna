@@ -1,21 +1,23 @@
 {
-  "domain": "delonghi_primadonna",
-  "name": "DeLonghi BLE",
-  "bluetooth": [
-    {
-      "service_data_uuid": "00035b03-58e6-07dd-021a-08123a000301"
-    },
-    {
-      "service_uuid": "00035b03-58e6-07dd-021a-08123a000300"
-    }
-  ],
-  "codeowners": [
-    "@arbuzov"
-  ],
-  "config_flow": true,
-  "dependencies": ["bluetooth"],
-  "documentation": "https://github.com/Arbuzov/home_assistant_delonghi_primadonna",
-  "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/Arbuzov/home_assistant_delonghi_primadonna/issues",
-  "version": "1.5.1-beta"
+    "domain": "delonghi_primadonna",
+    "name": "DeLonghi BLE",
+    "bluetooth": [
+        {
+            "service_data_uuid": "00035b03-58e6-07dd-021a-08123a000301"
+        },
+        {
+            "service_uuid": "00035b03-58e6-07dd-021a-08123a000300"
+        }
+    ],
+    "codeowners": [
+        "@arbuzov"
+    ],
+    "config_flow": true,
+    "dependencies": [
+        "bluetooth"
+    ],
+    "documentation": "https://github.com/Arbuzov/home_assistant_delonghi_primadonna",
+    "iot_class": "local_polling",
+    "issue_tracker": "https://github.com/Arbuzov/home_assistant_delonghi_primadonna/issues",
+    "version": "1.5.1-beta"
 }
