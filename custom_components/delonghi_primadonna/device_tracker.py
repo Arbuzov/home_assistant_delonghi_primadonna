@@ -26,6 +26,9 @@ async def async_setup_entry(
 
 
 class DelongiPrimadonnaDeviceTracker(DelonghiDeviceEntity, ScannerEntity):
+
+  _attr_name = None
+
     @property
     def icon(self) -> str:
         """Return the icon of the device."""

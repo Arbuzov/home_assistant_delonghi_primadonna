@@ -25,6 +25,8 @@ async def async_setup_entry(
 class DebugInput(DelonghiDeviceEntity, TextEntity):
     """Implementation debug input."""
 
+    _attr_name = None
+
     async def async_set_value(self, value: str) -> None:
         await self.device.send_command(value)
 
