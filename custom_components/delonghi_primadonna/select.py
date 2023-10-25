@@ -3,9 +3,10 @@ import logging
 from homeassistant.components.select import SelectEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.const import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import AVAILABLE_PROFILES, DOMAIN, ENTITY_CATEGORY
+from .const import AVAILABLE_PROFILES, DOMAIN
 from .device import AvailableBeverage, DelonghiDeviceEntity, DelongiPrimadonna
 
 _LOGGER = logging.getLogger(__name__)
