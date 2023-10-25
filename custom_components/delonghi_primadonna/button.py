@@ -8,19 +8,17 @@ from .device import AvailableBeverage, DelonghiDeviceEntity, DelongiPrimadonna
 
 
 async def async_setup_entry(
-        hass: HomeAssistant, entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback):
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+):
     delongh_device: DelongiPrimadonna = hass.data[DOMAIN][entry.unique_id]
-    async_add_entities([
-        DelongiPrimadonnaPowerButton(delongh_device, hass)
-    ])
+    async_add_entities([DelongiPrimadonnaPowerButton(delongh_device, hass)])
     return True
 
 
 class DelongiPrimadonnaPowerButton(DelonghiDeviceEntity, ButtonEntity):
     """This button turns on the device"""
-    _attr_name = 'Turn on ECAM'
+
+    _attr_name = "Turn on ECAM"
 
     async def async_press(self):
         self.hass.async_create_task(self.device.power_on())
-
