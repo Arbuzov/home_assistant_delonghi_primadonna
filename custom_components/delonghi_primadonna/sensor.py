@@ -2,8 +2,8 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
-from .const import DOMAIN, ENTITY_CATEGORY
+from homeassistant.const import EntityCategory
+from .const import DOMAIN
 from .device import DEVICE_STATUS, NOZZLE_STATE, DelonghiDeviceEntity
 
 
