@@ -30,10 +30,10 @@ class DelongiPrimadonnaDeviceTracker(DelonghiDeviceEntity, ScannerEntity):
     def icon(self) -> str:
         """Return the icon of the device."""
         if self.device.is_on:
-            return "mdi:coffee-maker-check"
+            return 'mdi:coffee-maker-check'
         if self.device.connected:
-            return "mdi:coffee-maker-check-outline"
-        return "mdi:coffee-maker-outline"
+            return 'mdi:coffee-maker-check-outline'
+        return 'mdi:coffee-maker-outline'
 
     @property
     def mac_address(self) -> str:
@@ -48,7 +48,7 @@ class DelongiPrimadonnaDeviceTracker(DelonghiDeviceEntity, ScannerEntity):
     @property
     def source_type(self) -> str:
         """Return the source type, eg gps or router, of the device."""
-        return "router"
+        return 'router'
 
     @property
     def is_connected(self) -> bool:
