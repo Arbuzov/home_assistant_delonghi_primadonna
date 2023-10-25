@@ -13,14 +13,18 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
-        hass: HomeAssistant, entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback):
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback
+):
     delongh_device: DelongiPrimadonna = hass.data[DOMAIN][entry.unique_id]
-    async_add_entities([
-        ProfileSelect(delongh_device, hass),
-        BeverageSelect(delongh_device, hass),
-        EnergySaveModeSelect(delongh_device, hass)
-    ])
+    async_add_entities(
+        [
+            ProfileSelect(delongh_device, hass),
+            BeverageSelect(delongh_device, hass),
+            EnergySaveModeSelect(delongh_device, hass),
+        ]
+    )
     return True
 
 
@@ -52,15 +56,20 @@ class BeverageSelect(DelonghiDeviceEntity, SelectEntity):
 
     async def async_select_option(self, option: str) -> None:
         """Select beverage action"""
-        self.hass.async_create_task(
-            self.device.beverage_start(option))
+        self.hass.async_create_task(self.device.beverage_start(option))
 
 
 class EnergySaveModeSelect(DelonghiDeviceEntity, SelectEntity):
     """Energy save mode management"""
 
     _attr_name = 'Energy Save Mode'
-    _attr_options = ['15min', '30min', '1h', '2h', '3h']
+    _attr_options = [
+        '15min',
+        '30min',
+        '1h',
+        '2h',
+        '3h'
+    ]
     _attr_current_option = '15min'
     
     @property
