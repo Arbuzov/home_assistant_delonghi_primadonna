@@ -10,13 +10,15 @@ from homeassistant.core import HomeAssistant
 from .const import DOMAIN
 from .device import DelongiPrimadonna
 
-PLATFORMS: list[str] = [Platform.BUTTON,
-                        Platform.BINARY_SENSOR,
-                        Platform.SENSOR,
-                        Platform.SELECT,
-                        Platform.SWITCH,
-                        Platform.TEXT,
-                        Platform.DEVICE_TRACKER]
+PLATFORMS: list[str] = [
+    Platform.BUTTON,
+    Platform.BINARY_SENSOR,
+    Platform.SENSOR,
+    Platform.SELECT,
+    Platform.SWITCH,
+    Platform.TEXT,
+    Platform.DEVICE_TRACKER,
+]
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -35,7 +37,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     unload_ok = await hass.config_entries.async_unload_platforms(
-        entry, PLATFORMS)
+        entry,
+        PLATFORMS
+    )
     if unload_ok:
         await hass.data[DOMAIN][entry.unique_id].disconnect()
         hass.data[DOMAIN].pop(entry.unique_id)
