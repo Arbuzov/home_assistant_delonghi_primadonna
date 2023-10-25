@@ -16,17 +16,18 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
-        hass: HomeAssistant, entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback):
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback
+):
     delongh_device = hass.data[DOMAIN][entry.unique_id]
-    async_add_entities([
-        DelongiPrimadonnaDeviceTracker(delongh_device, hass)
-    ])
+    async_add_entities([DelongiPrimadonnaDeviceTracker(delongh_device, hass)])
     return True
 
 
 class DelongiPrimadonnaDeviceTracker(DelonghiDeviceEntity, ScannerEntity):
-    _attr_name = None
+
+  _attr_name = None
 
     @property
     def icon(self) -> str:
