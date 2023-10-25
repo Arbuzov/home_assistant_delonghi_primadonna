@@ -10,7 +10,12 @@ NAME_CHARACTERISTIC = "00002A00-0000-1000-8000-00805F9B34FB"
 
 DESCRIPTOR = "00002902-0000-1000-8000-00805f9b34fb"
 
-AVAILABLE_PROFILES = {"Profile 1": 1, "Profile 2": 2, "Profile 3": 3, "Guest": 4}
+AVAILABLE_PROFILES = {
+    "Profile 1": 1,
+    "Profile 2": 2,
+    "Profile 3": 3,
+    "Guest": 4
+}
 
 """
 Command bytes
