@@ -37,7 +37,7 @@ class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
     @property
     def native_value(self):
         return self.device.steam_nozzle
-            
+
     @property
     def icon(self):
         result = 'mdi:coffee'
