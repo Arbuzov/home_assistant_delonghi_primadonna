@@ -36,7 +36,7 @@ class DelongiPrimadonnaCupLightSwitch(DelonghiDeviceEntity, ToggleEntity):
     def entity_category(self, **kwargs: Any) -> None:
         """Return the category of the entity."""
         return EntityCategory.CONFIG
-    
+
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the device on."""
         self.hass.async_create_task(self.device.cup_light_on())
