@@ -1,8 +1,8 @@
 from homeassistant.components.binary_sensor import (BinarySensorDeviceClass,
                                                     BinarySensorEntity)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
 from homeassistant.const import EntityCategory
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
