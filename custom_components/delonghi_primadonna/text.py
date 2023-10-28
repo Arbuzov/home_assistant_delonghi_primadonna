@@ -32,6 +32,14 @@ class DebugInput(DelonghiDeviceEntity, TextEntity):
 
     async def async_set_value(self, value: str) -> None:
         await self.device.send_command(value)
+        
+    @property
+    def name(self) -> str:
+        return "Debug Input"
+    
+    @property
+    def native_value(self) -> str:
+        return ""
 
     # @property
     # def available(self) -> bool:
