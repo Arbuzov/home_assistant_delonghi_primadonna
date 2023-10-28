@@ -26,12 +26,11 @@ async def async_setup_entry(
 class DebugInput(DelonghiDeviceEntity, TextEntity):
     """Implementation debug input."""
 
-#    _attr_name = None
-#    _attr_available =True
-#    _native_value = None
+    _attr_name = None
+    _native_value = ""
 
     async def async_set_value(self, value: str) -> None:
-        await self.device.send_command(value)
+        await self.device.common_command(value)
         
     @property
     def name(self) -> str:
@@ -41,9 +40,9 @@ class DebugInput(DelonghiDeviceEntity, TextEntity):
     def native_value(self) -> str:
         return ""
 
-    # @property
-    # def available(self) -> bool:
-    #     return self.device.notify
+    @property
+    def available(self) -> bool:
+        return self.device.notify
 
     @property
     def entity_category(self, **kwargs: Any) -> None:

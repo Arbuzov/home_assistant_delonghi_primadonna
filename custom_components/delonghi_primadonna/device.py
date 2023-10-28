@@ -13,13 +13,13 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
-                    BYTES_CUP_LIGHT_ON, BYTES_POWER, COFFE_OFF, COFFE_ON,
+                    BYTES_CUP_LIGHT_ON, BYTES_ENERGY_SAVING_OFF, BYTES_ENERGY_SAVING_ON, BYTES_POWER, COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
                     COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
                     DEBUG, DEVICE_READY, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
                     DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF,
                     ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
-                    NAME_CHARACTERISTIC, START_COFFEE, STEAM_OFF, STEAM_ON,
+                    NAME_CHARACTERISTIC, SOUND_ALARM_OFF, SOUND_ALARM_ON, START_COFFEE, STEAM_OFF, STEAM_ON,
                     WATER_SHORTAGE, WATER_TANK_DETACHED)
 
 _LOGGER = logging.getLogger(__name__)
@@ -266,76 +266,44 @@ class DelongiPrimadonna:
 
     async def power_on(self) -> None:
         """Turn the device on."""
-        await self._connect()
-        try:
-            await self._client.write_gatt_char(
-                uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(BYTES_POWER)
-            )
-        except BleakError as error:
-            self.connected = False
-            _LOGGER.warning('BleakError: %s', error)
+        await self.send_command(BYTES_POWER)
 
     async def cup_light_on(self) -> None:
         """Turn the cup light on."""
-        await self._connect()
-        try:
-            await self._client.write_gatt_char(
-                CONTROLL_CHARACTERISTIC, bytearray(BYTES_CUP_LIGHT_ON)
-            )
-        except BleakError as error:
-            self.connected = False
-            _LOGGER.warning('BleakError: %s', error)
+        await self.send_command(BYTES_CUP_LIGHT_ON)
 
     async def cup_light_off(self) -> None:
         """Turn the cup light off."""
-        await self._connect()
-        try:
-            await self._client.write_gatt_char(
-                CONTROLL_CHARACTERISTIC, bytearray(BYTES_CUP_LIGHT_OFF)
-            )
-            _LOGGER.warning('written')
-        except BleakError as error:
-            self.connected = False
-            _LOGGER.warning('BleakError: %s', error)
+        await self.send_command(BYTES_CUP_LIGHT_OFF)
+        
+    async def energy_save_on(self):
+        """Enable energy save mode"""
+        await self.send_command(BYTES_ENERGY_SAVING_ON)
+        
+    async def energy_save_off(self):
+        """Enable energy save mode"""
+        await self.send_command(BYTES_ENERGY_SAVING_OFF)
+        
+    async def sound_alarm_on(self):
+        """Enable sound alarm"""
+        await self.send_command(SOUND_ALARM_ON)
+        
+    async def sound_alarm_off(self):
+        """Disable sound alarm"""
+        await self.send_command(SOUND_ALARM_OFF)
 
     async def beverage_start(self, beverage: AvailableBeverage) -> None:
         """Start beverage"""
-        await self._connect()
-        try:
-            await self._client.write_gatt_char(
-                CONTROLL_CHARACTERISTIC, bytearray(BEVERAGE_COMMANDS.get(beverage).on)  # noqa: E501
-            )
-        except BleakError as error:
-            self.connected = False
-            _LOGGER.warning('BleakError: %s', error)
-        finally:
-            self.cooking = AvailableBeverage.NONE
+        await self.send_command(BEVERAGE_COMMANDS.get(beverage).on)
 
     async def beverage_cancel(self) -> None:
         """Cancel beverage"""
-        await self._connect()
-        if self.connected and self.cooking != AvailableBeverage.NONE:
-            try:
-                await self._client.write_gatt_char(
-                    CONTROLL_CHARACTERISTIC,
-                    bytearray(BEVERAGE_COMMANDS.get(self.cooking).off),
-                )
-            except BleakError as error:
-                self.connected = False
-                _LOGGER.warning('BleakError: %s', error)
-            finally:
-                self.cooking = AvailableBeverage.NONE
+        if self.cooking != AvailableBeverage.NONE:
+            await self.send_command(BEVERAGE_COMMANDS.get(self.cooking).off)
 
     async def debug(self):
-        """Debug"""
-        await self._connect()
-        try:
-            await self._client.write_gatt_char(
-                uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG)
-            )
-        except BleakError as error:
-            self.connected = False
-            _LOGGER.warning('BleakError: %s', error)
+        """Send command which causes status reply"""
+        await self.send_command(DEBUG)
 
     async def get_device_name(self):
         """
@@ -366,23 +334,17 @@ class DelongiPrimadonna:
 
     async def select_profile(self, profile_id) -> None:
         """select a profile."""
-        await self._connect()
-        try:
-            message = [0x0D, 0x06, 0xA9, 0xF0, profile_id, 0xD7, 0xC0]
-            sign_request(message)
-            _LOGGER.info('Select Profile: %s', hexlify(bytearray(message), ' '))  # noqa: E501
-            await self._client.write_gatt_char(
-                CONTROLL_CHARACTERISTIC, bytearray(message)
-            )
-        except BleakError as error:
-            self.connected = False
-            _LOGGER.warning('BleakError: %s', error)
+        message = [0x0D, 0x06, 0xA9, 0xF0, profile_id, 0xD7, 0xC0]
+        await self.send_command(message)
 
-    async def send_command(self, command: str) -> None:
-        """select a profile."""
+    async def common_command(self, command: str) -> None:
+        """Send custom BLE command"""
+        message = [int(x, 16) for x in command.split(' ')]
+        await self.send_command(message)
+            
+    async def send_command(self, message):
         await self._connect()
         try:
-            message = [int(x, 16) for x in command.split(' ')]
             sign_request(message)
             _LOGGER.info('Send command: %s', hexlify(bytearray(message), ' '))
             await self._client.write_gatt_char(

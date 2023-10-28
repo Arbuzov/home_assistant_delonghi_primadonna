@@ -43,3 +43,35 @@ Please join
 |d0 07 a9 f0 02 00 6e 6f|Set Profile 2 response||
 |d0 07 a9 f0 03 00 5d 5e|Set Profile 3 response||
 |d0 07 a9 f0 04 01 d4 e8|Set Profile Guest response||
+
+
+### Notification Protocol assumptions
+|Code    | Details                                             |
+|--------|-----------------------------------------------------|
+|00 - 03 | was not changed suspect pilot or device type
+|04      | nozzle sensor hot water, milk pot or detached
+|05      | General notification bitmask is suspected
+|        | 0
+|        | 1
+|        | 2
+|        | 3
+|        | 4
+|        | 5
+|        | 6
+|        | 7
+|06      | Ability to use milk pot, maybe
+|07      | Service notification bitmask is suspected
+|        | 0
+|        | 1
+|        | 2 - descale
+|        | 3 - replace water filter
+|        | 4
+|        | 5
+|        | 6
+|        | 7
+|08      | always 0
+|09      | 0x00 if device active 0x07 if device is off
+|10      | cooking progress stage
+|11      | progress bar inside the stage
+|12 - 16 | always 0 perhaps for the new features
+|17 - 18 | Signature
