@@ -32,7 +32,7 @@ class DelongiPrimadonnaDeviceTracker(DelonghiDeviceEntity, ScannerEntity):
     @property
     def icon(self) -> str:
         """Return the icon of the device."""
-        if self.device.is_on:
+        if self.device.switches.is_on:
             return 'mdi:coffee-maker-check'
         if self.device.connected:
             return 'mdi:coffee-maker-check-outline'

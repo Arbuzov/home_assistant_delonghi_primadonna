@@ -44,6 +44,8 @@ Please join
 |d0 07 a9 f0 03 00 5d 5e|Set Profile 3 response||
 |d0 07 a9 f0 04 01 d4 e8|Set Profile Guest response||
 
+### Management ptotocol
+
 
 ### Notification Protocol assumptions
 |Code    | Details                                             |

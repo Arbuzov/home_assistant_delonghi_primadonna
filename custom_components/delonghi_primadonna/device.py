@@ -12,8 +12,8 @@ from homeassistant.const import CONF_MAC, CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
-from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
-                    BYTES_CUP_LIGHT_ON, BYTES_ENERGY_SAVING_OFF, BYTES_ENERGY_SAVING_ON, BYTES_POWER, COFFE_OFF, COFFE_ON,
+from .const import (AMERICANO_OFF, AMERICANO_ON, BASE_COMMAND, BYTES_CUP_LIGHT_OFF,
+                    BYTES_CUP_LIGHT_ON, BYTES_ENERGY_SAVING_OFF, BYTES_GENERAL_COMMAND, BYTES_POWER, COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
                     COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
                     DEBUG, DEVICE_READY, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
@@ -81,6 +81,15 @@ class BeverageNotify:
         self.kind = str(kind)
         self.description = str(description)
 
+class DeviceSwitches:
+    """All binary switches for the device"""
+    
+    def __init__(self):
+        self.sounds = False
+        self.energy_save = False
+        self.cup_light = False
+        self.filter = False
+        self.is_on = False
 
 BEVERAGE_COMMANDS = {
     AvailableBeverage.STEAM: BeverageCommand(STEAM_ON, STEAM_OFF),
@@ -176,7 +185,7 @@ class DelongiPrimadonna:
         self.steam_nozzle = NOZZLE_STATE[-1]
         self.service = 0
         self.status = DEVICE_STATUS[5]
-        self.is_on = False
+        self.switches = DeviceSwitches()
 
     async def disconnect(self):
         """Disconnect from the device"""
@@ -210,6 +219,16 @@ class DelongiPrimadonna:
             self._connecting = False
             raise error
         self._connecting = False
+        
+    def _make_command(self):
+        """Make hex command"""
+        base_command = BASE_COMMAND
+        command = base_command[:3] + '1' if self.switches.energy_save else '0' + base_command[4:]
+        command = base_command[:4] + '1' if self.switches.cup_light else '0' + base_command[5:]
+        command = base_command[:5] + '1' if self.switches.sounds else '0' + base_command[6:]
+        bytes_energy_saving_on = BYTES_GENERAL_COMMAND
+        bytes_energy_saving_on[9] = hex(int(command, 2))
+        return bytes_energy_saving_on
 
     async def _event_trigger(self, value):
         """
@@ -252,7 +271,7 @@ class DelongiPrimadonna:
 
     async def _handle_data(self, sender, value):
         if len(value) > 9:
-            self.is_on = value[9] > 0
+            self.switches.is_on = value[9] > 0
         if len(value) > 4:
             self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
         if len(value) > 7:
@@ -270,27 +289,33 @@ class DelongiPrimadonna:
 
     async def cup_light_on(self) -> None:
         """Turn the cup light on."""
-        await self.send_command(BYTES_CUP_LIGHT_ON)
+        self.switches.cup_light = True
+        await self.send_command(self._make_command())
 
     async def cup_light_off(self) -> None:
         """Turn the cup light off."""
-        await self.send_command(BYTES_CUP_LIGHT_OFF)
+        self.switches.cup_light = False
+        await self.send_command(self._make_command())
         
     async def energy_save_on(self):
         """Enable energy save mode"""
-        await self.send_command(BYTES_ENERGY_SAVING_ON)
+        self.switches.energy_save = True
+        await self.send_command(self._make_command())
         
     async def energy_save_off(self):
         """Enable energy save mode"""
-        await self.send_command(BYTES_ENERGY_SAVING_OFF)
+        self.switches.energy_save = False
+        await self.send_command(self._make_command())
         
     async def sound_alarm_on(self):
         """Enable sound alarm"""
-        await self.send_command(SOUND_ALARM_ON)
+        self.switches.sounds = True
+        await self.send_command(self._make_command())
         
     async def sound_alarm_off(self):
         """Disable sound alarm"""
-        await self.send_command(SOUND_ALARM_OFF)
+        self.switches.sounds = False
+        await self.send_command(self._make_command())
 
     async def beverage_start(self, beverage: AvailableBeverage) -> None:
         """Start beverage"""
