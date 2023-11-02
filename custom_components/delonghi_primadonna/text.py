@@ -27,18 +27,18 @@ class DebugInput(DelonghiDeviceEntity, TextEntity):
     """Implementation debug input."""
 
     _attr_name = None
-    _native_value = ""
+    _native_value = ''
 
     async def async_set_value(self, value: str) -> None:
         await self.device.common_command(value)
-        
+
     @property
     def name(self) -> str:
-        return "Debug Input"
-    
+        return 'Debug Input'
+
     @property
     def native_value(self) -> str:
-        return ""
+        return ''
 
     @property
     def available(self) -> bool:

@@ -81,15 +81,17 @@ class BeverageNotify:
         self.kind = str(kind)
         self.description = str(description)
 
+
 class DeviceSwitches:
     """All binary switches for the device"""
-    
+
     def __init__(self):
         self.sounds = False
         self.energy_save = False
         self.cup_light = False
         self.filter = False
         self.is_on = False
+
 
 BEVERAGE_COMMANDS = {
     AvailableBeverage.STEAM: BeverageCommand(STEAM_ON, STEAM_OFF),
@@ -219,16 +221,24 @@ class DelongiPrimadonna:
             self._connecting = False
             raise error
         self._connecting = False
-        
+
     def _make_command(self):
         """Make hex command"""
         base_command = BASE_COMMAND
-        command = base_command[:3] + '1' if self.switches.energy_save else '0' + base_command[4:]
-        command = base_command[:4] + '1' if self.switches.cup_light else '0' + base_command[5:]
-        command = base_command[:5] + '1' if self.switches.sounds else '0' + base_command[6:]
-        bytes_energy_saving_on = BYTES_GENERAL_COMMAND
-        bytes_energy_saving_on[9] = hex(int(command, 2))
-        return bytes_energy_saving_on
+        command = base_command[:3] + \
+            '1' if self.switches.energy_save else '0' + \
+            base_command[4:]
+        command = base_command[:4] + \
+            '1' if self.switches.cup_light else '0' + \
+            base_command[5:]
+        command = base_command[:5] + \
+            '1' if self.switches.sounds else '0' + \
+            base_command[6:]
+        _LOGGER.warning('Command bin: %s', command)
+        bytes_general_command = BYTES_GENERAL_COMMAND
+        bytes_general_command[9] = int(command, 2)
+        _LOGGER.warning('Command bytes: %s', bytes_general_command)
+        return bytes_general_command
 
     async def _event_trigger(self, value):
         """
@@ -296,22 +306,22 @@ class DelongiPrimadonna:
         """Turn the cup light off."""
         self.switches.cup_light = False
         await self.send_command(self._make_command())
-        
+
     async def energy_save_on(self):
         """Enable energy save mode"""
         self.switches.energy_save = True
         await self.send_command(self._make_command())
-        
+
     async def energy_save_off(self):
         """Enable energy save mode"""
         self.switches.energy_save = False
         await self.send_command(self._make_command())
-        
+
     async def sound_alarm_on(self):
         """Enable sound alarm"""
         self.switches.sounds = True
         await self.send_command(self._make_command())
-        
+
     async def sound_alarm_off(self):
         """Disable sound alarm"""
         self.switches.sounds = False
@@ -366,7 +376,7 @@ class DelongiPrimadonna:
         """Send custom BLE command"""
         message = [int(x, 16) for x in command.split(' ')]
         await self.send_command(message)
-            
+
     async def send_command(self, message):
         await self._connect()
         try:

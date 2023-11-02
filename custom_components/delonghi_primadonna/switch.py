@@ -77,11 +77,13 @@ class DelongiPrimadonnaNotificationSwitch(DelonghiDeviceEntity, ToggleEntity):
         """Turn the notification off."""
         self.device.notify = False
 
+
 class DelongiPrimadonnaPowerSaveSwitch(DelonghiDeviceEntity, ToggleEntity):
-    
+
     _attr_name = 'Enable power save'
     _attr_is_on = False
     _attr_icon = 'mdi:lightning-bolt'
+
     @property
     def entity_category(self, **kwargs: Any) -> None:
         """Return the category of the entity"""
@@ -97,12 +99,13 @@ class DelongiPrimadonnaPowerSaveSwitch(DelonghiDeviceEntity, ToggleEntity):
         self.hass.async_create_task(self.device.energy_save_off())
         self._attr_is_on = False
 
+
 class DelongiPrimadonnaSoundsSwitch(DelonghiDeviceEntity, ToggleEntity):
-    
+
     _attr_name = 'Enable sound'
     _attr_is_on = False
     _attr_icon = 'mdi:volume-high'
-    
+
     @property
     def entity_category(self, **kwargs: Any) -> None:
         """Return the category of the entity."""
