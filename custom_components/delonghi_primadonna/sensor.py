@@ -1,8 +1,9 @@
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.const import EntityCategory
+
 from .const import DOMAIN
 from .device import DEVICE_STATUS, NOZZLE_STATE, DelonghiDeviceEntity
 
@@ -29,6 +30,7 @@ class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
     """
 
     _attr_device_class = SensorDeviceClass.ENUM
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = 'Nozzle'
 
     _attr_options = list(NOZZLE_STATE.values())
@@ -36,12 +38,7 @@ class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
     @property
     def native_value(self):
         return self.device.steam_nozzle
-    
-    @property
-    def entity_category(self, **kwargs: Any) -> None:
-        """Return the category of the entity."""
-        return EntityCategory.DIAGNOSTIC
-            
+
     @property
     def icon(self):
         result = 'mdi:coffee'
@@ -58,18 +55,14 @@ class DelongiPrimadonnaStatusSensor(DelonghiDeviceEntity, SensorEntity):
     """
 
     _attr_device_class = SensorDeviceClass.ENUM
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = 'Status'
     _attr_options = list(DEVICE_STATUS.values())
 
     @property
     def native_value(self):
         return self.device.status
-    
-    @property
-    def entity_category(self, **kwargs: Any) -> None:
-        """Return the category of the entity."""
-        return EntityCategory.DIAGNOSTIC
-    
+
     @property
     def icon(self):
         result = 'mdi:thumb-up-outline'

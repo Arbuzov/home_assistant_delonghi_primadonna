@@ -1,6 +1,7 @@
 from homeassistant.components.binary_sensor import (BinarySensorDeviceClass,
                                                     BinarySensorEntity)
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -30,6 +31,7 @@ class DelongiPrimadonnaEnabledSensor(DelonghiDeviceEntity, BinarySensorEntity):
     """
 
     _attr_device_class = BinarySensorDeviceClass.RUNNING
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = 'Enabled'
 
     @property
@@ -56,6 +58,7 @@ class DelongiPrimadonnaDescaleSensor(DelonghiDeviceEntity, BinarySensorEntity):
     """
 
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = 'Descaling'
 
     @property
@@ -80,6 +83,7 @@ class DelongiPrimadonnaFilterSensor(DelonghiDeviceEntity, BinarySensorEntity):
     """
 
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = 'Filter'
 
     @property
