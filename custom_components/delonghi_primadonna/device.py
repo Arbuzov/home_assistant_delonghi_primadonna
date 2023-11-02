@@ -224,19 +224,13 @@ class DelongiPrimadonna:
 
     def _make_command(self):
         """Make hex command"""
-        base_command = BASE_COMMAND
-        command = base_command[:3] + \
-            '1' if self.switches.energy_save else '0' + \
-            base_command[4:]
-        command = base_command[:4] + \
-            '1' if self.switches.cup_light else '0' + \
-            base_command[5:]
-        command = base_command[:5] + \
-            '1' if self.switches.sounds else '0' + \
-            base_command[6:]
-        _LOGGER.warning('Command bin: %s', command)
+        base_command = list(BASE_COMMAND)
+        base_command[3] = '1' if self.switches.energy_save else '0'
+        base_command[4] = '1' if self.switches.cup_light else '0'
+        base_command[5] = '1' if self.switches.sounds else '0'
+        _LOGGER.warning('Command bin: %s', "".join(base_command))
         bytes_general_command = BYTES_GENERAL_COMMAND
-        bytes_general_command[9] = int(command, 2)
+        bytes_general_command[9] = int("".join(base_command), 2)
         _LOGGER.warning('Command bytes: %s', bytes_general_command)
         return bytes_general_command
 
