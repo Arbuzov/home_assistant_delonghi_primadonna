@@ -12,14 +12,14 @@ from homeassistant.const import CONF_MAC, CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
-from .const import (AMERICANO_OFF, AMERICANO_ON, BASE_COMMAND, BYTES_CUP_LIGHT_OFF,
-                    BYTES_CUP_LIGHT_ON, BYTES_ENERGY_SAVING_OFF, BYTES_GENERAL_COMMAND, BYTES_POWER, COFFE_OFF, COFFE_ON,
+from .const import (AMERICANO_OFF, AMERICANO_ON, BASE_COMMAND,
+                    BYTES_GENERAL_COMMAND, BYTES_POWER, COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
                     COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
                     DEBUG, DEVICE_READY, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
                     DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF,
                     ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
-                    NAME_CHARACTERISTIC, SOUND_ALARM_OFF, SOUND_ALARM_ON, START_COFFEE, STEAM_OFF, STEAM_ON,
+                    NAME_CHARACTERISTIC, START_COFFEE, STEAM_OFF, STEAM_ON,
                     WATER_SHORTAGE, WATER_TANK_DETACHED)
 
 _LOGGER = logging.getLogger(__name__)
@@ -228,10 +228,12 @@ class DelongiPrimadonna:
         base_command[3] = '1' if self.switches.energy_save else '0'
         base_command[4] = '1' if self.switches.cup_light else '0'
         base_command[5] = '1' if self.switches.sounds else '0'
-        _LOGGER.warning('Command bin: %s', "".join(base_command))
+        if self.notify:
+            _LOGGER.warning('Command bin: %s', ''.join(base_command))
         bytes_general_command = BYTES_GENERAL_COMMAND
-        bytes_general_command[9] = int("".join(base_command), 2)
-        _LOGGER.warning('Command bytes: %s', bytes_general_command)
+        bytes_general_command[9] = int(''.join(base_command), 2)
+        if self.notify:
+            _LOGGER.warning('Command bytes: %s', bytes_general_command)
         return bytes_general_command
 
     async def _event_trigger(self, value):
