@@ -25,7 +25,7 @@ async def async_setup_entry(
 
 class DebugInput(DelonghiDeviceEntity, TextEntity):
     """Implementation debug input."""
-
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = None
     _native_value = ''
 

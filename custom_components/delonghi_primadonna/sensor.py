@@ -32,6 +32,7 @@ class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
     """
 
     _attr_device_class = SensorDeviceClass.ENUM
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = 'Nozzle'
 
     _attr_options = list(NOZZLE_STATE.values())
@@ -61,6 +62,7 @@ class DelongiPrimadonnaStatusSensor(DelonghiDeviceEntity, SensorEntity):
     """
 
     _attr_device_class = SensorDeviceClass.ENUM
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = 'Status'
     _attr_options = list(DEVICE_STATUS.values())
 

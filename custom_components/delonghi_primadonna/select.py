@@ -35,6 +35,7 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
     _attr_name = 'Profile'
     _attr_options = list(AVAILABLE_PROFILES.keys())
     _attr_current_option = list(AVAILABLE_PROFILES.keys())[0]
+    _attr_entity_category = EntityCategory.CONFIG
 
     @property
     def entity_category(self, **kwargs: Any) -> None:

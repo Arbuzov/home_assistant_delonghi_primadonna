@@ -26,7 +26,7 @@ async def async_setup_entry(
 
 
 class DelongiPrimadonnaDeviceTracker(DelonghiDeviceEntity, ScannerEntity):
-
+    """Implementation of a Delonghi Primadonna device tracker"""
     _attr_name = None
 
     @property
