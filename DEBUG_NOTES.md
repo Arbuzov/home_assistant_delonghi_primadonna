@@ -44,8 +44,10 @@ Please join
 |d0 07 a9 f0 03 00 5d 5e|Set Profile 3 response||
 |d0 07 a9 f0 04 01 d4 e8|Set Profile Guest response||
 
-### Management ptotocol
+### Management protocol
 
+Switches managed by command [0x0d, 0x0b, 0x90, 0x0f, 0x00, 0x3f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+The nine digit (counted from 0) is the command bitmask
 
 ### Notification Protocol assumptions
 |Code    | Details                                             |
