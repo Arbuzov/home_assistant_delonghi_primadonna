@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from homeassistant.components.select import SelectEntity
 from homeassistant.config_entries import ConfigEntry
@@ -36,6 +37,11 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
     _attr_current_option = list(AVAILABLE_PROFILES.keys())[0]
     _attr_entity_category = EntityCategory.CONFIG
 
+    @property
+    def entity_category(self, **kwargs: Any) -> None:
+        """Return the category of the entity."""
+        return EntityCategory.CONFIG
+
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
         profile_id = AVAILABLE_PROFILES.get(option)
@@ -67,7 +73,11 @@ class EnergySaveModeSelect(DelonghiDeviceEntity, SelectEntity):
         '3h'
     ]
     _attr_current_option = '15min'
-    _attr_entity_category = EntityCategory.CONFIG
+
+    @property
+    def entity_category(self, **kwargs: Any) -> None:
+        """Return the category of the entity."""
+        return EntityCategory.CONFIG
 
     async def async_select_option(self, option: str) -> None:
         """Select energy save mode action"""

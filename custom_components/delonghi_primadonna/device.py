@@ -12,8 +12,8 @@ from homeassistant.const import CONF_MAC, CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
-from .const import (AMERICANO_OFF, AMERICANO_ON, BYTES_CUP_LIGHT_OFF,
-                    BYTES_CUP_LIGHT_ON, BYTES_POWER, COFFE_OFF, COFFE_ON,
+from .const import (AMERICANO_OFF, AMERICANO_ON, BASE_COMMAND,
+                    BYTES_GENERAL_COMMAND, BYTES_POWER, COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
                     COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
                     DEBUG, DEVICE_READY, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
@@ -80,6 +80,17 @@ class BeverageNotify:
     def __init__(self, kind, description):
         self.kind = str(kind)
         self.description = str(description)
+
+
+class DeviceSwitches:
+    """All binary switches for the device"""
+
+    def __init__(self):
+        self.sounds = False
+        self.energy_save = False
+        self.cup_light = False
+        self.filter = False
+        self.is_on = False
 
 
 BEVERAGE_COMMANDS = {
@@ -176,7 +187,7 @@ class DelongiPrimadonna:
         self.steam_nozzle = NOZZLE_STATE[-1]
         self.service = 0
         self.status = DEVICE_STATUS[5]
-        self.is_on = False
+        self.switches = DeviceSwitches()
 
     async def disconnect(self):
         """Disconnect from the device"""
@@ -210,6 +221,20 @@ class DelongiPrimadonna:
             self._connecting = False
             raise error
         self._connecting = False
+
+    def _make_command(self):
+        """Make hex command"""
+        base_command = list(BASE_COMMAND)
+        base_command[3] = '1' if self.switches.energy_save else '0'
+        base_command[4] = '1' if self.switches.cup_light else '0'
+        base_command[5] = '1' if self.switches.sounds else '0'
+        if self.notify:
+            _LOGGER.warning('Command bin: %s', ''.join(base_command))
+        bytes_general_command = BYTES_GENERAL_COMMAND
+        bytes_general_command[9] = int(''.join(base_command), 2)
+        if self.notify:
+            _LOGGER.warning('Command bytes: %s', bytes_general_command)
+        return bytes_general_command
 
     async def _event_trigger(self, value):
         """
@@ -252,7 +277,7 @@ class DelongiPrimadonna:
 
     async def _handle_data(self, sender, value):
         if len(value) > 9:
-            self.is_on = value[9] > 0
+            self.switches.is_on = value[9] > 0
         if len(value) > 4:
             self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
         if len(value) > 7:
@@ -266,76 +291,50 @@ class DelongiPrimadonna:
 
     async def power_on(self) -> None:
         """Turn the device on."""
-        await self._connect()
-        try:
-            await self._client.write_gatt_char(
-                uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(BYTES_POWER)
-            )
-        except BleakError as error:
-            self.connected = False
-            _LOGGER.warning('BleakError: %s', error)
+        await self.send_command(BYTES_POWER)
 
     async def cup_light_on(self) -> None:
         """Turn the cup light on."""
-        await self._connect()
-        try:
-            await self._client.write_gatt_char(
-                CONTROLL_CHARACTERISTIC, bytearray(BYTES_CUP_LIGHT_ON)
-            )
-        except BleakError as error:
-            self.connected = False
-            _LOGGER.warning('BleakError: %s', error)
+        self.switches.cup_light = True
+        await self.send_command(self._make_command())
 
     async def cup_light_off(self) -> None:
         """Turn the cup light off."""
-        await self._connect()
-        try:
-            await self._client.write_gatt_char(
-                CONTROLL_CHARACTERISTIC, bytearray(BYTES_CUP_LIGHT_OFF)
-            )
-            _LOGGER.warning('written')
-        except BleakError as error:
-            self.connected = False
-            _LOGGER.warning('BleakError: %s', error)
+        self.switches.cup_light = False
+        await self.send_command(self._make_command())
+
+    async def energy_save_on(self):
+        """Enable energy save mode"""
+        self.switches.energy_save = True
+        await self.send_command(self._make_command())
+
+    async def energy_save_off(self):
+        """Enable energy save mode"""
+        self.switches.energy_save = False
+        await self.send_command(self._make_command())
+
+    async def sound_alarm_on(self):
+        """Enable sound alarm"""
+        self.switches.sounds = True
+        await self.send_command(self._make_command())
+
+    async def sound_alarm_off(self):
+        """Disable sound alarm"""
+        self.switches.sounds = False
+        await self.send_command(self._make_command())
 
     async def beverage_start(self, beverage: AvailableBeverage) -> None:
         """Start beverage"""
-        await self._connect()
-        try:
-            await self._client.write_gatt_char(
-                CONTROLL_CHARACTERISTIC, bytearray(BEVERAGE_COMMANDS.get(beverage).on)  # noqa: E501
-            )
-        except BleakError as error:
-            self.connected = False
-            _LOGGER.warning('BleakError: %s', error)
-        finally:
-            self.cooking = AvailableBeverage.NONE
+        await self.send_command(BEVERAGE_COMMANDS.get(beverage).on)
 
     async def beverage_cancel(self) -> None:
         """Cancel beverage"""
-        await self._connect()
-        if self.connected and self.cooking != AvailableBeverage.NONE:
-            try:
-                await self._client.write_gatt_char(
-                    CONTROLL_CHARACTERISTIC,
-                    bytearray(BEVERAGE_COMMANDS.get(self.cooking).off),
-                )
-            except BleakError as error:
-                self.connected = False
-                _LOGGER.warning('BleakError: %s', error)
-            finally:
-                self.cooking = AvailableBeverage.NONE
+        if self.cooking != AvailableBeverage.NONE:
+            await self.send_command(BEVERAGE_COMMANDS.get(self.cooking).off)
 
     async def debug(self):
-        """Debug"""
-        await self._connect()
-        try:
-            await self._client.write_gatt_char(
-                uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG)
-            )
-        except BleakError as error:
-            self.connected = False
-            _LOGGER.warning('BleakError: %s', error)
+        """Send command which causes status reply"""
+        await self.send_command(DEBUG)
 
     async def get_device_name(self):
         """
@@ -366,23 +365,17 @@ class DelongiPrimadonna:
 
     async def select_profile(self, profile_id) -> None:
         """select a profile."""
-        await self._connect()
-        try:
-            message = [0x0D, 0x06, 0xA9, 0xF0, profile_id, 0xD7, 0xC0]
-            sign_request(message)
-            _LOGGER.info('Select Profile: %s', hexlify(bytearray(message), ' '))  # noqa: E501
-            await self._client.write_gatt_char(
-                CONTROLL_CHARACTERISTIC, bytearray(message)
-            )
-        except BleakError as error:
-            self.connected = False
-            _LOGGER.warning('BleakError: %s', error)
+        message = [0x0D, 0x06, 0xA9, 0xF0, profile_id, 0xD7, 0xC0]
+        await self.send_command(message)
 
-    async def send_command(self, command: str) -> None:
-        """select a profile."""
+    async def common_command(self, command: str) -> None:
+        """Send custom BLE command"""
+        message = [int(x, 16) for x in command.split(' ')]
+        await self.send_command(message)
+
+    async def send_command(self, message):
         await self._connect()
         try:
-            message = [int(x, 16) for x in command.split(' ')]
             sign_request(message)
             _LOGGER.info('Send command: %s', hexlify(bytearray(message), ' '))
             await self._client.write_gatt_char(

@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from homeassistant.components.text import TextEntity
 from homeassistant.config_entries import ConfigEntry
@@ -26,10 +27,24 @@ class DebugInput(DelonghiDeviceEntity, TextEntity):
     """Implementation debug input."""
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = None
+    _native_value = ''
 
     async def async_set_value(self, value: str) -> None:
-        await self.device.send_command(value)
+        await self.device.common_command(value)
 
-    # @property
-    # def available(self) -> bool:
-    #     return self.device.notify
+    @property
+    def name(self) -> str:
+        return 'Debug Input'
+
+    @property
+    def native_value(self) -> str:
+        return ''
+
+    @property
+    def available(self) -> bool:
+        return self.device.notify
+
+    @property
+    def entity_category(self, **kwargs: Any) -> None:
+        """Return the category of the entity."""
+        return EntityCategory.DIAGNOSTIC

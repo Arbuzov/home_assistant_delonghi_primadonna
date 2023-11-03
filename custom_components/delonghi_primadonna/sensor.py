@@ -1,3 +1,5 @@
+from typing import Any
+
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
@@ -40,6 +42,11 @@ class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
         return self.device.steam_nozzle
 
     @property
+    def entity_category(self, **kwargs: Any) -> None:
+        """Return the category of the entity."""
+        return EntityCategory.DIAGNOSTIC
+
+    @property
     def icon(self):
         result = 'mdi:coffee'
         if self.device.steam_nozzle == 'DETACHED':
@@ -62,6 +69,11 @@ class DelongiPrimadonnaStatusSensor(DelonghiDeviceEntity, SensorEntity):
     @property
     def native_value(self):
         return self.device.status
+
+    @property
+    def entity_category(self, **kwargs: Any) -> None:
+        """Return the category of the entity."""
+        return EntityCategory.DIAGNOSTIC
 
     @property
     def icon(self):

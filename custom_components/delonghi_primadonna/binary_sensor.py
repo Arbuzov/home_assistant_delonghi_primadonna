@@ -37,7 +37,7 @@ class DelongiPrimadonnaEnabledSensor(DelonghiDeviceEntity, BinarySensorEntity):
     @property
     def icon(self) -> str:
         """Return the icon of the device."""
-        if self.device.is_on:
+        if self.device.switches.is_on:
             return 'mdi:coffee-maker-check'
         if self.device.connected:
             return 'mdi:coffee-maker-check-outline'
@@ -45,11 +45,11 @@ class DelongiPrimadonnaEnabledSensor(DelonghiDeviceEntity, BinarySensorEntity):
 
     @property
     def native_value(self):
-        return self.device.is_on
+        return self.device.switches.is_on
 
     @property
     def is_on(self) -> bool:
-        return self.device.is_on
+        return self.device.switches.is_on
 
 
 class DelongiPrimadonnaDescaleSensor(DelonghiDeviceEntity, BinarySensorEntity):
