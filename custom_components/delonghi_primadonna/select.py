@@ -39,6 +39,8 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
     _attr_current_option = list(AVAILABLE_PROFILES.keys())[0]
     _attr_entity_category = EntityCategory.CONFIG
     _attr_translation_key = 'profile'
+    _attr_icon = 'mdi:account'
+    _attr_has_entity_name = True
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
@@ -59,6 +61,8 @@ class BeverageSelect(DelonghiDeviceEntity, SelectEntity):
     _attr_options = [*AvailableBeverage]
     _attr_current_option = [*AvailableBeverage][0]
     _attr_translation_key = 'beverage'
+    _attr_icon = 'mdi:coffee'
+    _attr_has_entity_name = True
 
     async def async_select_option(self, option: str) -> None:
         """Select beverage action"""
@@ -72,6 +76,8 @@ class EnergySaveModeSelect(DelonghiDeviceEntity, SelectEntity):
     _attr_options = list(POWER_OFF_OPTIONS.keys())
     _attr_current_option = list(POWER_OFF_OPTIONS.keys())[3]
     _attr_translation_key = 'energy_save_mode'
+    _attr_icon = 'mdi:power-plug-off'
+    _attr_has_entity_name = True
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
@@ -94,6 +100,8 @@ class WaterHardnessSelect(DelonghiDeviceEntity, SelectEntity):
     _attr_options = ['Soft', 'Medium', 'Hard', 'Very Hard']
     _attr_current_option = 'Soft'
     _attr_translation_key = 'water_hardness'
+    _attr_icon = 'mdi:water'
+    _attr_has_entity_name = True
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
@@ -116,6 +124,8 @@ class WaterTemperatureSelect(DelonghiDeviceEntity, SelectEntity):
     _attr_options = ['Low', 'Medium', 'High', 'Highest']
     _attr_current_option = 'Low'
     _attr_translation_key = 'water_temperature'
+    _attr_icon = 'mdi:thermometer'
+    _attr_has_entity_name = True
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
