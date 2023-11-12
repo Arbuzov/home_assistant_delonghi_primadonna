@@ -39,6 +39,20 @@
       "power_on": {
         "name": "Включить"
       }
+    },
+    "switch": {
+      "cup_light": {
+        "name": "Подсветка чашки"
+      },
+      "debug_notification": {
+        "name": "Отладочные уведомления"
+      },
+      "energy_save_mode": {
+        "name": "Энергосбережение"
+      },
+      "sounds": {
+        "name": "Звук кнопок"
+      }
     }
   }
 }

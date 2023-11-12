@@ -39,6 +39,20 @@
       "power_on": {
         "name": "Turn on"
       }
+    },
+    "switch": {
+      "cup_light": {
+        "name": "Cup light"
+      },
+      "debug_notification": {
+        "name": "Debug notification"
+      },
+      "energy_save_mode": {
+        "name": "Energy save mode"
+      },
+      "sounds": {
+        "name": "Sounds"
+      }
     }
   }
 }
