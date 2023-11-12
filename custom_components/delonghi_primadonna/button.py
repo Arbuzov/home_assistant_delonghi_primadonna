@@ -21,6 +21,7 @@ class DelongiPrimadonnaPowerButton(DelonghiDeviceEntity, ButtonEntity):
     """This button turns on the device"""
 
     _attr_name = 'Turn on ECAM'
+    _attr_translation_key = 'power_on'
 
     async def async_press(self):
         self.hass.async_create_task(self.device.power_on())

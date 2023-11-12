@@ -16,5 +16,29 @@
                 }
             }
         }
+    },
+    "entity": {
+        "select": {
+            "profile": {
+                "name": "Профиль"
+            },
+            "beverage": {
+                "name": "Напиток"
+            },
+            "energy_save_mode": {
+                "name": "Aвтоотключение"
+            },
+            "water_hardness": {
+                "name": "Жесткость воды"
+            },
+            "water_temperature": {
+                "name": "Температура воды"
+            }
+        },
+        "button":{
+            "power_on": {
+                "name": "Включить"
+            }
+        }
     }
 }
