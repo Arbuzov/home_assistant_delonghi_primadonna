@@ -34,7 +34,6 @@ async def async_setup_entry(
 class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
     """Implementation for profile selection."""
 
-#   _attr_name = 'Profile'
     _attr_options = list(AVAILABLE_PROFILES.keys())
     _attr_current_option = list(AVAILABLE_PROFILES.keys())[0]
     _attr_entity_category = EntityCategory.CONFIG
@@ -56,7 +55,6 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
 class BeverageSelect(DelonghiDeviceEntity, SelectEntity):
     """Beverage start implementation by the select"""
 
-#   _attr_name = 'Beverage'
     _attr_options = [*AvailableBeverage]
     _attr_current_option = [*AvailableBeverage][0]
     _attr_translation_key = 'beverage'
@@ -70,7 +68,6 @@ class BeverageSelect(DelonghiDeviceEntity, SelectEntity):
 class EnergySaveModeSelect(DelonghiDeviceEntity, SelectEntity):
     """Energy save mode management"""
 
-#   _attr_name = 'Energy Save Mode'
     _attr_options = list(POWER_OFF_OPTIONS.keys())
     _attr_current_option = list(POWER_OFF_OPTIONS.keys())[3]
     _attr_translation_key = 'energy_save_mode'
@@ -93,7 +90,6 @@ class EnergySaveModeSelect(DelonghiDeviceEntity, SelectEntity):
 class WaterHardnessSelect(DelonghiDeviceEntity, SelectEntity):
     """Water hardness management"""
 
-#   _attr_name = 'Water Hardness'
     _attr_options = ['Soft', 'Medium', 'Hard', 'Very Hard']
     _attr_current_option = 'Soft'
     _attr_translation_key = 'water_hardness'
@@ -116,7 +112,6 @@ class WaterHardnessSelect(DelonghiDeviceEntity, SelectEntity):
 class WaterTemperatureSelect(DelonghiDeviceEntity, SelectEntity):
     """Water temperature management"""
 
-#   _attr_name = 'Water Temperature'
     _attr_options = ['Low', 'Medium', 'High', 'Highest']
     _attr_current_option = 'Low'
     _attr_translation_key = 'water_temperature'
