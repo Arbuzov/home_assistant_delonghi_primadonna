@@ -1,10 +1,12 @@
 {
-    "python.linting.flake8Enabled": true,
-    "python.linting.enabled": true,
-    "python.analysis.include":[
+    "python.analysis.include": [
         "../core/homeassistant"
     ],
     "python.analysis.extraPaths": [
         "../core/homeassistant"
-    ]
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true
+    }
 }

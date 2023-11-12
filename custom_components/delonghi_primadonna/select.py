@@ -24,7 +24,8 @@ async def async_setup_entry(
             BeverageSelect(delongh_device, hass),
             EnergySaveModeSelect(delongh_device, hass),
             ProfileSelect(delongh_device, hass),
-            WaterHardnessSelect(delongh_device, hass)
+            WaterHardnessSelect(delongh_device, hass),
+            WaterTemperatureSelect(delongh_device, hass)
         ]
     )
     return True
@@ -100,5 +101,26 @@ class WaterHardnessSelect(DelonghiDeviceEntity, SelectEntity):
         water_hardness = self._attr_options.index(option)
         self.hass.async_create_task(
             self.device.set_water_hardness(water_hardness)
+        )
+        self._attr_current_option = option
+
+
+class WaterTemperatureSelect(DelonghiDeviceEntity, SelectEntity):
+    """Water temperature management"""
+
+    _attr_name = 'Water Temperature'
+    _attr_options = ['Low', 'Medium', 'High', 'Highest']
+    _attr_current_option = 'Low'
+
+    @property
+    def entity_category(self, **kwargs: Any) -> None:
+        """Return the category of the entity."""
+        return EntityCategory.CONFIG
+
+    async def async_select_option(self, option: str) -> None:
+        """Select water temperature action"""
+        water_temperature = self._attr_options.index(option)
+        self.hass.async_create_task(
+            self.device.set_water_temperature(water_temperature)
         )
         self._attr_current_option = option

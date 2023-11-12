@@ -15,7 +15,8 @@ from homeassistant.helpers import device_registry as dr
 from .const import (AMERICANO_OFF, AMERICANO_ON, BASE_COMMAND,
                     BYTES_AUTOPOWEROFF_COMMAND, BYTES_POWER,
                     BYTES_SWITCH_COMMAND, BYTES_WATER_HARDNESS_COMMAND,
-                    COFFE_OFF, COFFE_ON, COFFEE_GROUNDS_CONTAINER_DETACHED,
+                    BYTES_WATER_TEMPERATURE_COMMAND, COFFE_OFF, COFFE_ON,
+                    COFFEE_GROUNDS_CONTAINER_DETACHED,
                     COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
                     DEBUG, DEVICE_READY, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
                     DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF,
@@ -375,6 +376,12 @@ class DelongiPrimadonna:
         """Set water hardness"""
         message = BYTES_WATER_HARDNESS_COMMAND
         message[9] = hardness_level
+        await self.send_command(message)
+
+    async def set_water_temperature(self, temperature_level) -> None:
+        """Set water temperature"""
+        message = BYTES_WATER_TEMPERATURE_COMMAND
+        message[9] = temperature_level
         await self.send_command(message)
 
     async def common_command(self, command: str) -> None:
