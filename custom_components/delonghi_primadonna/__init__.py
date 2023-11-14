@@ -3,12 +3,13 @@ from __future__ import annotations
 
 import logging
 
+import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.const import BEVERAGE_SERVICE_NAME, Platform
+from homeassistant.core import HomeAssistant, ServiceCall
 
 from .const import DOMAIN
-from .device import DelongiPrimadonna
+from .device import AvailableBeverage, DelongiPrimadonna
 
 PLATFORMS: list[str] = [
     Platform.BUTTON,
@@ -31,6 +32,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     delonghi_device = DelongiPrimadonna(entry.data, hass)
     hass.data[DOMAIN][entry.unique_id] = delonghi_device
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    async def make_beverage(call: ServiceCall) -> None:
+        await delonghi_device.beverage_start(call.data['beverage'])
+
+    hass.services.async_register(
+        DOMAIN,
+        BEVERAGE_SERVICE_NAME,
+        make_beverage,
+        schema=vol.Schema({
+            vol.Required('beverage'): vol.In([*AvailableBeverage]),
+        })
+    )
+
     return True
 
 
