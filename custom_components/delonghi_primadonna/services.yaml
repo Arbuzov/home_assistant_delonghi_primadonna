@@ -1,9 +1,13 @@
 make_beverage:
+  name: Prepare beverage
+  description: Prepares beverages from the list of available beverages
   target:
     entity:
       domain: select
   fields:
     beverage:
+      name: Beverage
+      description: Beverage to prepare
       required: true
       default: "none"
       selector:
