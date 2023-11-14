@@ -5,10 +5,10 @@ import logging
 
 import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import BEVERAGE_SERVICE_NAME, Platform
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 
-from .const import DOMAIN
+from .const import BEVERAGE_SERVICE_NAME, DOMAIN
 from .device import AvailableBeverage, DelongiPrimadonna
 
 PLATFORMS: list[str] = [
