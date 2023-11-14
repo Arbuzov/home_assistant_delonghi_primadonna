@@ -1,0 +1,20 @@
+make_beverage:
+  target:
+    entity:
+      domain: select
+  fields:
+    beverage:
+      required: true
+      default: "none"
+      selector:
+        select:
+          options:
+            - "none"
+            - "steam"
+            - "long"
+            - "coffee"
+            - "dopio"
+            - "hot_water"
+            - "espresso"
+            - "americano"
+            - "espresso2"
