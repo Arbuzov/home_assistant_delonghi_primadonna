@@ -3,7 +3,11 @@ make_beverage:
   description: Prepares beverages from the list of available beverages
   target:
     entity:
-      domain: select
+      domain: delonghi_primadonna
+      supported_features:
+        - delonghi_primadonna.BeverageEntityFeature.    MAKE_BEVERAGE = 1
+
+
   fields:
     beverage:
       name: Beverage
@@ -12,6 +16,7 @@ make_beverage:
       default: "none"
       selector:
         select:
+          translation_key: "fan_speed"
           options:
             - "none"
             - "steam"

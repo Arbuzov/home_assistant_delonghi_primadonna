@@ -1,5 +1,6 @@
 """Delongi primadonna device description"""
 import asyncio
+from enum import IntFlag
 import logging
 import uuid
 from binascii import hexlify
@@ -25,6 +26,14 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, BASE_COMMAND,
                     WATER_SHORTAGE, WATER_TANK_DETACHED)
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class BeverageEntityFeature(IntFlag):
+    """Supported features of the beverage entity"""
+
+    MAKE_BEVERAGE = 1
+    SET_TEMPERATURE = 2
+    SET_INTENCE = 4
 
 
 class AvailableBeverage(StrEnum):

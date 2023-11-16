@@ -22,7 +22,7 @@
       "profile": {
         "name": "Профиль"
       },
-      "beverage": {
+      "make_beverage": {
         "name": "Напиток"
       },
       "energy_save_mode": {

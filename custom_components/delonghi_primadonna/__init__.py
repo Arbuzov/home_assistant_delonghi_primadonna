@@ -9,7 +9,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 
 from .const import BEVERAGE_SERVICE_NAME, DOMAIN
-from .device import AvailableBeverage, DelongiPrimadonna
+from .device import AvailableBeverage, BeverageEntityFeature, DelongiPrimadonna
 
 PLATFORMS: list[str] = [
     Platform.BUTTON,
@@ -21,6 +21,11 @@ PLATFORMS: list[str] = [
     Platform.DEVICE_TRACKER,
 ]
 
+__all__ = [
+    'async_setup_entry',
+    'async_unload_entry',
+    'BeverageEntityFeature'
+]
 
 _LOGGER = logging.getLogger(__name__)
 
