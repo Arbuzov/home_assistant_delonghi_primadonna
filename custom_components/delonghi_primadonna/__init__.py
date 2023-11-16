@@ -48,6 +48,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         schema=vol.Schema({
             vol.Required('beverage'): vol.In([*AvailableBeverage]),
         })
+        [BeverageEntityFeature.MAKE_BEVERAGE]
     )
 
     return True

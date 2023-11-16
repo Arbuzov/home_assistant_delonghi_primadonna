@@ -62,7 +62,7 @@ class BeverageSelect(DelonghiDeviceEntity, SelectEntity):
     _attr_current_option = [*AvailableBeverage][0]
     _attr_translation_key = 'make_beverage'
     _attr_icon = 'mdi:coffee'
-    _attr_supported_features: BeverageEntityFeature = BeverageEntityFeature(0)
+    _attr_supported_features: BeverageEntityFeature = BeverageEntityFeature.MAKE_BEVERAGE
 
     async def async_select_option(self, option: str) -> None:
         """Select beverage action"""
