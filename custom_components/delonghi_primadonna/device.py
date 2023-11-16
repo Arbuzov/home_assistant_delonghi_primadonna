@@ -1,9 +1,9 @@
 """Delongi primadonna device description"""
 import asyncio
-from enum import IntFlag
 import logging
 import uuid
 from binascii import hexlify
+from enum import IntFlag
 
 from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError

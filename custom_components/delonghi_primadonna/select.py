@@ -8,10 +8,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import AVAILABLE_PROFILES, DOMAIN, POWER_OFF_OPTIONS
-from .device import (AvailableBeverage,
-                     BeverageEntityFeature,
-                     DelonghiDeviceEntity,
-                     DelongiPrimadonna)
+from .device import (AvailableBeverage, BeverageEntityFeature,
+                     DelonghiDeviceEntity, DelongiPrimadonna)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -62,7 +60,8 @@ class BeverageSelect(DelonghiDeviceEntity, SelectEntity):
     _attr_current_option = [*AvailableBeverage][0]
     _attr_translation_key = 'make_beverage'
     _attr_icon = 'mdi:coffee'
-    _attr_supported_features: BeverageEntityFeature = BeverageEntityFeature.MAKE_BEVERAGE
+    _attr_supported_features: BeverageEntityFeature \
+        = BeverageEntityFeature.MAKE_BEVERAGE
 
     async def async_select_option(self, option: str) -> None:
         """Select beverage action"""

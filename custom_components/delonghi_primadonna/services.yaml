@@ -12,9 +12,10 @@ make_beverage:
       description: Beverage to prepare
       required: true
       default: "none"
+      example: "long"
       selector:
         select:
-          translation_key: "fan_speed"
+          translation_key: "beverage"
           options:
             - "none"
             - "steam"
