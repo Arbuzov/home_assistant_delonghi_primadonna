@@ -1,12 +1,12 @@
 {
   "config": {
     "abort": {
-      "already_configured": "Il dispositivo è già configurato"
+      "already_configured": "Il Dispositivo è già configurato"
     },
     "error": {
       "cannot_connect": "Connessione fallita",
       "invalid_auth": "Autenticazione fallita",
-      "unknown": "Errore inatteso"
+      "unknown": "Errore inaspettato"
     },
     "step": {
       "user": {
@@ -14,6 +14,44 @@
           "mac": "MAC",
           "name": "Nome"
         }
+      }
+    }
+  },
+  "entity": {
+    "select": {
+      "profile": {
+        "name": "Profilo"
+      },
+      "make_beverage": {
+        "name": "Bevanda"
+      },
+      "energy_save_mode": {
+        "name": "Spegni dopo"
+      },
+      "water_hardness": {
+        "name": "Durezza Acqua"
+      },
+      "water_temperature": {
+        "name": "Temperatura acqua"
+      }
+    },
+    "button": {
+      "power_on": {
+        "name": "Accendi"
+      }
+    },
+    "switch": {
+      "cup_light": {
+        "name": "Luce Tazza"
+      },
+      "debug_notification": {
+        "name": "Notifica Debug"
+      },
+      "energy_save_mode": {
+        "name": "Modalità risparmio"
+      },
+      "sounds": {
+        "name": "Suoni"
       }
     }
   }
