@@ -40,6 +40,18 @@
         "name": "Turn on"
       }
     },
+    "services": {
+      "make_beverage": {
+        "name": "Make beverage",
+        "description": "Prepare a beverage from the list below",
+        "fields": {
+          "beverage": {
+            "name": "Beverage",
+            "description": "Beverage to prepare"
+          }
+        }
+      }
+    },
     "switch": {
       "cup_light": {
         "name": "Cup light"
