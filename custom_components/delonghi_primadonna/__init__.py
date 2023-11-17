@@ -36,9 +36,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN] = {}
     delonghi_device = DelongiPrimadonna(entry.data, hass)
     hass.data[DOMAIN][entry.unique_id] = delonghi_device
+    _LOGGER.warning('Device id %s', entry.unique_id)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     async def make_beverage(call: ServiceCall) -> None:
+        _LOGGER.warning('Make beverage %s', call.data)
         await delonghi_device.beverage_start(call.data['beverage'])
 
     hass.services.async_register(
@@ -47,6 +49,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         make_beverage,
         schema=vol.Schema({
             vol.Required('beverage'): vol.In([*AvailableBeverage]),
+            vol.Optional('entity_id'): vol.Coerce(str),
+            vol.Optional('device_id'): vol.Coerce(str),
         })
     )
 

@@ -7,6 +7,9 @@ make_beverage:
       # supported_features:
       #   - delonghi_primadonna.BeverageEntityFeature.MAKE_BEVERAGE
   fields:
+    entity_id:
+      description: "some select"
+      example: "someexample"
     beverage:
       name: Beverage
       description: Beverage to prepare

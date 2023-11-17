@@ -105,6 +105,7 @@ class DeviceSwitches:
 
 
 BEVERAGE_COMMANDS = {
+    AvailableBeverage.NONE: BeverageCommand(DEBUG, DEBUG),
     AvailableBeverage.STEAM: BeverageCommand(STEAM_ON, STEAM_OFF),
     AvailableBeverage.LONG: BeverageCommand(LONG_ON, LONG_OFF),
     AvailableBeverage.COFFEE: BeverageCommand(COFFE_ON, COFFE_OFF),
