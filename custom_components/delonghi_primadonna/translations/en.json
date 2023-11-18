@@ -1,20 +1,89 @@
 {
-    "config": {
-        "abort": {
-            "already_configured": "Device is already configured"
-        },
-        "error": {
-            "cannot_connect": "Failed to connect",
-            "invalid_auth": "Invalid authentication",
-            "unknown": "Unexpected error"
-        },
-        "step": {
-            "user": {
-                "data": {
-                    "mac": "MAC",
-                    "name": "Name"
-                }
-            }
+  "config": {
+    "abort": {
+      "already_configured": "Device is already configured"
+    },
+    "error": {
+      "cannot_connect": "Failed to connect",
+      "invalid_auth": "Invalid authentication",
+      "unknown": "Unexpected error"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "mac": "MAC",
+          "name": "Name"
         }
+      }
     }
+  },
+  "entity": {
+    "select": {
+      "profile": {
+        "name": "Profile"
+      },
+      "make_beverage": {
+        "name": "Beverage"
+      },
+      "energy_save_mode": {
+        "name": "Turn off after"
+      },
+      "water_hardness": {
+        "name": "Water hardness"
+      },
+      "water_temperature": {
+        "name": "Water temperature"
+      }
+    },
+    "button": {
+      "power_on": {
+        "name": "Turn on"
+      }
+    },
+    "switch": {
+      "cup_light": {
+        "name": "Cup light"
+      },
+      "debug_notification": {
+        "name": "Debug notification"
+      },
+      "energy_save_mode": {
+        "name": "Energy save mode"
+      },
+      "sounds": {
+        "name": "Sounds"
+      }
+    }
+  },
+  "services": {
+    "make_beverage": {
+      "name": "Make beverage",
+      "description": "Prepare a beverage from the list below",
+      "fields": {
+        "beverage": {
+          "name": "Beverage",
+          "description": "Beverage to prepare"
+        },
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the coffee machine"
+        }
+      }
+    }
+  },
+  "selector": {
+    "beverage": {
+      "options": {
+        "none": "None",
+        "steam": "Steam",
+        "long": "Long",
+        "coffee": "Coffee",
+        "dopio": "Dopio",
+        "hot_water": "Hot water",
+        "espresso": "Espresso",
+        "americano": "Americano",
+        "espresso2": "Espresso 2"
+      }
+    }
+  }
 }

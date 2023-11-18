@@ -3,6 +3,7 @@ import asyncio
 import logging
 import uuid
 from binascii import hexlify
+from enum import IntFlag
 
 from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
@@ -13,7 +14,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, BASE_COMMAND,
-                    BYTES_GENERAL_COMMAND, BYTES_POWER, COFFE_OFF, COFFE_ON,
+                    BYTES_AUTOPOWEROFF_COMMAND, BYTES_POWER,
+                    BYTES_SWITCH_COMMAND, BYTES_WATER_HARDNESS_COMMAND,
+                    BYTES_WATER_TEMPERATURE_COMMAND, COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
                     COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
                     DEBUG, DEVICE_READY, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
@@ -23,6 +26,14 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, BASE_COMMAND,
                     WATER_SHORTAGE, WATER_TANK_DETACHED)
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class BeverageEntityFeature(IntFlag):
+    """Supported features of the beverage entity"""
+
+    MAKE_BEVERAGE = 1
+    SET_TEMPERATURE = 2
+    SET_INTENCE = 4
 
 
 class AvailableBeverage(StrEnum):
@@ -94,6 +105,7 @@ class DeviceSwitches:
 
 
 BEVERAGE_COMMANDS = {
+    AvailableBeverage.NONE: BeverageCommand(DEBUG, DEBUG),
     AvailableBeverage.STEAM: BeverageCommand(STEAM_ON, STEAM_OFF),
     AvailableBeverage.LONG: BeverageCommand(LONG_ON, LONG_OFF),
     AvailableBeverage.COFFEE: BeverageCommand(COFFE_ON, COFFE_OFF),
@@ -222,19 +234,15 @@ class DelongiPrimadonna:
             raise error
         self._connecting = False
 
-    def _make_command(self):
+    def _make_switch_command(self):
         """Make hex command"""
         base_command = list(BASE_COMMAND)
         base_command[3] = '1' if self.switches.energy_save else '0'
         base_command[4] = '1' if self.switches.cup_light else '0'
         base_command[5] = '1' if self.switches.sounds else '0'
-        if self.notify:
-            _LOGGER.warning('Command bin: %s', ''.join(base_command))
-        bytes_general_command = BYTES_GENERAL_COMMAND
-        bytes_general_command[9] = int(''.join(base_command), 2)
-        if self.notify:
-            _LOGGER.warning('Command bytes: %s', bytes_general_command)
-        return bytes_general_command
+        hex_command = BYTES_SWITCH_COMMAND
+        hex_command[9] = int(''.join(base_command), 2)
+        return hex_command
 
     async def _event_trigger(self, value):
         """
@@ -296,32 +304,32 @@ class DelongiPrimadonna:
     async def cup_light_on(self) -> None:
         """Turn the cup light on."""
         self.switches.cup_light = True
-        await self.send_command(self._make_command())
+        await self.send_command(self._make_switch_command())
 
     async def cup_light_off(self) -> None:
         """Turn the cup light off."""
         self.switches.cup_light = False
-        await self.send_command(self._make_command())
+        await self.send_command(self._make_switch_command())
 
     async def energy_save_on(self):
         """Enable energy save mode"""
         self.switches.energy_save = True
-        await self.send_command(self._make_command())
+        await self.send_command(self._make_switch_command())
 
     async def energy_save_off(self):
         """Enable energy save mode"""
         self.switches.energy_save = False
-        await self.send_command(self._make_command())
+        await self.send_command(self._make_switch_command())
 
     async def sound_alarm_on(self):
         """Enable sound alarm"""
         self.switches.sounds = True
-        await self.send_command(self._make_command())
+        await self.send_command(self._make_switch_command())
 
     async def sound_alarm_off(self):
         """Disable sound alarm"""
         self.switches.sounds = False
-        await self.send_command(self._make_command())
+        await self.send_command(self._make_switch_command())
 
     async def beverage_start(self, beverage: AvailableBeverage) -> None:
         """Start beverage"""
@@ -366,6 +374,24 @@ class DelongiPrimadonna:
     async def select_profile(self, profile_id) -> None:
         """select a profile."""
         message = [0x0D, 0x06, 0xA9, 0xF0, profile_id, 0xD7, 0xC0]
+        await self.send_command(message)
+
+    async def set_auto_power_off(self, power_off_interval) -> None:
+        """Set auto power off time."""
+        message = BYTES_AUTOPOWEROFF_COMMAND
+        message[9] = power_off_interval
+        await self.send_command(message)
+
+    async def set_water_hardness(self, hardness_level) -> None:
+        """Set water hardness"""
+        message = BYTES_WATER_HARDNESS_COMMAND
+        message[9] = hardness_level
+        await self.send_command(message)
+
+    async def set_water_temperature(self, temperature_level) -> None:
+        """Set water temperature"""
+        message = BYTES_WATER_TEMPERATURE_COMMAND
+        message[9] = temperature_level
         await self.send_command(message)
 
     async def common_command(self, command: str) -> None:

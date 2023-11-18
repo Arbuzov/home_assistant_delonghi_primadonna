@@ -30,9 +30,9 @@ async def async_setup_entry(
 class DelongiPrimadonnaCupLightSwitch(DelonghiDeviceEntity, ToggleEntity):
     """This switch enable/disable the cup light"""
 
-    _attr_name = 'Cups light'
     _attr_is_on = False
     _attr_icon = 'mdi:lightbulb'
+    _attr_translation_key = 'cup_light'
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
@@ -55,9 +55,9 @@ class DelongiPrimadonnaNotificationSwitch(DelonghiDeviceEntity, ToggleEntity):
        on device status change used for debug purposes
     """
 
-    _attr_name = 'Enable notification'
     _attr_is_on = False
     _attr_icon = 'mdi:magnify-expand'
+    _attr_translation_key = 'debug_notification'
 
     @property
     def is_on(self, **kwargs: Any) -> None:
@@ -80,9 +80,9 @@ class DelongiPrimadonnaNotificationSwitch(DelonghiDeviceEntity, ToggleEntity):
 
 class DelongiPrimadonnaPowerSaveSwitch(DelonghiDeviceEntity, ToggleEntity):
 
-    _attr_name = 'Enable power save'
     _attr_is_on = False
     _attr_icon = 'mdi:lightning-bolt'
+    _attr_translation_key = 'energy_save_mode'
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
@@ -102,9 +102,9 @@ class DelongiPrimadonnaPowerSaveSwitch(DelonghiDeviceEntity, ToggleEntity):
 
 class DelongiPrimadonnaSoundsSwitch(DelonghiDeviceEntity, ToggleEntity):
 
-    _attr_name = 'Enable sound'
     _attr_is_on = False
     _attr_icon = 'mdi:volume-high'
+    _attr_translation_key = 'sounds'
 
     @property
     def entity_category(self, **kwargs: Any) -> None:

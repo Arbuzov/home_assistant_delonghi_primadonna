@@ -1,20 +1,89 @@
 {
-    "config": {
-        "abort": {
-            "already_configured": "Устройство уже добалено"
-        },
-        "error": {
-            "cannot_connect": "Не могу подключиться",
-            "invalid_auth": "Не могу авторизоваться",
-            "unknown": "Неожиданная ошибка"
-        },
-        "step": {
-            "user": {
-                "data": {
-                    "mac": "MAC",
-                    "name": "Название"
-                }
-            }
+  "config": {
+    "abort": {
+      "already_configured": "Устройство уже добалено"
+    },
+    "error": {
+      "cannot_connect": "Не могу подключиться",
+      "invalid_auth": "Не могу авторизоваться",
+      "unknown": "Неожиданная ошибка"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "mac": "MAC",
+          "name": "Название"
         }
+      }
     }
+  },
+  "entity": {
+    "select": {
+      "profile": {
+        "name": "Профиль"
+      },
+      "make_beverage": {
+        "name": "Напиток"
+      },
+      "energy_save_mode": {
+        "name": "Aвтоотключение"
+      },
+      "water_hardness": {
+        "name": "Жесткость воды"
+      },
+      "water_temperature": {
+        "name": "Температура воды"
+      }
+    },
+    "button": {
+      "power_on": {
+        "name": "Включить"
+      }
+    },
+    "switch": {
+      "cup_light": {
+        "name": "Подсветка чашки"
+      },
+      "debug_notification": {
+        "name": "Отладочные уведомления"
+      },
+      "energy_save_mode": {
+        "name": "Энергосбережение"
+      },
+      "sounds": {
+        "name": "Звук кнопок"
+      }
+    }
+  },
+  "services": {
+    "make_beverage": {
+      "name": "Приготовить напиток",
+      "description": "Приготовить напиток из заданного списка",
+      "fields": {
+        "beverage": {
+          "name": "Напиток",
+          "description": "Напиток который будет приготовлен"
+        },
+        "entity_id": {
+          "name": "Сущность",
+          "description": "Сущность которая будет использована для приготовления напитка"
+        }
+      }
+    }
+  },
+  "selector": {
+    "beverage": {
+      "options": {
+        "none": "Нет",
+        "steam": "Пар",
+        "long": "Лунго",
+        "coffee": "Кофе",
+        "dopio": "Допио",
+        "hot_water": "Горячая вода",
+        "espresso": "Эспрессо",
+        "americano": "Американо",
+        "espresso2": "Эспрессо 2"
+      }
+    }
+  }
 }

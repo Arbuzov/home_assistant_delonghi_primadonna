@@ -3,12 +3,13 @@ from __future__ import annotations
 
 import logging
 
+import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, ServiceCall
 
-from .const import DOMAIN
-from .device import DelongiPrimadonna
+from .const import BEVERAGE_SERVICE_NAME, DOMAIN
+from .device import AvailableBeverage, BeverageEntityFeature, DelongiPrimadonna
 
 PLATFORMS: list[str] = [
     Platform.BUTTON,
@@ -20,6 +21,11 @@ PLATFORMS: list[str] = [
     Platform.DEVICE_TRACKER,
 ]
 
+__all__ = [
+    'async_setup_entry',
+    'async_unload_entry',
+    'BeverageEntityFeature'
+]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,7 +36,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN] = {}
     delonghi_device = DelongiPrimadonna(entry.data, hass)
     hass.data[DOMAIN][entry.unique_id] = delonghi_device
+    _LOGGER.warning('Device id %s', entry.unique_id)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    async def make_beverage(call: ServiceCall) -> None:
+        _LOGGER.warning('Make beverage %s', call.data)
+        await delonghi_device.beverage_start(call.data['beverage'])
+
+    hass.services.async_register(
+        DOMAIN,
+        BEVERAGE_SERVICE_NAME,
+        make_beverage,
+        schema=vol.Schema({
+            vol.Required('beverage'): vol.In([*AvailableBeverage]),
+            vol.Optional('entity_id'): vol.Coerce(str),
+            vol.Optional('device_id'): vol.Coerce(str),
+        })
+    )
+
     return True
 
 

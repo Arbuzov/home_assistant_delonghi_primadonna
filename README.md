@@ -3,7 +3,11 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 [![License](https://img.shields.io/github/license/Arbuzov/home_assistant_delonghi_primadonna?style=for-the-badge)](https://github.com/Arbuzov/home_assistant_delonghi_primadonna/blob/master/LICENSE)
 [![Latest Release](https://img.shields.io/github/v/release/Arbuzov/home_assistant_delonghi_primadonna?style=for-the-badge)](https://github.com/Arbuzov/home_assistant_delonghi_primadonna/releases)
+
+
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Arbuzov&repository=home_assistant_delonghi_primadonna&category=integration)
+
+
 [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=home_assistant_delonghi_primadonna)
 
 ![Company logo](https://brands.home-assistant.io/delonghi_primadonna/logo.png)
@@ -62,5 +66,4 @@ Copy all files from this repository in custom_components/delonghi_primadonna to 
 * De'Longhi ECAM 650.85.MS
 * De'Longhi ECAM 550.55.W
 * De'Longhi ECAM 650.55.MS EX:1
-* De'Longhi Eletta Explore 450.65.G
-* Please add...
+* Feel free to add your model...

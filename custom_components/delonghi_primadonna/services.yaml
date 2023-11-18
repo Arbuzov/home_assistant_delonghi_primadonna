@@ -1,0 +1,31 @@
+make_beverage:
+  name: Prepare beverage
+  description: Prepares beverages from the list of available beverages
+  target:
+    entity:
+      domain: select
+      # supported_features:
+      #   - delonghi_primadonna.BeverageEntityFeature.MAKE_BEVERAGE
+  fields:
+    entity_id:
+      description: "some select"
+      example: "someexample"
+    beverage:
+      name: Beverage
+      description: Beverage to prepare
+      required: true
+      default: "none"
+      example: "long"
+      selector:
+        select:
+          translation_key: "beverage"
+          options:
+            - "none"
+            - "steam"
+            - "long"
+            - "coffee"
+            - "dopio"
+            - "hot_water"
+            - "espresso"
+            - "americano"
+            - "espresso2"
