@@ -66,4 +66,5 @@ Copy all files from this repository in custom_components/delonghi_primadonna to 
 * De'Longhi ECAM 650.85.MS
 * De'Longhi ECAM 550.55.W
 * De'Longhi ECAM 650.55.MS EX:1
+* De'Longhi ECAM 510.55M
 * Feel free to add your model...
