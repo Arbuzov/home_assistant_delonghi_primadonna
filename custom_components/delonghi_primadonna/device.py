@@ -1,5 +1,6 @@
 """Delongi primadonna device description"""
 import asyncio
+import enum
 import logging
 import uuid
 from binascii import hexlify
@@ -7,7 +8,6 @@ from enum import IntFlag
 
 from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
-from homeassistant.backports.enum import StrEnum
 from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_NAME
 from homeassistant.core import HomeAssistant
@@ -36,7 +36,7 @@ class BeverageEntityFeature(IntFlag):
     SET_INTENCE = 4
 
 
-class AvailableBeverage(StrEnum):
+class AvailableBeverage(enum.StrEnum):
     """Coffee machine available beverages"""
 
     NONE = 'none'
@@ -70,7 +70,7 @@ DEVICE_STATUS = {
 }
 
 
-class NotificationType(StrEnum):
+class NotificationType(enum.StrEnum):
     """Coffee machine notification types"""
 
     STATUS = 'status'
