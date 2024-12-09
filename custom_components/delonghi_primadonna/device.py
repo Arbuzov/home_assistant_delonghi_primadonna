@@ -54,8 +54,8 @@ NOZZLE_STATE = {
     -1: 'UNKNOWN',
     0: 'DETACHED',
     1: 'STEAM',
-    2: 'UNKNOWN_2',  # May also be Detached
-    4: 'MILK'
+    2: 'MILK_FROTHER',  # May also be Detached - It shows detached, as the water is not flowing out from the nozzle directly, like the STEAM/HOT WATER nozzle does.
+    4: 'MILK_FROTHER_CLEANING', # It shows attached, as the state similar to the STEAM/HOT WATER nozzle, water flows directly out the nozzle.
 }
 
 # Skipable maintanence states
