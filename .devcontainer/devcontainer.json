@@ -1,1 +1,4 @@
-{}
+{
+  "name": "Dev container to develop Home Assistant components",
+  "image": "homeassistant/home-assistant:dev"
+}
