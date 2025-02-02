@@ -1,5 +1,6 @@
 """Delongi primadonna device description"""
 import asyncio
+import enum
 import logging
 import uuid
 from binascii import hexlify
@@ -7,7 +8,6 @@ from enum import IntFlag
 
 from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
-from homeassistant.backports.enum import StrEnum
 from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_NAME
 from homeassistant.core import HomeAssistant
@@ -36,7 +36,7 @@ class BeverageEntityFeature(IntFlag):
     SET_INTENCE = 4
 
 
-class AvailableBeverage(StrEnum):
+class AvailableBeverage(enum.StrEnum):
     """Coffee machine available beverages"""
 
     NONE = 'none'
@@ -54,8 +54,8 @@ NOZZLE_STATE = {
     -1: 'UNKNOWN',
     0: 'DETACHED',
     1: 'STEAM',
-    2: 'UNKNOWN_2',  # May also be Detached
-    4: 'MILK'
+    2: 'MILK_FROTHER',  # May also be Detached - It shows detached, as the water is not flowing out from the nozzle directly, like the STEAM/HOT WATER nozzle does.
+    4: 'MILK_FROTHER_CLEANING', # It shows attached, as the state similar to the STEAM/HOT WATER nozzle, water flows directly out the nozzle.
 }
 
 # Skipable maintanence states
@@ -70,7 +70,7 @@ DEVICE_STATUS = {
 }
 
 
-class NotificationType(StrEnum):
+class NotificationType(enum.StrEnum):
     """Coffee machine notification types"""
 
     STATUS = 'status'

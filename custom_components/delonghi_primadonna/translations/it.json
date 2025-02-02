@@ -54,5 +54,36 @@
         "name": "Suoni"
       }
     }
+  },
+  "services": {
+    "make_beverage": {
+      "name": "Prepara bevanda",
+      "description": "Prepara bevanda dalla lista qui sotto",
+      "fields": {
+        "beverage": {
+          "name": "Bevanda",
+          "description": "Bevanda da preparare"
+        },
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID della macchinettà del caffè"
+        }
+      }
+    }
+  },
+  "selector": {
+    "beverage": {
+      "options": {
+        "none": "Nessuno",
+        "steam": "Vapore",
+        "long": "Lungo",
+        "coffee": "Caffè",
+        "dopio": "Doppio",
+        "hot_water": "Acqua calda",
+        "espresso": "Espresso",
+        "americano": "Americano",
+        "espresso2": "Espresso 2"
+      }
+    }
   }
 }
