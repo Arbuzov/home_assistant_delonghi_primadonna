@@ -1,20 +1,89 @@
 {
-    "config": {
-        "abort": {
-            "already_configured": "Urządzenie jest już skonfigurowane"
-        },
-        "error": {
-            "cannot_connect": "Błąd połączenia",
-            "invalid_auth": "Nieprawidłowe uwierzytelnienie",
-            "unknown": "Niespodziewany błąd"
-        },
-        "step": {
-            "user": {
-                "data": {
-                    "mac": "MAC",
-                    "name": "Nazwa"
-                }
-            }
+  "config": {
+    "abort": {
+      "already_configured": "Urządzenie jest już skonfigurowane"
+    },
+    "error": {
+      "cannot_connect": "Błąd połączenia",
+      "invalid_auth": "Nieprawidłowe uwierzytelnienie",
+      "unknown": "Niespodziewany błąd"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "mac": "MAC",
+          "name": "Nazwa"
         }
+      }
     }
+  }
+  "entity": {
+    "select": {
+      "profile": {
+        "name": "Profil"
+      },
+      "make_beverage": {
+        "name": "Napój"
+      },
+      "energy_save_mode": {
+        "name": "Wyłącz po"
+      },
+      "water_hardness": {
+        "name": "Twardość wody"
+      },
+      "water_temperature": {
+        "name": "Temperatura wody"
+      }
+    },
+    "button": {
+      "power_on": {
+        "name": "Włącz"
+      }
+    },
+    "switch": {
+      "cup_light": {
+        "name": "Podświetlenie filiżanki"
+      },
+      "debug_notification": {
+        "name": "Powiadomienie debugowania"
+      },
+      "energy_save_mode": {
+        "name": "Tryb oszczędzania energii"
+      },
+      "sounds": {
+        "name": "Dźwięk"
+      }
+    }
+  },
+  "services": {
+    "make_beverage": {
+      "name": "Przygotuj napój",
+      "description": "Przygotuj napój z poniższej listy",
+      "fields": {
+        "beverage": {
+          "name": "Napój",
+          "description": "Napój do przygotowania"
+        },
+        "entity_id": {
+          "name": "ID encji",
+          "description": "ID encji ekspresu do kawy"
+        }
+      }
+    }
+  },
+  "selector": {
+    "beverage": {
+      "options": {
+        "none": "Brak",
+        "steam": "Para",
+        "long": "Long",
+        "coffee": "Coffee",
+        "dopio": "Doppio",
+        "hot_water": "Gorąca woda",
+        "espresso": "Espresso",
+        "americano": "Americano",
+        "espresso2": "Podwójne Espresso"
+      }
+    }
+  }
 }
