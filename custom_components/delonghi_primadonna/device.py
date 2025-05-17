@@ -419,15 +419,26 @@ class DelongiPrimadonna:
         message = [int(x, 16) for x in command.split(' ')]
         await self.send_command(message)
 
-    async def send_command(self, message):
-        try:
-            await self._connect()
-            sign_request(message)
-            _LOGGER.info('Send command: %s', hexlify(bytearray(message), ' '))
-            await self._client.write_gatt_char(
-                CONTROLL_CHARACTERISTIC, bytearray(message)
-            )
-        except BleakError as error:
-            self.connected = False
-            self._client = None
-            _LOGGER.warning('BleakError: %s', error)
+    async def send_command(self, message, retries=3):
+        for attempt in range(retries):
+            try:
+                await self._connect()
+                sign_request(message)
+                _LOGGER.info(
+                    'Send command: %s',
+                    hexlify(bytearray(message), " ")
+                )
+                await self._client.write_gatt_char(
+                    CONTROLL_CHARACTERISTIC, bytearray(message)
+                )
+                return
+            except BleakError as error:
+                self.connected = False
+                self._client = None
+                _LOGGER.warning(
+                    'BleakError: %s (attempt %d)',
+                    error,
+                    attempt + 1
+                )
+                await asyncio.sleep(2)
+        _LOGGER.error('Failed to send command after %d attempts', retries)
