@@ -156,7 +156,10 @@ class DelonghiDeviceEntity:
 
     def __init__(self, delongh_device, hass: HomeAssistant):
         """Init entity with the device"""
-        self._attr_unique_id = f'{delongh_device.mac}_{self.__class__.__name__}'
+        self._attr_unique_id = (
+            f'{delongh_device.mac}_'
+            f'{self.__class__.__name__}'
+        )
         self.device: DelongiPrimadonna = delongh_device
         self.hass = hass
 
