@@ -1,4 +1,18 @@
 {
   "name": "Dev container to develop Home Assistant components",
-  "image": "homeassistant/home-assistant:dev"
+  "image": "homeassistant/home-assistant:dev",
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "github.copilot-chat",
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      }
+    }
+  },
+  "postCreateCommand": "pip install --upgrade pip && pip install -r requirements_dev.txt"
 }

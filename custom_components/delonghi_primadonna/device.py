@@ -1,5 +1,6 @@
 """Delongi primadonna device description"""
 import asyncio
+import copy
 import enum
 import logging
 import uuid
@@ -54,8 +55,15 @@ NOZZLE_STATE = {
     -1: 'UNKNOWN',
     0: 'DETACHED',
     1: 'STEAM',
-    2: 'MILK_FROTHER',  # May also be Detached - It shows detached, as the water is not flowing out from the nozzle directly, like the STEAM/HOT WATER nozzle does.
-    4: 'MILK_FROTHER_CLEANING',  # It shows attached, as the state similar to the STEAM/HOT WATER nozzle, water flows directly out the nozzle.
+    2: 'MILK_FROTHER',  # May also be Detached
+                        # It shows detached, as the water
+                        # is not flowing out
+                        # from the nozzle directly, like
+                        # the STEAM/HOT WATER nozzle does.
+    4: 'MILK_FROTHER_CLEANING',  # It shows attached,
+                                 # as the state similar to the STEAM/HOT
+                                 # WATER nozzle, water flows
+                                 # directly out the nozzle.
 }
 
 # Skipable maintanence states
@@ -148,7 +156,7 @@ class DelonghiDeviceEntity:
 
     def __init__(self, delongh_device, hass: HomeAssistant):
         """Init entity with the device"""
-        self._attr_unique_id = f'{delongh_device.mac}_{self.__class__.__name__}'  # noqa: E501
+        self._attr_unique_id = f'{delongh_device.mac}_{self.__class__.__name__}'
         self.device: DelongiPrimadonna = delongh_device
         self.hass = hass
 
@@ -207,32 +215,39 @@ class DelongiPrimadonna:
         if (self._client is not None) and self._client.is_connected:
             await self._client.disconnect()
 
-    async def _connect(self):
-        """
-        Connect to the device
-        :raises BleakError: if the device is not found
-        """
+    async def _connect(self, retries=3):
         self._connecting = True
-        try:
-            if (self._client is None) or (not self._client.is_connected):
-                self._device = bluetooth.async_ble_device_from_address(
-                    self._hass, self.mac, connectable=True
-                )
-                if not self._device:
-                    raise BleakError(
-                        f'A device with address {self.mac} \
-                            could not be found.'
+        last_error = None
+        for attempt in range(retries):
+            try:
+                if (self._client is None) or (not self._client.is_connected):
+                    self._device = bluetooth.async_ble_device_from_address(
+                        self._hass, self.mac, connectable=True
                     )
-                self._client = BleakClient(self._device)
-                _LOGGER.info('Connect to %s', self.mac)
-                await self._client.connect()
-                await self._client.start_notify(
-                    uuid.UUID(CONTROLL_CHARACTERISTIC), self._handle_data
-                )
-        except Exception as error:
-            self._connecting = False
-            raise error
+                    if not self._device:
+                        raise BleakError(
+                            (
+                                f'A device with address {self.mac}'
+                                'could not be found.'
+                            )
+                        )
+                    self._client = BleakClient(self._device)
+                    _LOGGER.info(
+                        'Connect to %s (attempt %d)',
+                        self.mac,
+                        attempt + 1
+                    )
+                    await self._client.connect()
+                    await self._client.start_notify(
+                        uuid.UUID(CONTROLL_CHARACTERISTIC), self._handle_data
+                    )
+                self._connecting = False
+                return
+            except Exception as error:
+                last_error = error
+                await asyncio.sleep(2)
         self._connecting = False
+        raise last_error
 
     def _make_switch_command(self):
         """Make hex command"""
@@ -352,7 +367,9 @@ class DelongiPrimadonna:
         try:
             await self._connect()
             self.hostname = bytes(
-                await self._client.read_gatt_char(uuid.UUID(NAME_CHARACTERISTIC))  # noqa: E501
+                await self._client.read_gatt_char(
+                    uuid.UUID(NAME_CHARACTERISTIC)
+                )
             ).decode('utf-8')
             await self._client.write_gatt_char(
                 uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG)
@@ -378,19 +395,19 @@ class DelongiPrimadonna:
 
     async def set_auto_power_off(self, power_off_interval) -> None:
         """Set auto power off time."""
-        message = BYTES_AUTOPOWEROFF_COMMAND
+        message = copy.deepcopy(BYTES_AUTOPOWEROFF_COMMAND)
         message[9] = power_off_interval
         await self.send_command(message)
 
     async def set_water_hardness(self, hardness_level) -> None:
         """Set water hardness"""
-        message = BYTES_WATER_HARDNESS_COMMAND
+        message = copy.deepcopy(BYTES_WATER_HARDNESS_COMMAND)
         message[9] = hardness_level
         await self.send_command(message)
 
     async def set_water_temperature(self, temperature_level) -> None:
         """Set water temperature"""
-        message = BYTES_WATER_TEMPERATURE_COMMAND
+        message = copy.deepcopy(BYTES_WATER_TEMPERATURE_COMMAND)
         message[9] = temperature_level
         await self.send_command(message)
 
@@ -400,8 +417,8 @@ class DelongiPrimadonna:
         await self.send_command(message)
 
     async def send_command(self, message):
-        await self._connect()
         try:
+            await self._connect()
             sign_request(message)
             _LOGGER.info('Send command: %s', hexlify(bytearray(message), ' '))
             await self._client.write_gatt_char(
@@ -409,4 +426,5 @@ class DelongiPrimadonna:
             )
         except BleakError as error:
             self.connected = False
+            self._client = None
             _LOGGER.warning('BleakError: %s', error)
