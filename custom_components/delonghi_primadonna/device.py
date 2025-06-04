@@ -258,7 +258,7 @@ class DelongiPrimadonna:
         base_command[3] = '1' if self.switches.energy_save else '0'
         base_command[4] = '1' if self.switches.cup_light else '0'
         base_command[5] = '1' if self.switches.sounds else '0'
-        hex_command = BYTES_SWITCH_COMMAND
+        hex_command = copy.deepcopy(BYTES_SWITCH_COMMAND)
         hex_command[9] = int(''.join(base_command), 2)
         return hex_command
 
@@ -420,16 +420,17 @@ class DelongiPrimadonna:
         await self.send_command(message)
 
     async def send_command(self, message, retries=3):
+        message_to_send = copy.deepcopy(message)
         for attempt in range(retries):
             try:
                 await self._connect()
-                sign_request(message)
+                sign_request(message_to_send)
                 _LOGGER.info(
                     'Send command: %s',
-                    hexlify(bytearray(message), " ")
+                    hexlify(bytearray(message_to_send), " ")
                 )
                 await self._client.write_gatt_char(
-                    CONTROLL_CHARACTERISTIC, bytearray(message)
+                    CONTROLL_CHARACTERISTIC, bytearray(message_to_send)
                 )
                 return
             except BleakError as error:
