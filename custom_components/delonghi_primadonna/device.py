@@ -258,7 +258,7 @@ class DelongiPrimadonna:
         base_command[3] = '1' if self.switches.energy_save else '0'
         base_command[4] = '1' if self.switches.cup_light else '0'
         base_command[5] = '1' if self.switches.sounds else '0'
-        hex_command = copy.deepcopy(BYTES_SWITCH_COMMAND)
+        hex_command = BYTES_SWITCH_COMMAND.copy()
         hex_command[9] = int(''.join(base_command), 2)
         return hex_command
 
