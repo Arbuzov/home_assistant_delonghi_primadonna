@@ -1,4 +1,4 @@
-"""Config flow for the delonghi promadonna integration."""
+"""Config flow for the Delonghi Primadonna integration."""
 from __future__ import annotations
 
 import logging
