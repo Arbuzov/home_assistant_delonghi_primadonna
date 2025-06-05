@@ -59,7 +59,7 @@ Copy all files from this repository in custom_components/delonghi_primadonna to 
 ![Charts](./images/image.png)
 
 
-## Compartible devices
+## Compatible devices
 
 * De'Longhi ECAM 550.55
 * De'Longhi Dinamica Plus Class ECAM 370.95
