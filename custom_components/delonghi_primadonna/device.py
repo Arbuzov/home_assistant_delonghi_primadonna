@@ -14,17 +14,41 @@ from homeassistant.const import CONF_MAC, CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
-from .const import (AMERICANO_OFF, AMERICANO_ON, BASE_COMMAND,
-                    BYTES_AUTOPOWEROFF_COMMAND, BYTES_POWER,
-                    BYTES_SWITCH_COMMAND, BYTES_WATER_HARDNESS_COMMAND,
-                    BYTES_WATER_TEMPERATURE_COMMAND, COFFE_OFF, COFFE_ON,
-                    COFFEE_GROUNDS_CONTAINER_DETACHED,
-                    COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
-                    DEBUG, DEVICE_READY, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
-                    DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF,
-                    ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
-                    NAME_CHARACTERISTIC, START_COFFEE, STEAM_OFF, STEAM_ON,
-                    WATER_SHORTAGE, WATER_TANK_DETACHED)
+from .const import (
+    AMERICANO_OFF,
+    AMERICANO_ON,
+    BASE_COMMAND,
+    BYTES_AUTOPOWEROFF_COMMAND,
+    BYTES_POWER,
+    BYTES_SWITCH_COMMAND,
+    BYTES_WATER_HARDNESS_COMMAND,
+    BYTES_WATER_TEMPERATURE_COMMAND,
+    COFFE_OFF,
+    COFFE_ON,
+    COFFEE_GROUNDS_CONTAINER_DETACHED,
+    COFFEE_GROUNDS_CONTAINER_FULL,
+    CONTROLL_CHARACTERISTIC,
+    DEBUG,
+    DEVICE_READY,
+    DEVICE_TURNOFF,
+    DOMAIN,
+    DOPPIO_OFF,
+    DOPPIO_ON,
+    ESPRESSO2_OFF,
+    ESPRESSO2_ON,
+    ESPRESSO_OFF,
+    ESPRESSO_ON,
+    HOTWATER_OFF,
+    HOTWATER_ON,
+    LONG_OFF,
+    LONG_ON,
+    NAME_CHARACTERISTIC,
+    START_COFFEE,
+    STEAM_OFF,
+    STEAM_ON,
+    WATER_SHORTAGE,
+    WATER_TANK_DETACHED,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -211,12 +235,14 @@ class DelongiPrimadonna:
         self.service = 0
         self.status = DEVICE_STATUS[5]
         self.switches = DeviceSwitches()
+        self._lock = asyncio.Lock()
 
     async def disconnect(self):
         """Disconnect from the device"""
         _LOGGER.info('Disconnect from %s', self.mac)
-        if (self._client is not None) and self._client.is_connected:
-            await self._client.disconnect()
+        async with self._lock:
+            if (self._client is not None) and self._client.is_connected:
+                await self._client.disconnect()
 
     async def _connect(self, retries=3):
         self._connecting = True
@@ -367,29 +393,30 @@ class DelongiPrimadonna:
         Get device name
         :return: device name
         """
-        try:
-            await self._connect()
-            self.hostname = bytes(
-                await self._client.read_gatt_char(
-                    uuid.UUID(NAME_CHARACTERISTIC)
+        async with self._lock:
+            try:
+                await self._connect()
+                self.hostname = bytes(
+                    await self._client.read_gatt_char(
+                        uuid.UUID(NAME_CHARACTERISTIC)
+                    )
+                ).decode('utf-8')
+                await self._client.write_gatt_char(
+                    uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG)
                 )
-            ).decode('utf-8')
-            await self._client.write_gatt_char(
-                uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG)
-            )
-            self.connected = True
-        except BleakDBusError as error:
-            self.connected = False
-            _LOGGER.warning('BleakDBusError: %s', error)
-        except BleakError as error:
-            self.connected = False
-            _LOGGER.warning('BleakError: %s', error)
-        except asyncio.exceptions.TimeoutError as error:
-            self.connected = False
-            _LOGGER.info('TimeoutError: %s at device connection', error)
-        except asyncio.exceptions.CancelledError as error:
-            self.connected = False
-            _LOGGER.warning('CancelledError: %s', error)
+                self.connected = True
+            except BleakDBusError as error:
+                self.connected = False
+                _LOGGER.warning('BleakDBusError: %s', error)
+            except BleakError as error:
+                self.connected = False
+                _LOGGER.warning('BleakError: %s', error)
+            except asyncio.exceptions.TimeoutError as error:
+                self.connected = False
+                _LOGGER.info('TimeoutError: %s at device connection', error)
+            except asyncio.exceptions.CancelledError as error:
+                self.connected = False
+                _LOGGER.warning('CancelledError: %s', error)
 
     async def select_profile(self, profile_id) -> None:
         """select a profile."""
@@ -420,26 +447,27 @@ class DelongiPrimadonna:
         await self.send_command(message)
 
     async def send_command(self, message, retries=3):
-        message_to_send = copy.deepcopy(message)
-        for attempt in range(retries):
-            try:
-                await self._connect()
-                sign_request(message_to_send)
-                _LOGGER.info(
-                    'Send command: %s',
-                    hexlify(bytearray(message_to_send), " ")
-                )
-                await self._client.write_gatt_char(
-                    CONTROLL_CHARACTERISTIC, bytearray(message_to_send)
-                )
-                return
-            except BleakError as error:
-                self.connected = False
-                self._client = None
-                _LOGGER.warning(
-                    'BleakError: %s (attempt %d)',
-                    error,
-                    attempt + 1
-                )
-                await asyncio.sleep(2)
-        _LOGGER.error('Failed to send command after %d attempts', retries)
+        async with self._lock:
+            message_to_send = copy.deepcopy(message)
+            for attempt in range(retries):
+                try:
+                    await self._connect()
+                    sign_request(message_to_send)
+                    _LOGGER.info(
+                        'Send command: %s',
+                        hexlify(bytearray(message_to_send), " ")
+                    )
+                    await self._client.write_gatt_char(
+                        CONTROLL_CHARACTERISTIC, bytearray(message_to_send)
+                    )
+                    return
+                except BleakError as error:
+                    self.connected = False
+                    self._client = None
+                    _LOGGER.warning(
+                        'BleakError: %s (attempt %d)',
+                        error,
+                        attempt + 1
+                    )
+                    await asyncio.sleep(2)
+            _LOGGER.error('Failed to send command after %d attempts', retries)
