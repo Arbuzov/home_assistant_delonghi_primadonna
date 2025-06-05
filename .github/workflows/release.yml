@@ -20,7 +20,7 @@ jobs:
           uses: marvinpinto/action-automatic-releases@latest
           with:
               repo_token: ${{ secrets.GITHUB_TOKEN }}
-              title: Test release ${{ steps.get_version.outputs.version }}${{ github.ref == 'refs/heads/develop' && '-beta' || '' }}
+              title: ${{ github.ref == 'refs/heads/develop' && 'Test release' || 'Release' }} ${{ steps.get_version.outputs.version }}${{ github.ref == 'refs/heads/develop' && '-beta' || '' }}
               automatic_release_tag: ${{ steps.get_version.outputs.version }}${{ github.ref == 'refs/heads/develop' && '-beta' || '' }}
               draft: false
               prerelease: ${{ github.ref == 'refs/heads/develop' }}

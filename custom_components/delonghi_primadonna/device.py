@@ -233,7 +233,7 @@ class DelongiPrimadonna:
                         raise BleakError(
                             (
                                 f'A device with address {self.mac}'
-                                'could not be found.'
+                                ' could not be found.'
                             )
                         )
                     self._client = BleakClient(self._device)
@@ -243,12 +243,18 @@ class DelongiPrimadonna:
                         attempt + 1
                     )
                     await self._client.connect()
+                    await self._client.get_services()  # <-- Service discovery!
                     await self._client.start_notify(
                         uuid.UUID(CONTROLL_CHARACTERISTIC), self._handle_data
                     )
                 self._connecting = False
                 return
             except Exception as error:
+                _LOGGER.warning(
+                    "BLE connect error: %s (type: %s, attempt %d)",
+                    error, type(error).__name__, attempt + 1
+                )
+                self._client = None  # Always reset client on error
                 last_error = error
                 await asyncio.sleep(2)
         self._connecting = False
