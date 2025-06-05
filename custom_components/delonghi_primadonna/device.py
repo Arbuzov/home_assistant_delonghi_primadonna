@@ -214,47 +214,79 @@ class DelongiPrimadonna:
         self._lock = asyncio.Lock()
 
     async def disconnect(self):
-        """Disconnect from the device"""
-        _LOGGER.info('Disconnect from %s', self.mac)
+        """Disconnect from the device."""
+        _LOGGER.info("Disconnect from %s", self.mac)
         async with self._lock:
-            if (self._client is not None) and self._client.is_connected:
-                await self._client.disconnect()
+            client = self._client
+            if client is not None and client.is_connected:
+                try:
+                    await asyncio.wait_for(client.disconnect(), timeout=5)
+                except (
+                    asyncio.TimeoutError,
+                    Exception,
+                ) as error:  # noqa: BLE001
+                    _LOGGER.warning("Forced disconnect [%s]: %s", type(error).__name__, error)
+                finally:
+                    self._client = None
+                    self.connected = False
+            else:
+                self._client = None
+                self.connected = False
 
     async def _connect(self, retries=3):
         self._connecting = True
         last_error = None
         for attempt in range(retries):
             try:
-                if (self._client is None) or (not self._client.is_connected):
+                if self._client is None or not self._client.is_connected:
                     self._device = bluetooth.async_ble_device_from_address(
                         self._hass, self.mac, connectable=True
                     )
                     if not self._device:
                         raise BleakError(
                             (
-                                f'A device with address {self.mac}'
-                                ' could not be found.'
+                                f"A device with address {self.mac}"
+                                " could not be found."
                             )
                         )
                     self._client = BleakClient(self._device)
                     _LOGGER.info(
-                        'Connect to %s (attempt %d)',
+                        "Connect to %s (attempt %d)",
                         self.mac,
-                        attempt + 1
+                        attempt + 1,
                     )
-                    await self._client.connect()
-                    await self._client.get_services()  # <-- Service discovery!
-                    await self._client.start_notify(
-                        uuid.UUID(CONTROLL_CHARACTERISTIC), self._handle_data
+                    await asyncio.wait_for(
+                        self._client.connect(),
+                        timeout=10,
+                    )
+                    await asyncio.wait_for(
+                        self._client.get_services(),
+                        timeout=10,
+                    )
+                    await asyncio.wait_for(
+                        self._client.start_notify(
+                            uuid.UUID(CONTROLL_CHARACTERISTIC),
+                            self._handle_data,
+                        ),
+                        timeout=10,
                     )
                 self._connecting = False
                 return
             except Exception as error:
                 _LOGGER.warning(
                     "BLE connect error: %s (type: %s, attempt %d)",
-                    error, type(error).__name__, attempt + 1
+                    error,
+                    type(error).__name__,
+                    attempt + 1,
                 )
-                self._client = None  # Always reset client on error
+                if self._client is not None:
+                    try:
+                        await asyncio.wait_for(
+                            self._client.disconnect(), timeout=5
+                        )
+                    except Exception:  # noqa: BLE001
+                        pass
+                self._client = None
                 last_error = error
                 await asyncio.sleep(2)
         self._connecting = False
