@@ -1,0 +1,89 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "デバイスはすでに構成されています"
+    },
+    "error": {
+      "cannot_connect": "接続に失敗しました",
+      "invalid_auth": "無効な認証",
+      "unknown": "予期しないエラー"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "mac": "MAC",
+          "name": "名前"
+        }
+      }
+    }
+  },
+  "entity": {
+    "select": {
+      "profile": {
+        "name": "プロフィール"
+      },
+      "make_beverage": {
+        "name": "飲み物"
+      },
+      "energy_save_mode": {
+        "name": "その後オフにします"
+      },
+      "water_hardness": {
+        "name": "水の硬度"
+      },
+      "water_temperature": {
+        "name": "水温"
+      }
+    },
+    "button": {
+      "power_on": {
+        "name": "オンにする"
+      }
+    },
+    "switch": {
+      "cup_light": {
+        "name": "カップライト"
+      },
+      "debug_notification": {
+        "name": "デバッグ通知"
+      },
+      "energy_save_mode": {
+        "name": "エネルギー保存モード"
+      },
+      "sounds": {
+        "name": "音"
+      }
+    }
+  },
+  "services": {
+    "make_beverage": {
+      "name": "飲み物を作ります",
+      "description": "以下のリストから飲み物を準備してください",
+      "fields": {
+        "beverage": {
+          "name": "飲み物",
+          "description": "準備する飲み物"
+        },
+        "entity_id": {
+          "name": "エンティティID",
+          "description": "コーヒーマシンのエンティティID"
+        }
+      }
+    }
+  },
+  "selector": {
+    "beverage": {
+      "options": {
+        "none": "なし",
+        "steam": "スチーム",
+        "long": "長さ",
+        "coffee": "コーヒー",
+        "dopio": "ダブル",
+        "hot_water": "お湯",
+        "espresso": "エスプレッソ",
+        "americano": "アメリカーノ",
+        "espresso2": "エスプレッソ2"
+      }
+    }
+  }
+}

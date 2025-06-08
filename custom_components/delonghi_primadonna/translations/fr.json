@@ -1,20 +1,89 @@
 {
-    "config": {
-        "abort": {
-            "already_configured": "Le dispositif est déjà configuré"
-        },
-        "error": {
-            "cannot_connect": "Echec de la connexion",
-            "invalid_auth": "Authentification invalide",
-            "unknown": "Erreur inattendue"
-        },
-        "step": {
-            "user": {
-                "data": {
-                    "mac": "MAC",
-                    "name": "Nom"
-                }
-            }
+  "config": {
+    "abort": {
+      "already_configured": "Le dispositif est déjà configuré"
+    },
+    "error": {
+      "cannot_connect": "Echec de la connexion",
+      "invalid_auth": "Authentification invalide",
+      "unknown": "Erreur inattendue"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "mac": "MAC",
+          "name": "Nom"
         }
+      }
     }
+  },
+  "entity": {
+    "select": {
+      "profile": {
+        "name": "Profil"
+      },
+      "make_beverage": {
+        "name": "Boisson"
+      },
+      "energy_save_mode": {
+        "name": "Éteindre après"
+      },
+      "water_hardness": {
+        "name": "Dureté de l'eau"
+      },
+      "water_temperature": {
+        "name": "Température de l'eau"
+      }
+    },
+    "button": {
+      "power_on": {
+        "name": "Allumer"
+      }
+    },
+    "switch": {
+      "cup_light": {
+        "name": "Mettre un feu à la lumière"
+      },
+      "debug_notification": {
+        "name": "Notification de débogage"
+      },
+      "energy_save_mode": {
+        "name": "Mode d'économie d'énergie"
+      },
+      "sounds": {
+        "name": "Sons"
+      }
+    }
+  },
+  "services": {
+    "make_beverage": {
+      "name": "Faire des boissons",
+      "description": "Préparez une boisson à partir de la liste ci-dessous",
+      "fields": {
+        "beverage": {
+          "name": "Boisson",
+          "description": "Boisson à préparer"
+        },
+        "entity_id": {
+          "name": "ID de l'entité",
+          "description": "ID de l'entité de la machine à café"
+        }
+      }
+    }
+  },
+  "selector": {
+    "beverage": {
+      "options": {
+        "none": "Aucun",
+        "steam": "Vapeur",
+        "long": "Long",
+        "coffee": "Café",
+        "dopio": "DOUBLE",
+        "hot_water": "Eau chaude",
+        "espresso": "Espresso",
+        "americano": "Américain",
+        "espresso2": "Expresso 2"
+      }
+    }
+  }
 }

@@ -1,0 +1,89 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Az eszköz már konfigurálva van"
+    },
+    "error": {
+      "cannot_connect": "Nem sikerült csatlakozni",
+      "invalid_auth": "Érvénytelen hitelesítés",
+      "unknown": "Váratlan hiba"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "mac": "MAC",
+          "name": "Név"
+        }
+      }
+    }
+  },
+  "entity": {
+    "select": {
+      "profile": {
+        "name": "Profil"
+      },
+      "make_beverage": {
+        "name": "Ital"
+      },
+      "energy_save_mode": {
+        "name": "Kapcsolja ki utána"
+      },
+      "water_hardness": {
+        "name": "Vízkeménység"
+      },
+      "water_temperature": {
+        "name": "Vízhőmérséklet"
+      }
+    },
+    "button": {
+      "power_on": {
+        "name": "Bekapcsol"
+      }
+    },
+    "switch": {
+      "cup_light": {
+        "name": "Csésze lámpa"
+      },
+      "debug_notification": {
+        "name": "Hibakeresési értesítés"
+      },
+      "energy_save_mode": {
+        "name": "Energiamegtakarítás mód"
+      },
+      "sounds": {
+        "name": "Hangok"
+      }
+    }
+  },
+  "services": {
+    "make_beverage": {
+      "name": "Italt készít",
+      "description": "Készítsen italt az alábbi listából",
+      "fields": {
+        "beverage": {
+          "name": "Ital",
+          "description": "Ital az előkészítéshez"
+        },
+        "entity_id": {
+          "name": "Entitás azonosító",
+          "description": "A kávéfőző entitás azonosítója"
+        }
+      }
+    }
+  },
+  "selector": {
+    "beverage": {
+      "options": {
+        "none": "Egyik sem",
+        "steam": "Gőz",
+        "long": "Hosszú",
+        "coffee": "Kávé",
+        "dopio": "KETTŐS",
+        "hot_water": "Melegvíz",
+        "espresso": "Eszpresszó",
+        "americano": "Amerikai",
+        "espresso2": "Espresso 2"
+      }
+    }
+  }
+}
