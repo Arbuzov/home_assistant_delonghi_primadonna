@@ -1,0 +1,89 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Dispozitivul este deja configurat"
+    },
+    "error": {
+      "cannot_connect": "Nu a reușit să se conecteze",
+      "invalid_auth": "Autentificare nevalide",
+      "unknown": "Eroare neașteptată"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "mac": "MAC",
+          "name": "Nume"
+        }
+      }
+    }
+  },
+  "entity": {
+    "select": {
+      "profile": {
+        "name": "Profil"
+      },
+      "make_beverage": {
+        "name": "Băutură"
+      },
+      "energy_save_mode": {
+        "name": "Opriți după"
+      },
+      "water_hardness": {
+        "name": "Duritatea apei"
+      },
+      "water_temperature": {
+        "name": "Temperatura apei"
+      }
+    },
+    "button": {
+      "power_on": {
+        "name": "Porniți"
+      }
+    },
+    "switch": {
+      "cup_light": {
+        "name": "Cupă lumină"
+      },
+      "debug_notification": {
+        "name": "Notificare de depanare"
+      },
+      "energy_save_mode": {
+        "name": "Mod de economisire a energiei"
+      },
+      "sounds": {
+        "name": "Sunete"
+      }
+    }
+  },
+  "services": {
+    "make_beverage": {
+      "name": "Faceți băuturi",
+      "description": "Pregătiți o băutură din lista de mai jos",
+      "fields": {
+        "beverage": {
+          "name": "Băutură",
+          "description": "Băutură de pregătit"
+        },
+        "entity_id": {
+          "name": "ID de entitate",
+          "description": "ID de entitate a mașinii de cafea"
+        }
+      }
+    }
+  },
+  "selector": {
+    "beverage": {
+      "options": {
+        "none": "Nici unul",
+        "steam": "Aburi",
+        "long": "Lung",
+        "coffee": "Cafea",
+        "dopio": "DUBLA",
+        "hot_water": "Apă caldă",
+        "espresso": "Espresso",
+        "americano": "Americano",
+        "espresso2": "Espresso 2"
+      }
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "设备已经配置"
+    },
+    "error": {
+      "cannot_connect": "无法连接",
+      "invalid_auth": "无效的身份验证",
+      "unknown": "意外错误"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "mac": "MAC",
+          "name": "名称"
+        }
+      }
+    }
+  },
+  "entity": {
+    "select": {
+      "profile": {
+        "name": "轮廓"
+      },
+      "make_beverage": {
+        "name": "饮料"
+      },
+      "energy_save_mode": {
+        "name": "之后关闭"
+      },
+      "water_hardness": {
+        "name": "水硬度"
+      },
+      "water_temperature": {
+        "name": "水温"
+      }
+    },
+    "button": {
+      "power_on": {
+        "name": "打开"
+      }
+    },
+    "switch": {
+      "cup_light": {
+        "name": "杯灯"
+      },
+      "debug_notification": {
+        "name": "调试通知"
+      },
+      "energy_save_mode": {
+        "name": "节能模式"
+      },
+      "sounds": {
+        "name": "听起来"
+      }
+    }
+  },
+  "services": {
+    "make_beverage": {
+      "name": "制作饮料",
+      "description": "从下面的列表中准备饮料",
+      "fields": {
+        "beverage": {
+          "name": "饮料",
+          "description": "准备饮料"
+        },
+        "entity_id": {
+          "name": "实体ID",
+          "description": "咖啡机的实体ID"
+        }
+      }
+    }
+  },
+  "selector": {
+    "beverage": {
+      "options": {
+        "none": "没有任何",
+        "steam": "蒸汽",
+        "long": "长的",
+        "coffee": "咖啡",
+        "dopio": "双倍的",
+        "hot_water": "热水",
+        "espresso": "浓缩咖啡",
+        "americano": "美国",
+        "espresso2": "浓缩咖啡2"
+      }
+    }
+  }
+}
