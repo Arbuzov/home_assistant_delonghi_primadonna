@@ -217,7 +217,10 @@ class DelongiPrimadonna:
         """Disconnect from the device"""
         _LOGGER.info('Disconnect from %s', self.mac)
         async with self._lock:
-            if (self._client is not None) and self._client.is_connected:
+            if (
+                (self._client is not None) and
+                 self._client.is_connected
+               ):
                 await self._client.disconnect()
 
     async def _connect(self, retries=3):
