@@ -219,11 +219,12 @@ class DelongiPrimadonna:
         async with self._lock:
             if (
                 (self._client is not None) and
-                 self._client.is_connected
+                self._client.is_connected
                ):
                 await self._client.disconnect()
 
     async def _connect(self, retries=3):
+        """Connect to the device."""
         self._connecting = True
         last_error = None
         for attempt in range(retries):
