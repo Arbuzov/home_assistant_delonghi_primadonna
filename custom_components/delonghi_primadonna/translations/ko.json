@@ -1,0 +1,89 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "장치는 이미 구성되어 있습니다"
+    },
+    "error": {
+      "cannot_connect": "연결하지 못했습니다",
+      "invalid_auth": "잘못된 인증",
+      "unknown": "예상치 못한 오류"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "mac": "MAC",
+          "name": "이름"
+        }
+      }
+    }
+  },
+  "entity": {
+    "select": {
+      "profile": {
+        "name": "윤곽"
+      },
+      "make_beverage": {
+        "name": "음료"
+      },
+      "energy_save_mode": {
+        "name": "후에 꺼집니다"
+      },
+      "water_hardness": {
+        "name": "물 경도"
+      },
+      "water_temperature": {
+        "name": "수온"
+      }
+    },
+    "button": {
+      "power_on": {
+        "name": "켜십시오"
+      }
+    },
+    "switch": {
+      "cup_light": {
+        "name": "컵 라이트"
+      },
+      "debug_notification": {
+        "name": "디버그 알림"
+      },
+      "energy_save_mode": {
+        "name": "에너지 저장 모드"
+      },
+      "sounds": {
+        "name": "소리"
+      }
+    }
+  },
+  "services": {
+    "make_beverage": {
+      "name": "음료를 만드십시오",
+      "description": "아래 목록에서 음료를 준비하십시오",
+      "fields": {
+        "beverage": {
+          "name": "음료",
+          "description": "준비 할 음료"
+        },
+        "entity_id": {
+          "name": "엔티티 ID",
+          "description": "커피 머신의 엔티티 ID"
+        }
+      }
+    }
+  },
+  "selector": {
+    "beverage": {
+      "options": {
+        "none": "없음",
+        "steam": "증기",
+        "long": "긴",
+        "coffee": "커피",
+        "dopio": "더블",
+        "hot_water": "뜨거운 물",
+        "espresso": "에스프레소 커피",
+        "americano": "아메리카노",
+        "espresso2": "에스프레소 2"
+      }
+    }
+  }
+}

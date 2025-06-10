@@ -225,7 +225,11 @@ class DelongiPrimadonna:
                     asyncio.TimeoutError,
                     Exception,
                 ) as error:  # noqa: BLE001
-                    _LOGGER.warning("Forced disconnect [%s]: %s", type(error).__name__, error)
+                    _LOGGER.warning(
+                        "Forced disconnect [%s]: %s",
+                        type(error).__name__,
+                        error
+                    )
                 finally:
                     self._client = None
                     self.connected = False
@@ -234,6 +238,7 @@ class DelongiPrimadonna:
                 self.connected = False
 
     async def _connect(self, retries=3):
+        """Connect to the device."""
         self._connecting = True
         last_error = None
         for attempt in range(retries):
