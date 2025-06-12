@@ -6,6 +6,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import AVAILABLE_PROFILES, DOMAIN, POWER_OFF_OPTIONS
 from .device import (AvailableBeverage, BeverageEntityFeature,
@@ -32,7 +33,7 @@ async def async_setup_entry(
     return True
 
 
-class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
+class ProfileSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
     """Implementation for profile selection."""
 
     _attr_options = list(AVAILABLE_PROFILES.keys())
@@ -40,6 +41,11 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
     _attr_entity_category = EntityCategory.CONFIG
     _attr_translation_key = 'profile'
     _attr_icon = 'mdi:account'
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self._attr_current_option = last_state.state
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
@@ -53,7 +59,7 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity):
         self._attr_current_option = option
 
 
-class BeverageSelect(DelonghiDeviceEntity, SelectEntity):
+class BeverageSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
     """Beverage start implementation by the select"""
 
     _attr_options = [*AvailableBeverage]
@@ -63,12 +69,17 @@ class BeverageSelect(DelonghiDeviceEntity, SelectEntity):
     _attr_supported_features: BeverageEntityFeature \
         = BeverageEntityFeature.MAKE_BEVERAGE
 
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self._attr_current_option = last_state.state
+
     async def async_select_option(self, option: str) -> None:
         """Select beverage action"""
         self.hass.async_create_task(self.device.beverage_start(option))
 
 
-class EnergySaveModeSelect(DelonghiDeviceEntity, SelectEntity):
+class EnergySaveModeSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
     """Energy save mode management"""
 
     _attr_options = list(POWER_OFF_OPTIONS.keys())
@@ -81,6 +92,11 @@ class EnergySaveModeSelect(DelonghiDeviceEntity, SelectEntity):
         """Return the category of the entity."""
         return EntityCategory.CONFIG
 
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self._attr_current_option = last_state.state
+
     async def async_select_option(self, option: str) -> None:
         """Select energy save mode action"""
         power_off_interval = POWER_OFF_OPTIONS.get(option)
@@ -90,13 +106,18 @@ class EnergySaveModeSelect(DelonghiDeviceEntity, SelectEntity):
         self._attr_current_option = option
 
 
-class WaterHardnessSelect(DelonghiDeviceEntity, SelectEntity):
+class WaterHardnessSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
     """Water hardness management"""
 
     _attr_options = ['Soft', 'Medium', 'Hard', 'Very Hard']
     _attr_current_option = 'Soft'
     _attr_translation_key = 'water_hardness'
     _attr_icon = 'mdi:water'
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self._attr_current_option = last_state.state
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
@@ -112,7 +133,9 @@ class WaterHardnessSelect(DelonghiDeviceEntity, SelectEntity):
         self._attr_current_option = option
 
 
-class WaterTemperatureSelect(DelonghiDeviceEntity, SelectEntity):
+class WaterTemperatureSelect(
+    DelonghiDeviceEntity, SelectEntity, RestoreEntity
+):
     """Water temperature management"""
 
     _attr_options = ['Low', 'Medium', 'High', 'Highest']
@@ -120,6 +143,11 @@ class WaterTemperatureSelect(DelonghiDeviceEntity, SelectEntity):
     _attr_translation_key = 'water_temperature'
     _attr_icon = 'mdi:thermometer'
     _attr_supported_features: BeverageEntityFeature = BeverageEntityFeature(1)
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self._attr_current_option = last_state.state
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
