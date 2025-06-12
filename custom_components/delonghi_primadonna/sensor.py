@@ -5,6 +5,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import DOMAIN
 from .device import DEVICE_STATUS, NOZZLE_STATE, DelonghiDeviceEntity
@@ -25,7 +26,9 @@ async def async_setup_entry(
     return True
 
 
-class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
+class DelongiPrimadonnaNozzleSensor(
+    DelonghiDeviceEntity, SensorEntity, RestoreEntity
+):
     """
     Check the connected steam nozzle
     Steam or milk pot
@@ -36,6 +39,11 @@ class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
     _attr_name = 'Nozzle'
 
     _attr_options = list(NOZZLE_STATE.values())
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self._attr_native_value = last_state.state
 
     @property
     def native_value(self):
@@ -56,7 +64,9 @@ class DelongiPrimadonnaNozzleSensor(DelonghiDeviceEntity, SensorEntity):
         return result
 
 
-class DelongiPrimadonnaStatusSensor(DelonghiDeviceEntity, SensorEntity):
+class DelongiPrimadonnaStatusSensor(
+    DelonghiDeviceEntity, SensorEntity, RestoreEntity
+):
     """
     Shows the actual device status
     """
@@ -65,6 +75,11 @@ class DelongiPrimadonnaStatusSensor(DelonghiDeviceEntity, SensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = 'Status'
     _attr_options = list(DEVICE_STATUS.values())
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self._attr_native_value = last_state.state
 
     @property
     def native_value(self):

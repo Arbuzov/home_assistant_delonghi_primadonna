@@ -5,6 +5,7 @@ from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import ToggleEntity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import DOMAIN
 from .device import DelonghiDeviceEntity
@@ -27,12 +28,19 @@ async def async_setup_entry(
     return True
 
 
-class DelongiPrimadonnaCupLightSwitch(DelonghiDeviceEntity, ToggleEntity):
+class DelongiPrimadonnaCupLightSwitch(
+    DelonghiDeviceEntity, ToggleEntity, RestoreEntity
+):
     """This switch enable/disable the cup light"""
 
     _attr_is_on = False
     _attr_icon = 'mdi:lightbulb'
     _attr_translation_key = 'cup_light'
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self._attr_is_on = last_state.state == 'on'
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
@@ -50,7 +58,9 @@ class DelongiPrimadonnaCupLightSwitch(DelonghiDeviceEntity, ToggleEntity):
         self._attr_is_on = False
 
 
-class DelongiPrimadonnaNotificationSwitch(DelonghiDeviceEntity, ToggleEntity):
+class DelongiPrimadonnaNotificationSwitch(
+    DelonghiDeviceEntity, ToggleEntity, RestoreEntity
+):
     """This switch enable HA side bar notification
        on device status change used for debug purposes
     """
@@ -58,6 +68,11 @@ class DelongiPrimadonnaNotificationSwitch(DelonghiDeviceEntity, ToggleEntity):
     _attr_is_on = False
     _attr_icon = 'mdi:magnify-expand'
     _attr_translation_key = 'debug_notification'
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self.device.notify = last_state.state == 'on'
 
     @property
     def is_on(self, **kwargs: Any) -> None:
@@ -78,11 +93,18 @@ class DelongiPrimadonnaNotificationSwitch(DelonghiDeviceEntity, ToggleEntity):
         self.device.notify = False
 
 
-class DelongiPrimadonnaPowerSaveSwitch(DelonghiDeviceEntity, ToggleEntity):
+class DelongiPrimadonnaPowerSaveSwitch(
+    DelonghiDeviceEntity, ToggleEntity, RestoreEntity
+):
 
     _attr_is_on = False
     _attr_icon = 'mdi:lightning-bolt'
     _attr_translation_key = 'energy_save_mode'
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self._attr_is_on = last_state.state == 'on'
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
@@ -100,11 +122,18 @@ class DelongiPrimadonnaPowerSaveSwitch(DelonghiDeviceEntity, ToggleEntity):
         self._attr_is_on = False
 
 
-class DelongiPrimadonnaSoundsSwitch(DelonghiDeviceEntity, ToggleEntity):
+class DelongiPrimadonnaSoundsSwitch(
+    DelonghiDeviceEntity, ToggleEntity, RestoreEntity
+):
 
     _attr_is_on = False
     _attr_icon = 'mdi:volume-high'
     _attr_translation_key = 'sounds'
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self._attr_is_on = last_state.state == 'on'
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
