@@ -1,3 +1,5 @@
+"""Select entities for Delonghi Primadonna."""
+
 import logging
 from typing import Any
 
@@ -20,6 +22,8 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback
 ):
+    """Set up select entities for a config entry."""
+
     delongh_device: DelongiPrimadonna = hass.data[DOMAIN][entry.unique_id]
     async_add_entities(
         [
