@@ -381,18 +381,12 @@ class DelongiPrimadonna:
 
     async def _handle_data(self, sender, value):
         """Handle notifications from the device."""
-        value_len = len(value)
+        answer_id = value[2] if len(value) > 2 else None
 
-        if value_len > 9:
+        if answer_id == 0x75:
             self.switches.is_on = value[9] > 0
-
-        if value_len > 4:
             self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
-
-        if value_len > 7:
             self.service = value[7]
-
-        if value_len > 5:
             self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS[5])
 
         hex_value = hexlify(value, ' ')
