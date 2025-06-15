@@ -215,6 +215,7 @@ class DelongiPrimadonna:
         self.switches = DeviceSwitches()
         self._lock = asyncio.Lock()
         self._rx_buffer = bytearray()
+        self._response_event = None
         self.profiles = list(AVAILABLE_PROFILES.keys())
 
     async def disconnect(self):
@@ -381,6 +382,8 @@ class DelongiPrimadonna:
 
     async def _handle_data(self, sender, value):
         """Handle notifications from the device."""
+        if self._response_event is not None and not self._response_event.is_set():
+            self._response_event.set()
         answer_id = value[2] if len(value) > 2 else None
 
         if answer_id == 0x75:
@@ -517,9 +520,22 @@ class DelongiPrimadonna:
                         'Send command: %s',
                         hexlify(bytearray(message_to_send), " ")
                     )
+                    self._response_event = asyncio.Event()
                     await self._client.write_gatt_char(
                         CONTROLL_CHARACTERISTIC, bytearray(message_to_send)
                     )
+                    try:
+                        await asyncio.wait_for(
+                            self._response_event.wait(),
+                            timeout=10,
+                        )
+                    except asyncio.TimeoutError:
+                        _LOGGER.warning(
+                            'Timeout waiting for response to command: %s',
+                            hexlify(bytearray(message_to_send), " ")
+                        )
+                    finally:
+                        self._response_event = None
                     return
                 except BleakError as error:
                     self.connected = False
