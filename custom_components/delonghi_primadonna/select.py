@@ -52,7 +52,7 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
     @property
     def options(self) -> list[str]:
         """Return a set of selectable options."""
-        return self.self.device.profiles
+        return self.device.profiles
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
