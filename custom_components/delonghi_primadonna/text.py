@@ -1,3 +1,5 @@
+"""Text entity for sending raw commands to the device."""
+
 import logging
 from typing import Any
 
@@ -18,6 +20,8 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback
 ):
+    """Set up debug text entity for a config entry."""
+
     delongh_device: DelongiPrimadonna = hass.data[DOMAIN][entry.unique_id]
     async_add_entities([DebugInput(delongh_device, hass)])
     return True

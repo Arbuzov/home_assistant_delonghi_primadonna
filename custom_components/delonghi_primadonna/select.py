@@ -1,3 +1,5 @@
+"""Select entities for Delonghi Primadonna."""
+
 import logging
 from typing import Any
 
@@ -20,6 +22,8 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback
 ):
+    """Set up select entities for a config entry."""
+
     delongh_device: DelongiPrimadonna = hass.data[DOMAIN][entry.unique_id]
     async_add_entities(
         [
@@ -52,7 +56,7 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
     @property
     def options(self) -> list[str]:
         """Return a set of selectable options."""
-        return self.self.device.profiles
+        return self.device.profiles
 
     @property
     def entity_category(self, **kwargs: Any) -> None:

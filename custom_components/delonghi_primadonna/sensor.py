@@ -1,3 +1,5 @@
+"""Sensor entities for Delonghi Primadonna."""
+
 from typing import Any
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
@@ -16,6 +18,8 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback
 ):
+    """Register sensor entities for a config entry."""
+
     delongh_device = hass.data[DOMAIN][entry.unique_id]
     async_add_entities(
         [
