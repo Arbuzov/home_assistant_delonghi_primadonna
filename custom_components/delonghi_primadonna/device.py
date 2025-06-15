@@ -396,6 +396,19 @@ class DelongiPrimadonna:
             self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
             self.service = value[7]
             self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS[5])
+        elif answer_id == 0xA4:
+            try:
+                parsed = self._parse_profile_response(list(value))
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.warning("Failed to parse profile response: %s", err)
+            else:
+                for name, pid in parsed.items():
+                    for old_name, old_pid in list(AVAILABLE_PROFILES.items()):
+                        if old_pid == pid:
+                            AVAILABLE_PROFILES.pop(old_name)
+                            break
+                    AVAILABLE_PROFILES[name] = pid
+                self.profiles = list(AVAILABLE_PROFILES.keys())
 
         hex_value = hexlify(value, ' ')
 
