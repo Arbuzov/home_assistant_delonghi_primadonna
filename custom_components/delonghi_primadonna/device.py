@@ -398,7 +398,11 @@ class DelongiPrimadonna:
         hex_value = hexlify(value, ' ')
 
         if self._device_status != hex_value:
-            _LOGGER.info('Received data: %s from %s', hex_value, sender)  # noqa: E501
+            _LOGGER.info(
+                'Received data: %s from %s',
+                hex_value,
+                sender
+            )
             await self._event_trigger(value)
 
         self._device_status = hex_value
