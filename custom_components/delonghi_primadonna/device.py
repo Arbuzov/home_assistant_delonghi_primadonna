@@ -345,7 +345,7 @@ class DelongiPrimadonna:
                 'create',
                 {
                     'message': notification_message,
-                    'title': f'{self.name} {self.mac} {answer_id}',
+                    'title': f'{self.name} {answer_id}',
                     'notification_id': f'{self.mac}_err_{uuid.uuid4()}',
                 },
             )
