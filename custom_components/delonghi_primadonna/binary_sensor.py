@@ -94,6 +94,10 @@ class DelongiPrimadonnaDescaleSensor(
             result = 'mdi:dishwasher-alert'
         return result
 
+    @property
+    def icon_color(self):
+        return 'red' if self.is_on else None
+
 
 class DelongiPrimadonnaFilterSensor(
     DelonghiDeviceEntity, BinarySensorEntity, RestoreEntity
@@ -127,3 +131,7 @@ class DelongiPrimadonnaFilterSensor(
         if self.is_on:
             result = 'mdi:filter-off'
         return result
+
+    @property
+    def icon_color(self):
+        return 'red' if self.is_on else None
