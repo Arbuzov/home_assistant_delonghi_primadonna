@@ -14,8 +14,8 @@ from homeassistant.const import CONF_MAC, CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
-from .const import (AMERICANO_OFF, AMERICANO_ON, BASE_COMMAND,
-                    BYTES_AUTOPOWEROFF_COMMAND, BYTES_POWER,
+from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
+                    BASE_COMMAND, BYTES_AUTOPOWEROFF_COMMAND, BYTES_POWER,
                     BYTES_SWITCH_COMMAND, BYTES_WATER_HARDNESS_COMMAND,
                     BYTES_WATER_TEMPERATURE_COMMAND, COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
@@ -212,6 +212,7 @@ class DelongiPrimadonna:
         self.status = DEVICE_STATUS[5]
         self.switches = DeviceSwitches()
         self._lock = asyncio.Lock()
+        self.profiles = list(AVAILABLE_PROFILES.keys())
 
     async def disconnect(self):
         """Disconnect from the device."""

@@ -36,11 +36,14 @@ async def async_setup_entry(
 class ProfileSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
     """Implementation for profile selection."""
 
-    _attr_options = list(AVAILABLE_PROFILES.keys())
-    _attr_current_option = list(AVAILABLE_PROFILES.keys())[0]
     _attr_entity_category = EntityCategory.CONFIG
     _attr_translation_key = 'profile'
     _attr_icon = 'mdi:account'
+
+    def __init__(self, delongh_device: DelongiPrimadonna, hass: HomeAssistant):
+        super().__init__(delongh_device, hass)
+        self._attr_options = delongh_device.profiles
+        self._attr_current_option = delongh_device.profiles[0]
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
