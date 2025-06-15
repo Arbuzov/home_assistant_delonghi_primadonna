@@ -42,13 +42,17 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
 
     def __init__(self, delongh_device: DelongiPrimadonna, hass: HomeAssistant):
         super().__init__(delongh_device, hass)
-        self._attr_options = delongh_device.profiles
         self._attr_current_option = delongh_device.profiles[0]
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
         if (last_state := await self.async_get_last_state()) is not None:
             self._attr_current_option = last_state.state
+
+    @property
+    def options(self) -> list[str]:
+        """Return a set of selectable options."""
+        return self.self.device.profiles
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
