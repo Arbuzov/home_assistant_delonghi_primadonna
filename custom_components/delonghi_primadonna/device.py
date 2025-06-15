@@ -15,7 +15,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
-                    BASE_COMMAND, BYTES_AUTOPOWEROFF_COMMAND, BYTES_POWER,
+                    BASE_COMMAND, BYTES_AUTOPOWEROFF_COMMAND,
+                    BYTES_LOAD_PROFILES_1, BYTES_LOAD_PROFILES_2, BYTES_POWER,
                     BYTES_SWITCH_COMMAND, BYTES_WATER_HARDNESS_COMMAND,
                     BYTES_WATER_TEMPERATURE_COMMAND, COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
@@ -217,6 +218,7 @@ class DelongiPrimadonna:
         self._rx_buffer = bytearray()
         self._response_event = None
         self.profiles = list(AVAILABLE_PROFILES.keys())
+        self._profiles_loaded = False
 
     async def disconnect(self):
         """Disconnect from the device."""
@@ -483,6 +485,14 @@ class DelongiPrimadonna:
             except asyncio.exceptions.CancelledError as error:
                 self.connected = False
                 _LOGGER.warning('CancelledError: %s', error)
+
+        if self.connected and not self._profiles_loaded:
+            for init_cmd in (
+                BYTES_LOAD_PROFILES_1,
+                BYTES_LOAD_PROFILES_2,
+            ):
+                await self.send_command(init_cmd)
+            self._profiles_loaded = True
 
     async def select_profile(self, profile_id) -> None:
         """select a profile."""
