@@ -382,7 +382,10 @@ class DelongiPrimadonna:
 
     async def _handle_data(self, sender, value):
         """Handle notifications from the device."""
-        if self._response_event is not None and not self._response_event.is_set():
+        if (
+            self._response_event is not None
+            and not self._response_event.is_set()
+        ):
             self._response_event.set()
         answer_id = value[2] if len(value) > 2 else None
 
