@@ -348,18 +348,28 @@ class DelongiPrimadonna:
         _LOGGER.info('Event triggered: %s', event_data)
 
     async def _handle_data(self, sender, value):
-        if len(value) > 9:
+        """Handle notifications from the device."""
+        value_len = len(value)
+
+        if value_len > 9:
             self.switches.is_on = value[9] > 0
-        if len(value) > 4:
+
+        if value_len > 4:
             self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
-        if len(value) > 7:
+
+        if value_len > 7:
             self.service = value[7]
-        if len(value) > 5:
-            self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS.get(5))
-        if self._device_status != hexlify(value, ' '):
-            _LOGGER.info('Received data: %s from %s', hexlify(value, ' '), sender)  # noqa: E501
+
+        if value_len > 5:
+            self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS[5])
+
+        hex_value = hexlify(value, ' ')
+
+        if self._device_status != hex_value:
+            _LOGGER.info('Received data: %s from %s', hex_value, sender)  # noqa: E501
             await self._event_trigger(value)
-        self._device_status = hexlify(value, ' ')
+
+        self._device_status = hex_value
 
     async def power_on(self) -> None:
         """Turn the device on."""
