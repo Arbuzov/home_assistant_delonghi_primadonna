@@ -339,12 +339,13 @@ class DelongiPrimadonna:
         self._hass.bus.async_fire(f'{DOMAIN}_event', event_data)
 
         if self.notify:
+            answer_id = f"{value[2]:02x}"
             await self._hass.services.async_call(
                 'persistent_notification',
                 'create',
                 {
                     'message': notification_message,
-                    'title': f'{self.name} {self.mac}',
+                    'title': f'{self.name} {self.mac} {answer_id}',
                     'notification_id': f'{self.mac}_err_{uuid.uuid4()}',
                 },
             )
