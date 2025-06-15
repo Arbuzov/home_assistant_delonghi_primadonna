@@ -173,7 +173,7 @@ class DelonghiDeviceEntity:
             'identifiers': {(DOMAIN, self.device.mac)},
             'connections': {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
             'name': self.device.name,
-            'manufacturer': 'Delongi',
+            'manufacturer': 'Delonghi',
             'model': self.device.model,
         }
 
