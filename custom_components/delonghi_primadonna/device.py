@@ -28,6 +28,8 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
 
 _LOGGER = logging.getLogger(__name__)
 
+START_BYTE = 0xD0
+
 
 class BeverageEntityFeature(IntFlag):
     """Supported features of the beverage entity"""
@@ -212,6 +214,7 @@ class DelongiPrimadonna:
         self.status = DEVICE_STATUS[5]
         self.switches = DeviceSwitches()
         self._lock = asyncio.Lock()
+        self._rx_buffer = bytearray()
         self.profiles = list(AVAILABLE_PROFILES.keys())
 
     async def disconnect(self):
@@ -272,7 +275,7 @@ class DelongiPrimadonna:
                     await asyncio.wait_for(
                         self._client.start_notify(
                             uuid.UUID(CONTROLL_CHARACTERISTIC),
-                            self._handle_data,
+                            self._process_raw_data,
                         ),
                         timeout=10,
                     )
@@ -346,6 +349,34 @@ class DelongiPrimadonna:
                 },
             )
         _LOGGER.info('Event triggered: %s', event_data)
+
+    async def _process_raw_data(self, sender, value):
+        """Assemble incoming BLE packets and pass complete messages."""
+        self._rx_buffer.extend(value)
+
+        while True:
+            if len(self._rx_buffer) < 2:
+                return
+            try:
+                start_index = self._rx_buffer.index(START_BYTE)
+            except ValueError:
+                self._rx_buffer.clear()
+                return
+
+            if start_index > 0:
+                del self._rx_buffer[:start_index]
+
+            if len(self._rx_buffer) < 2:
+                return
+
+            msg_len = self._rx_buffer[1] + 1
+
+            if len(self._rx_buffer) < msg_len:
+                return
+
+            packet = bytes(self._rx_buffer[:msg_len])
+            del self._rx_buffer[:msg_len]
+            await self._handle_data(sender, packet)
 
     async def _handle_data(self, sender, value):
         """Handle notifications from the device."""
