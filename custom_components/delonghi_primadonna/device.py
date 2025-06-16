@@ -223,6 +223,7 @@ class DelongiPrimadonna:
         self._response_event = None
         self.profiles = list(AVAILABLE_PROFILES.keys())
         self._profiles_loaded = False
+        self._expected_profile_start = 1
 
     async def disconnect(self):
         """Disconnect from the device."""
@@ -403,7 +404,10 @@ class DelongiPrimadonna:
         elif answer_id == 0xA4:
             parsed = []
             try:
-                parsed = self._parse_profile_response(list(value))
+                parsed = self._parse_profile_response(
+                    list(value),
+                    self._expected_profile_start,
+                )
             except Exception as err:  # noqa: BLE001
                 _LOGGER.warning("Failed to parse profile response: %s", err)
             for name, pid in parsed.items():
@@ -439,37 +443,42 @@ class DelongiPrimadonna:
 
         self._device_status = hex_value
 
-    def _parse_profile_response(self, data: list[int]) -> dict[str, int]:
-        """
-        Parse the profile response from the device.
-
-        The response format is a custom TLV structure.
-        Example: d0 12 75 0f 01 05 00 00 00 07 00 00 00 00 00 00 00 9d 61
-        """
+    def _parse_profile_response(
+        self,
+        data: list[int],
+        _start_id: int,
+    ) -> dict[str, int]:
+        """Parse profile names sent by the machine."""
 
         b = bytes(data)
-        if b[0] != 0xD0:
+        if len(b) < 4 or b[0] != START_BYTE:
             raise ValueError("Wrong start byte")
+
         length = b[1]
         payload = b[4:4 + length]
+
         profiles: dict[str, int] = {}
-        i = 0
-        chars: list[str] = []
-        while i < len(payload):
-            tag = payload[i]
-            if tag == 0x04:
-                lo = payload[i + 1]
-                hi = payload[i + 2]
-                chars.append(chr(lo | (hi << 8)))
-                i += 3
-            elif tag == 0x00:
-                id_byte = payload[i + 1]
-                name = "".join(chars).strip()
-                profiles[name] = id_byte
-                chars.clear()
-                i += 2
-            else:
+        offset = 0
+        while offset + 16 <= len(payload):
+            name_bytes = payload[offset:offset + 16]
+            name = name_bytes.decode("utf-16-be").rstrip("\x00").strip()
+            offset += 16
+
+            while offset < len(payload) and payload[offset] == 0x00:
+                offset += 1
+            if offset >= len(payload):
                 break
+            pid_byte = payload[offset]
+            offset += 1
+
+            if 0x30 <= pid_byte <= 0x39:
+                profile_id = pid_byte - 0x30
+            else:
+                profile_id = pid_byte
+
+            if name:
+                profiles[name] = profile_id
+
         _LOGGER.warning("Parsed profiles: %s", profiles)
         return profiles
 
@@ -555,6 +564,7 @@ class DelongiPrimadonna:
                 BYTES_LOAD_PROFILES_1,
                 BYTES_LOAD_PROFILES_2,
             ):
+                self._expected_profile_start = init_cmd[4]
                 await self.send_command(init_cmd)
             self._profiles_loaded = True
 
