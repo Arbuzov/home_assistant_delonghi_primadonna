@@ -223,6 +223,7 @@ class DelongiPrimadonna:
         self._response_event = None
         self.profiles = list(AVAILABLE_PROFILES.keys())
         self._profiles_loaded = False
+        self._expected_profile_start = 1
 
     async def disconnect(self):
         """Disconnect from the device."""
@@ -403,7 +404,10 @@ class DelongiPrimadonna:
         elif answer_id == 0xA4:
             parsed = []
             try:
-                parsed = self._parse_profile_response(list(value))
+                parsed = self._parse_profile_response(
+                    list(value),
+                    self._expected_profile_start,
+                )
             except Exception as err:  # noqa: BLE001
                 _LOGGER.warning("Failed to parse profile response: %s", err)
             for name, pid in parsed.items():
@@ -439,7 +443,11 @@ class DelongiPrimadonna:
 
         self._device_status = hex_value
 
-    def _parse_profile_response(self, data: list[int]) -> dict[str, int]:
+    def _parse_profile_response(
+        self,
+        data: list[int],
+        start_id: int,
+    ) -> dict[str, int]:
         """Parse profile names sent by the machine."""
 
         b = bytes(data)
@@ -451,17 +459,18 @@ class DelongiPrimadonna:
 
         profiles: dict[str, int] = {}
         offset = 0
+        current_id = start_id
         while offset + 21 <= len(payload):
             name_bytes = payload[offset:offset + 16]
             name = name_bytes.decode("utf-16-be").rstrip("\x00").strip()
             offset += 16
             offset += 4  # padding bytes
-            profile_id = payload[offset]
-            offset += 1
+            offset += 1  # skip id byte from payload
 
             if not name:
                 continue
-            profiles[name] = profile_id
+            profiles[name] = current_id
+            current_id += 1
 
         _LOGGER.warning("Parsed profiles: %s", profiles)
         return profiles
@@ -548,6 +557,7 @@ class DelongiPrimadonna:
                 BYTES_LOAD_PROFILES_1,
                 BYTES_LOAD_PROFILES_2,
             ):
+                self._expected_profile_start = init_cmd[4]
                 await self.send_command(init_cmd)
             self._profiles_loaded = True
 
