@@ -412,6 +412,10 @@ class DelongiPrimadonna:
                         AVAILABLE_PROFILES.pop(old_name)
                         break
                 AVAILABLE_PROFILES[name] = pid
+            _LOGGER.warning(
+                "Available profiles: %s",
+                AVAILABLE_PROFILES
+            )
             self.profiles = list(AVAILABLE_PROFILES.keys())
         elif answer_id == 0xA9:
             profile_id = value[4] if len(value) > 4 else None
@@ -466,7 +470,7 @@ class DelongiPrimadonna:
                 i += 2
             else:
                 break
-
+        _LOGGER.warning("Parsed profiles: %s", profiles)
         return profiles
 
     async def power_on(self) -> None:
