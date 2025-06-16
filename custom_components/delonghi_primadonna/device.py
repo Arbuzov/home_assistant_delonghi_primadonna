@@ -440,36 +440,29 @@ class DelongiPrimadonna:
         self._device_status = hex_value
 
     def _parse_profile_response(self, data: list[int]) -> dict[str, int]:
-        """
-        Parse the profile response from the device.
-
-        The response format is a custom TLV structure.
-        Example: d0 12 75 0f 01 05 00 00 00 07 00 00 00 00 00 00 00 9d 61
-        """
+        """Parse profile names sent by the machine."""
 
         b = bytes(data)
-        if b[0] != 0xD0:
+        if len(b) < 4 or b[0] != 0xD0:
             raise ValueError("Wrong start byte")
+
         length = b[1]
         payload = b[4:4 + length]
+
         profiles: dict[str, int] = {}
-        i = 0
-        chars: list[str] = []
-        while i < len(payload):
-            tag = payload[i]
-            if tag == 0x04:
-                lo = payload[i + 1]
-                hi = payload[i + 2]
-                chars.append(chr(lo | (hi << 8)))
-                i += 3
-            elif tag == 0x00:
-                id_byte = payload[i + 1]
-                name = "".join(chars).strip()
-                profiles[name] = id_byte
-                chars.clear()
-                i += 2
-            else:
-                break
+        offset = 0
+        while offset + 21 <= len(payload):
+            name_bytes = payload[offset:offset + 16]
+            name = name_bytes.decode("utf-16-be").rstrip("\x00").strip()
+            offset += 16
+            offset += 4  # padding bytes
+            profile_id = payload[offset]
+            offset += 1
+
+            if not name:
+                continue
+            profiles[name] = profile_id
+
         _LOGGER.warning("Parsed profiles: %s", profiles)
         return profiles
 
