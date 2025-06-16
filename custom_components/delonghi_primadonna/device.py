@@ -459,25 +459,22 @@ class DelongiPrimadonna:
 
         profiles: dict[str, int] = {}
         offset = 0
-        while offset + 16 <= len(payload):
-            name_bytes = payload[offset:offset + 16]
+        profile_id = _start_id
+
+        while offset + 21 <= len(payload):
+            name_bytes = payload[offset:offset + 20]
+            raw_id = payload[offset + 20]
+            offset += 21
+
             name = name_bytes.decode("utf-16-be").rstrip("\x00").strip()
-            offset += 16
-
-            while offset < len(payload) and payload[offset] == 0x00:
-                offset += 1
-            if offset >= len(payload):
-                break
-            pid_byte = payload[offset]
-            offset += 1
-
-            if 0x30 <= pid_byte <= 0x39:
-                profile_id = pid_byte - 0x30
-            else:
-                profile_id = pid_byte
 
             if name:
+                if 0x30 <= raw_id <= 0x39:
+                    _ = raw_id - 0x30
+                else:
+                    _ = raw_id
                 profiles[name] = profile_id
+                profile_id += 1
 
         _LOGGER.warning("Parsed profiles: %s", profiles)
         return profiles
