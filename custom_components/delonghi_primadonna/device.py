@@ -459,10 +459,11 @@ class DelongiPrimadonna:
 
         profiles: dict[str, int] = {}
         offset = 0
-        while offset + 16 <= len(payload):
-            name_bytes = payload[offset:offset + 16]
-            offset += 16
-            name = name_bytes.decode("utf-16-be").rstrip("\x00").strip()
+        NAME_SIZE = 20
+        while offset + NAME_SIZE <= len(payload):
+            name_bytes = payload[offset:offset + NAME_SIZE]
+            offset += NAME_SIZE
+            name = name_bytes.decode("utf-16-le").rstrip("\x00").strip()
 
             # Skip padding zeros between name and the profile id
             while offset < len(payload) and payload[offset] == 0x00:
