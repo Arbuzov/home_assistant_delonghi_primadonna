@@ -180,6 +180,7 @@ class DelonghiDeviceEntity:
 
 def sign_request(message):
     """Request signer"""
+    _LOGGER.debug("Signing request: %s", hexlify(bytearray(message), " "))
     deviser = 0x1D0F
     for item in message[: len(message) - 2]:
         i3 = (((deviser << 8) | (deviser >> 8)) & 0x0000FFFF) ^ (item & 0xFFFF)
@@ -189,6 +190,9 @@ def sign_request(message):
     signature = list((deviser & 0x0000FFFF).to_bytes(2, byteorder='big'))
     message[len(message) - 2] = signature[0]
     message[len(message) - 1] = signature[1]
+    _LOGGER.debug(
+        "Request signature bytes: %s %s", hex(signature[0]), hex(signature[1])
+    )
     return message
 
 
@@ -409,6 +413,15 @@ class DelongiPrimadonna:
                         break
                 AVAILABLE_PROFILES[name] = pid
             self.profiles = list(AVAILABLE_PROFILES.keys())
+        elif answer_id == 0xA9:
+            profile_id = value[4] if len(value) > 4 else None
+            status = value[5] if len(value) > 5 else None
+            _LOGGER.info(
+                "Profile change response id=%s status=%s raw=%s",
+                profile_id,
+                status,
+                hexlify(value, " "),
+            )
 
         hex_value = hexlify(value, ' ')
 
@@ -543,6 +556,7 @@ class DelongiPrimadonna:
 
     async def select_profile(self, profile_id) -> None:
         """select a profile."""
+        _LOGGER.debug("Send select profile command id=%s", profile_id)
         message = [0x0D, 0x06, 0xA9, 0xF0, profile_id, 0xD7, 0xC0]
         await self.send_command(message)
 
