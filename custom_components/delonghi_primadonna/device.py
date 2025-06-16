@@ -449,45 +449,53 @@ class DelongiPrimadonna:
         start_id: int,
     ) -> dict[str, int]:
         """Parse profile names sent by the machine."""
-
+    
         b = bytes(data)
         if len(b) < 4 or b[0] != 0xD0:
             raise ValueError("Wrong start byte")
-
+    
         length = b[1]
         payload = b[4:4 + length]
-
+    
         profiles: dict[str, int] = {}
         offset = 0
-        NAME_SIZE = 20
+        NAME_SIZE = 20  # фиксированный размер блока имени + padding
+    
         while offset + NAME_SIZE <= len(payload):
-            name_bytes = payload[offset:offset + NAME_SIZE]
+            block = payload[offset:offset + NAME_SIZE]
             offset += NAME_SIZE
-            name = name_bytes.decode("utf-16-le").rstrip("\x00").strip()
-
-            # Skip padding zeros between name and the profile id
+    
+            # декодируем имя как utf-16-le и очищаем от \x00
+            try:
+                name = block.decode("utf-16-le", errors="ignore").rstrip("\x00").strip()
+            except Exception:
+                name = ""
+    
+            # пропускаем padding (нулевые байты) до ID
             while offset < len(payload) and payload[offset] == 0x00:
                 offset += 1
-
+    
             if offset >= len(payload):
                 break
-
+    
             id_byte = payload[offset]
             offset += 1
-
+    
             if not name:
                 continue
-
+    
+            # цифра '0'..'9' → реальный ID (1..9), иначе оставляем как есть
             if 0x30 <= id_byte <= 0x39:
                 profile_id = id_byte - 0x30
             else:
                 profile_id = id_byte
-
+    
             profiles[name] = profile_id
-
+    
+            # skip any padding zeros before next name block
             while offset < len(payload) and payload[offset] == 0x00:
                 offset += 1
-
+    
         _LOGGER.warning("Parsed profiles: %s", profiles)
         return profiles
 
