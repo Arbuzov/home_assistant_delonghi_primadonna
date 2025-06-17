@@ -1,9 +1,12 @@
+"""Binary sensors for Delonghi Primadonna."""
+
 from homeassistant.components.binary_sensor import (BinarySensorDeviceClass,
                                                     BinarySensorEntity)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import DOMAIN
 from .device import DelonghiDeviceEntity
@@ -14,6 +17,8 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback
 ):
+    """Register binary sensor entities for a config entry."""
+
     delongh_device = hass.data[DOMAIN][entry.unique_id]
     async_add_entities(
         [
@@ -25,7 +30,9 @@ async def async_setup_entry(
     return True
 
 
-class DelongiPrimadonnaEnabledSensor(DelonghiDeviceEntity, BinarySensorEntity):
+class DelongiPrimadonnaEnabledSensor(
+    DelonghiDeviceEntity, BinarySensorEntity, RestoreEntity
+):
     """
     Shows if the device up and running
     """
@@ -33,6 +40,12 @@ class DelongiPrimadonnaEnabledSensor(DelonghiDeviceEntity, BinarySensorEntity):
     _attr_device_class = BinarySensorDeviceClass.RUNNING
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = 'Enabled'
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self._attr_is_on = last_state.state == 'on'
+            self.device.switches.is_on = self._attr_is_on
 
     @property
     def icon(self) -> str:
@@ -52,7 +65,9 @@ class DelongiPrimadonnaEnabledSensor(DelonghiDeviceEntity, BinarySensorEntity):
         return self.device.switches.is_on
 
 
-class DelongiPrimadonnaDescaleSensor(DelonghiDeviceEntity, BinarySensorEntity):
+class DelongiPrimadonnaDescaleSensor(
+    DelonghiDeviceEntity, BinarySensorEntity, RestoreEntity
+):
     """
     Shows if the device needs descaling
     """
@@ -61,12 +76,19 @@ class DelongiPrimadonnaDescaleSensor(DelonghiDeviceEntity, BinarySensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = 'Descaling'
 
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self._attr_is_on = last_state.state == 'on'
+
     @property
     def native_value(self):
         return self.device.service
 
     @property
     def is_on(self) -> bool:
+        if (is_on := getattr(self, '_attr_is_on', None)) is not None:
+            return is_on
         return bool((self.device.service >> 2) % 2)
 
     @property
@@ -77,7 +99,9 @@ class DelongiPrimadonnaDescaleSensor(DelonghiDeviceEntity, BinarySensorEntity):
         return result
 
 
-class DelongiPrimadonnaFilterSensor(DelonghiDeviceEntity, BinarySensorEntity):
+class DelongiPrimadonnaFilterSensor(
+    DelonghiDeviceEntity, BinarySensorEntity, RestoreEntity
+):
     """
     Shows if the filter need to be changed
     """
@@ -86,12 +110,19 @@ class DelongiPrimadonnaFilterSensor(DelonghiDeviceEntity, BinarySensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = 'Filter'
 
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self._attr_is_on = last_state.state == 'on'
+
     @property
     def native_value(self):
         return self.device.service
 
     @property
     def is_on(self) -> bool:
+        if (is_on := getattr(self, '_attr_is_on', None)) is not None:
+            return is_on
         return bool((self.device.service >> 3) % 2)
 
     @property

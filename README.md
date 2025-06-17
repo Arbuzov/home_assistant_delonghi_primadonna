@@ -4,6 +4,9 @@
 [![License](https://img.shields.io/github/license/Arbuzov/home_assistant_delonghi_primadonna?style=for-the-badge)](https://github.com/Arbuzov/home_assistant_delonghi_primadonna/blob/master/LICENSE)
 [![Latest Release](https://img.shields.io/github/v/release/Arbuzov/home_assistant_delonghi_primadonna?style=for-the-badge)](https://github.com/Arbuzov/home_assistant_delonghi_primadonna/releases)
 [![Latest Release](https://img.shields.io/badge/dynamic/json?style=for-the-badge&color=41BDF5&logo=home-assistant&label=integration%20usage&suffix=%20installs&cacheSeconds=15600&url=https://analytics.home-assistant.io/custom_integrations.json&query=$.delonghi_primadonna.total)](https://analytics.home-assistant.io/custom_integrations.json)
+[![Validate Workflow](https://img.shields.io/github/actions/workflow/status/Arbuzov/home_assistant_delonghi_primadonna/validate.yml?branch=master&style=flat)](https://github.com/Arbuzov/home_assistant_delonghi_primadonna/actions/workflows/validate.yml)
+[![GitHub Stars](https://img.shields.io/github/stars/Arbuzov/home_assistant_delonghi_primadonna?style=flat)](https://github.com/Arbuzov/home_assistant_delonghi_primadonna/stargazers)
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/Arbuzov/home_assistant_delonghi_primadonna?style=flat)](https://github.com/Arbuzov/home_assistant_delonghi_primadonna/commits/master)
 
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Arbuzov&repository=home_assistant_delonghi_primadonna&category=integration)

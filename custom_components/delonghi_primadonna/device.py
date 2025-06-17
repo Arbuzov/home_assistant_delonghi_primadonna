@@ -14,9 +14,10 @@ from homeassistant.const import CONF_MAC, CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
-from .const import (AMERICANO_OFF, AMERICANO_ON, BASE_COMMAND,
-                    BYTES_AUTOPOWEROFF_COMMAND, BYTES_POWER,
-                    BYTES_SWITCH_COMMAND, BYTES_WATER_HARDNESS_COMMAND,
+from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
+                    BASE_COMMAND, BYTES_AUTOPOWEROFF_COMMAND,
+                    BYTES_LOAD_PROFILES, BYTES_POWER, BYTES_SWITCH_COMMAND,
+                    BYTES_WATER_HARDNESS_COMMAND,
                     BYTES_WATER_TEMPERATURE_COMMAND, COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
                     COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
@@ -27,6 +28,8 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, BASE_COMMAND,
                     WATER_SHORTAGE, WATER_TANK_DETACHED)
 
 _LOGGER = logging.getLogger(__name__)
+
+START_BYTE = 0xD0
 
 
 class BeverageEntityFeature(IntFlag):
@@ -170,13 +173,14 @@ class DelonghiDeviceEntity:
             'identifiers': {(DOMAIN, self.device.mac)},
             'connections': {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
             'name': self.device.name,
-            'manufacturer': 'Delongi',
+            'manufacturer': 'Delonghi',
             'model': self.device.model,
         }
 
 
 def sign_request(message):
     """Request signer"""
+    _LOGGER.debug("Signing request: %s", hexlify(bytearray(message), " "))
     deviser = 0x1D0F
     for item in message[: len(message) - 2]:
         i3 = (((deviser << 8) | (deviser >> 8)) & 0x0000FFFF) ^ (item & 0xFFFF)
@@ -186,6 +190,9 @@ def sign_request(message):
     signature = list((deviser & 0x0000FFFF).to_bytes(2, byteorder='big'))
     message[len(message) - 2] = signature[0]
     message[len(message) - 1] = signature[1]
+    _LOGGER.debug(
+        "Request signature bytes: %s %s", hex(signature[0]), hex(signature[1])
+    )
     return message
 
 
@@ -212,6 +219,10 @@ class DelongiPrimadonna:
         self.status = DEVICE_STATUS[5]
         self.switches = DeviceSwitches()
         self._lock = asyncio.Lock()
+        self._rx_buffer = bytearray()
+        self._response_event = None
+        self.profiles = list(AVAILABLE_PROFILES.keys())
+        self._profiles_loaded = False
 
     async def disconnect(self):
         """Disconnect from the device."""
@@ -271,7 +282,7 @@ class DelongiPrimadonna:
                     await asyncio.wait_for(
                         self._client.start_notify(
                             uuid.UUID(CONTROLL_CHARACTERISTIC),
-                            self._handle_data,
+                            self._process_raw_data,
                         ),
                         timeout=10,
                     )
@@ -335,30 +346,125 @@ class DelongiPrimadonna:
         self._hass.bus.async_fire(f'{DOMAIN}_event', event_data)
 
         if self.notify:
+            answer_id = f"{value[2]:02x}"
             await self._hass.services.async_call(
                 'persistent_notification',
                 'create',
                 {
                     'message': notification_message,
-                    'title': f'{self.name} {self.mac}',
+                    'title': f'{self.name} {answer_id}',
                     'notification_id': f'{self.mac}_err_{uuid.uuid4()}',
                 },
             )
         _LOGGER.info('Event triggered: %s', event_data)
 
+    async def _process_raw_data(self, sender, value):
+        """Assemble incoming BLE packets and pass complete messages."""
+        self._rx_buffer.extend(value)
+
+        while True:
+            if len(self._rx_buffer) < 2:
+                return
+            try:
+                start_index = self._rx_buffer.index(START_BYTE)
+            except ValueError:
+                self._rx_buffer.clear()
+                return
+
+            if start_index > 0:
+                del self._rx_buffer[:start_index]
+
+            if len(self._rx_buffer) < 2:
+                return
+
+            msg_len = self._rx_buffer[1] + 1
+
+            if len(self._rx_buffer) < msg_len:
+                return
+
+            packet = bytes(self._rx_buffer[:msg_len])
+            del self._rx_buffer[:msg_len]
+            await self._handle_data(sender, packet)
+
     async def _handle_data(self, sender, value):
-        if len(value) > 9:
+        """Handle notifications from the device."""
+        if (
+            self._response_event is not None
+            and not self._response_event.is_set()
+        ):
+            self._response_event.set()
+        answer_id = value[2] if len(value) > 2 else None
+
+        if answer_id == 0x75:
             self.switches.is_on = value[9] > 0
-        if len(value) > 4:
             self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
-        if len(value) > 7:
             self.service = value[7]
-        if len(value) > 5:
-            self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS.get(5))
-        if self._device_status != hexlify(value, ' '):
-            _LOGGER.info('Received data: %s from %s', hexlify(value, ' '), sender)  # noqa: E501
+            self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS[5])
+        elif answer_id == 0xA4:
+            parsed = []
+            try:
+                parsed = self._parse_profile_response(
+                    list(value)
+                )
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.warning("Failed to parse profile response: %s", err)
+            for name, pid in parsed.items():
+                for old_name, old_pid in list(AVAILABLE_PROFILES.items()):
+                    if old_pid == pid:
+                        AVAILABLE_PROFILES.pop(old_name)
+                        break
+                AVAILABLE_PROFILES[name] = pid
+            _LOGGER.warning(
+                "Available profiles: %s",
+                AVAILABLE_PROFILES
+            )
+            self.profiles = list(AVAILABLE_PROFILES.keys())
+        elif answer_id == 0xA9:
+            profile_id = value[4] if len(value) > 4 else None
+            status = value[5] if len(value) > 5 else None
+            _LOGGER.info(
+                "Profile change response id=%s status=%s raw=%s",
+                profile_id,
+                status,
+                hexlify(value, " "),
+            )
+
+        hex_value = hexlify(value, ' ')
+
+        if self._device_status != hex_value:
+            _LOGGER.info(
+                'Received data: %s from %s',
+                hex_value,
+                sender
+            )
             await self._event_trigger(value)
-        self._device_status = hexlify(value, ' ')
+
+        self._device_status = hex_value
+
+    def _parse_profile_response(
+        self,
+        data: list[int],
+    ) -> dict[str, int]:
+        """Parse profile names sent by the machine."""
+
+        b = bytes(data)
+        if len(b) < 4 or b[0] != 0xD0:
+            raise ValueError("Wrong start byte")
+
+        profiles: dict[str, int] = {}
+        NAME_SIZE = 20
+        NAME_OFFSET = 1
+        NAME_HEADER = 4
+        profile_index = 1
+        idx = NAME_HEADER
+        while idx+NAME_SIZE < len(b):
+            profiles.setdefault(
+                b[idx:idx+NAME_SIZE].decode('utf-16-be').strip(),
+                profile_index
+            )
+            profile_index += 1
+            idx += (NAME_SIZE+NAME_OFFSET)
+        return profiles
 
     async def power_on(self) -> None:
         """Turn the device on."""
@@ -437,8 +543,13 @@ class DelongiPrimadonna:
                 self.connected = False
                 _LOGGER.warning('CancelledError: %s', error)
 
+        if self.connected and not self._profiles_loaded:
+            await self.send_command(BYTES_LOAD_PROFILES)
+            self._profiles_loaded = True
+
     async def select_profile(self, profile_id) -> None:
         """select a profile."""
+        _LOGGER.debug("Send select profile command id=%s", profile_id)
         message = [0x0D, 0x06, 0xA9, 0xF0, profile_id, 0xD7, 0xC0]
         await self.send_command(message)
 
@@ -476,9 +587,22 @@ class DelongiPrimadonna:
                         'Send command: %s',
                         hexlify(bytearray(message_to_send), " ")
                     )
+                    self._response_event = asyncio.Event()
                     await self._client.write_gatt_char(
                         CONTROLL_CHARACTERISTIC, bytearray(message_to_send)
                     )
+                    try:
+                        await asyncio.wait_for(
+                            self._response_event.wait(),
+                            timeout=10,
+                        )
+                    except asyncio.TimeoutError:
+                        _LOGGER.warning(
+                            'Timeout waiting for response to command: %s',
+                            hexlify(bytearray(message_to_send), " ")
+                        )
+                    finally:
+                        self._response_event = None
                     return
                 except BleakError as error:
                     self.connected = False
