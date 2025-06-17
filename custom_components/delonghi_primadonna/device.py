@@ -16,8 +16,8 @@ from homeassistant.helpers import device_registry as dr
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     BASE_COMMAND, BYTES_AUTOPOWEROFF_COMMAND,
-                    BYTES_LOAD_PROFILES_1, BYTES_LOAD_PROFILES_2, BYTES_POWER,
-                    BYTES_SWITCH_COMMAND, BYTES_WATER_HARDNESS_COMMAND,
+                    BYTES_LOAD_PROFILES, BYTES_POWER, BYTES_SWITCH_COMMAND,
+                    BYTES_WATER_HARDNESS_COMMAND,
                     BYTES_WATER_TEMPERATURE_COMMAND, COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
                     COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
@@ -223,7 +223,6 @@ class DelongiPrimadonna:
         self._response_event = None
         self.profiles = list(AVAILABLE_PROFILES.keys())
         self._profiles_loaded = False
-        self._expected_profile_start = 1
 
     async def disconnect(self):
         """Disconnect from the device."""
@@ -405,8 +404,7 @@ class DelongiPrimadonna:
             parsed = []
             try:
                 parsed = self._parse_profile_response(
-                    list(value),
-                    self._expected_profile_start,
+                    list(value)
                 )
             except Exception as err:  # noqa: BLE001
                 _LOGGER.warning("Failed to parse profile response: %s", err)
@@ -446,57 +444,26 @@ class DelongiPrimadonna:
     def _parse_profile_response(
         self,
         data: list[int],
-        start_id: int,
     ) -> dict[str, int]:
         """Parse profile names sent by the machine."""
-    
+
         b = bytes(data)
         if len(b) < 4 or b[0] != 0xD0:
             raise ValueError("Wrong start byte")
-    
-        length = b[1]
-        payload = b[4:4 + length]
-    
+
         profiles: dict[str, int] = {}
-        offset = 0
-        NAME_SIZE = 20  # фиксированный размер блока имени + padding
-    
-        while offset + NAME_SIZE <= len(payload):
-            block = payload[offset:offset + NAME_SIZE]
-            offset += NAME_SIZE
-    
-            # декодируем имя как utf-16-le и очищаем от \x00
-            try:
-                name = block.decode("utf-16-le", errors="ignore").rstrip("\x00").strip()
-            except Exception:
-                name = ""
-    
-            # пропускаем padding (нулевые байты) до ID
-            while offset < len(payload) and payload[offset] == 0x00:
-                offset += 1
-    
-            if offset >= len(payload):
-                break
-    
-            id_byte = payload[offset]
-            offset += 1
-    
-            if not name:
-                continue
-    
-            # цифра '0'..'9' → реальный ID (1..9), иначе оставляем как есть
-            if 0x30 <= id_byte <= 0x39:
-                profile_id = id_byte - 0x30
-            else:
-                profile_id = id_byte
-    
-            profiles[name] = profile_id
-    
-            # skip any padding zeros before next name block
-            while offset < len(payload) and payload[offset] == 0x00:
-                offset += 1
-    
-        _LOGGER.warning("Parsed profiles: %s", profiles)
+        NAME_SIZE = 20
+        NAME_OFFSET = 1
+        NAME_HEADER = 4
+        profile_index = 1
+        idx = NAME_HEADER
+        while idx+NAME_SIZE < len(b):
+            profiles.setdefault(
+                b[idx:idx+NAME_SIZE].decode('utf-16-be').strip(),
+                profile_index
+            )
+            profile_index += 1
+            idx += (NAME_SIZE+NAME_OFFSET)
         return profiles
 
     async def power_on(self) -> None:
@@ -577,12 +544,7 @@ class DelongiPrimadonna:
                 _LOGGER.warning('CancelledError: %s', error)
 
         if self.connected and not self._profiles_loaded:
-            for init_cmd in (
-                BYTES_LOAD_PROFILES_1,
-                BYTES_LOAD_PROFILES_2,
-            ):
-                self._expected_profile_start = init_cmd[4]
-                await self.send_command(init_cmd)
+            await self.send_command(BYTES_LOAD_PROFILES)
             self._profiles_loaded = True
 
     async def select_profile(self, profile_id) -> None:
