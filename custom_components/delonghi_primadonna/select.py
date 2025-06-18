@@ -66,7 +66,11 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
         profile_id = next(
-            (pid for pid, name in AVAILABLE_PROFILES.items() if name == option),
+            (
+                pid
+                for pid, name in AVAILABLE_PROFILES.items()
+                if name == option
+            ),
             None,
         )
         _LOGGER.debug("Select profile '%s' id=%s", option, profile_id)
