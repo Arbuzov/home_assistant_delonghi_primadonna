@@ -13,11 +13,12 @@ DESCRIPTOR = '00002902-0000-1000-8000-00805f9b34fb'
 
 BEVERAGE_SERVICE_NAME = 'make_beverage'
 
+# Mapping of profile id to profile name
 AVAILABLE_PROFILES = {
-    'Profile 1': 1,
-    'Profile 2': 2,
-    'Profile 3': 3,
-    'Guest': 4
+    1: 'Profile 1',
+    2: 'Profile 2',
+    3: 'Profile 3',
+    4: 'Guest',
 }
 
 POWER_OFF_OPTIONS = {

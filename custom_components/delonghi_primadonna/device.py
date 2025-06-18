@@ -221,7 +221,8 @@ class DelongiPrimadonna:
         self._lock = asyncio.Lock()
         self._rx_buffer = bytearray()
         self._response_event = None
-        self.profiles = list(AVAILABLE_PROFILES.keys())
+        # keep user friendly profile names separately
+        self.profiles = list(AVAILABLE_PROFILES.values())
         self._profiles_loaded = False
 
     async def disconnect(self):
@@ -408,17 +409,13 @@ class DelongiPrimadonna:
                 )
             except Exception as err:  # noqa: BLE001
                 _LOGGER.warning("Failed to parse profile response: %s", err)
-            for name, pid in parsed.items():
-                for old_name, old_pid in list(AVAILABLE_PROFILES.items()):
-                    if old_pid == pid:
-                        AVAILABLE_PROFILES.pop(old_name)
-                        break
-                AVAILABLE_PROFILES[name] = pid
+            for pid, name in parsed.items():
+                AVAILABLE_PROFILES[pid] = name
             _LOGGER.warning(
                 "Available profiles: %s",
                 AVAILABLE_PROFILES
             )
-            self.profiles = list(AVAILABLE_PROFILES.keys())
+            self.profiles = list(AVAILABLE_PROFILES.values())
         elif answer_id == 0xA9:
             profile_id = value[4] if len(value) > 4 else None
             status = value[5] if len(value) > 5 else None
@@ -444,26 +441,26 @@ class DelongiPrimadonna:
     def _parse_profile_response(
         self,
         data: list[int],
-    ) -> dict[str, int]:
+    ) -> dict[int, str]:
         """Parse profile names sent by the machine."""
 
         b = bytes(data)
         if len(b) < 4 or b[0] != 0xD0:
             raise ValueError("Wrong start byte")
 
-        profiles: dict[str, int] = {}
+        profiles: dict[int, str] = {}
         NAME_SIZE = 20
         NAME_OFFSET = 1
         NAME_HEADER = 4
         profile_index = 1
         idx = NAME_HEADER
-        while idx+NAME_SIZE < len(b):
+        while idx + NAME_SIZE < len(b):
             profiles.setdefault(
-                b[idx:idx+NAME_SIZE].decode('utf-16-be').strip(),
-                profile_index
+                profile_index,
+                b[idx:idx + NAME_SIZE].decode("utf-16-be").strip(),
             )
             profile_index += 1
-            idx += (NAME_SIZE+NAME_OFFSET)
+            idx += NAME_SIZE + NAME_OFFSET
         return profiles
 
     async def power_on(self) -> None:
