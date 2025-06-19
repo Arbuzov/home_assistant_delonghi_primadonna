@@ -410,7 +410,7 @@ class DelongiPrimadonna:
                 _LOGGER.warning("Failed to parse profile response: %s", err)
             for pid, name in parsed.items():
                 AVAILABLE_PROFILES[pid] = name
-            _LOGGER.warning(
+            _LOGGER.debug(
                 "Available profiles: %s",
                 AVAILABLE_PROFILES
             )
@@ -418,7 +418,7 @@ class DelongiPrimadonna:
         elif answer_id == 0xA9:
             profile_id = value[4] if len(value) > 4 else None
             status = value[5] if len(value) > 5 else None
-            _LOGGER.info(
+            _LOGGER.debug(
                 "Profile change response id=%s status=%s raw=%s",
                 profile_id,
                 status,
