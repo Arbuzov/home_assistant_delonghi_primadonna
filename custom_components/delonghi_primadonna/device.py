@@ -13,6 +13,8 @@ from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
+import json
+import os
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     BASE_COMMAND, BYTES_AUTOPOWEROFF_COMMAND,
@@ -456,7 +458,7 @@ class DelongiPrimadonna:
         while idx + NAME_SIZE < len(b):
             profiles.setdefault(
                 profile_index,
-                b[idx:idx + NAME_SIZE].decode("utf-16-be").strip(),
+                b[idx:idx + NAME_SIZE].decode("utf-16-be").rstrip("\x00").strip(),
             )
             profile_index += 1
             idx += NAME_SIZE + NAME_OFFSET
