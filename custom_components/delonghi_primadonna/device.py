@@ -157,8 +157,6 @@ class DelonghiDeviceEntity:
 
     _attr_has_entity_name = True
 
-    _attr_entity_picture = "https://delonghibe.s3.eu-west-1.amazonaws.com/cms/prod/img/_opt_delonghi_uploads_PD_CLASS_TOP_INT_ECAM550.85.MS.png"
-
     def __init__(self, delongh_device, hass: HomeAssistant):
         """Init entity with the device"""
         self._attr_unique_id = (
