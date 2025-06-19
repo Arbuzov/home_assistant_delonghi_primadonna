@@ -12,7 +12,8 @@
       "user": {
         "data": {
           "mac": "MAC",
-          "name": "이름"
+          "name": "이름",
+          "model": "모델"
         }
       }
     }
