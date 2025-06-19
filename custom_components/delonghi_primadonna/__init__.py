@@ -35,7 +35,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     delonghi_device = DelongiPrimadonna(entry.data, hass)
     hass.data[DOMAIN][entry.unique_id] = delonghi_device
     _LOGGER.debug('Device id %s', entry.unique_id)
-
+    _LOGGER.warning('Device data %s', entry.data)
     hass.async_create_task(delonghi_device.get_device_name())
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
