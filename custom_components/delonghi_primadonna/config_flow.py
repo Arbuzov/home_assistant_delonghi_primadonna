@@ -33,7 +33,9 @@ def _load_model_options() -> list[SelectOptionDict]:
         _LOGGER.error("Failed to load machine models: %s", err)
         return options
 
-    for machine in data.get("machines", []):
+    for machine in filter(
+        lambda m: m.get("connectionType") == "BT", data.get("machines", [])
+    ):
         name = machine.get("name")
         code = machine.get("product_code")
         if name and code:
