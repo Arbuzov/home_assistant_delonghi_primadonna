@@ -9,7 +9,6 @@ from enum import IntFlag
 
 from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
-from const import CONF_MODEL
 from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_NAME
 from homeassistant.core import HomeAssistant
@@ -21,10 +20,11 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     BYTES_WATER_HARDNESS_COMMAND,
                     BYTES_WATER_TEMPERATURE_COMMAND, COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
-                    COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
-                    DEBUG, DEVICE_READY, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
-                    DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF,
-                    ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
+                    COFFEE_GROUNDS_CONTAINER_FULL, CONF_MODEL,
+                    CONTROLL_CHARACTERISTIC, DEBUG, DEVICE_READY,
+                    DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF, DOPPIO_ON,
+                    ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF, ESPRESSO_ON,
+                    HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
                     NAME_CHARACTERISTIC, START_COFFEE, STEAM_OFF, STEAM_ON,
                     WATER_SHORTAGE, WATER_TANK_DETACHED)
 
