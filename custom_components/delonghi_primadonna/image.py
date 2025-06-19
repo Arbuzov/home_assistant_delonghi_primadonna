@@ -26,3 +26,10 @@ class DelongiPrimadonnaImage(DelonghiDeviceEntity, ImageEntity):
 
     _attr_image_url = DEFAULT_IMAGE_URL
     _attr_name = "Image"
+
+    def __init__(
+        self, delongh_device: DelongiPrimadonna, hass: HomeAssistant
+    ) -> None:
+        """Initialize the image entity."""
+        DelonghiDeviceEntity.__init__(self, delongh_device, hass)
+        ImageEntity.__init__(self, hass)
