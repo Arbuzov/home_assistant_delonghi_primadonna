@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import json
 import logging
-from importlib import resources
 from typing import Any
 
 import voluptuous
@@ -12,38 +10,17 @@ from homeassistant import config_entries
 from homeassistant.components.bluetooth import BluetoothServiceInfoBleak
 from homeassistant.const import CONF_MAC, CONF_MODEL, CONF_NAME
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.helpers.selector import (SelectOptionDict, SelectSelector,
+from homeassistant.helpers.selector import (SelectSelector,
                                             SelectSelectorConfig,
                                             SelectSelectorMode)
 
 from .const import DOMAIN
+from .model import get_model_options
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def _load_model_options() -> list[SelectOptionDict]:
-    """Load machine models from bundled JSON."""
-    options: list[SelectOptionDict] = []
-    try:
-        with resources.files(__package__).joinpath("MachinesModels.json").open(
-            "r", encoding="utf-8"
-        ) as file:
-            data = json.load(file)
-    except Exception as err:  # pragma: no cover
-        _LOGGER.error("Failed to load machine models: %s", err)
-        return options
-
-    for machine in filter(
-        lambda m: m.get("connectionType") == "BT", data.get("machines", [])
-    ):
-        name = machine.get("name")
-        code = machine.get("product_code")
-        if name and code:
-            options.append(SelectOptionDict(value=code, label=name))
-    return options
-
-
-MODEL_OPTIONS = _load_model_options()
+MODEL_OPTIONS = get_model_options()
 
 STEP_USER_DATA_SCHEMA = voluptuous.Schema(
     {
