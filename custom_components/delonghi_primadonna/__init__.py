@@ -13,6 +13,7 @@ from .const import BEVERAGE_SERVICE_NAME, DOMAIN
 from .device import AvailableBeverage, BeverageEntityFeature, DelongiPrimadonna
 
 PLATFORMS: list[str] = [
+    Platform.IMAGE,
     Platform.BUTTON,
     Platform.BINARY_SENSOR,
     Platform.SENSOR,
