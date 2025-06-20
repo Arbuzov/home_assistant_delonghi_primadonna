@@ -16,7 +16,7 @@ from homeassistant.helpers.selector import (SelectSelector,
                                             SelectSelectorMode)
 
 from .const import DOMAIN
-from .model import get_model_options
+from .model import get_model_options, guess_product_code
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -76,17 +76,26 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         await self.async_set_unique_id(discovery_info.address)
         self._abort_if_unique_id_configured()
 
+        default_machine = guess_product_code(discovery_info.name)
+        model_schema = voluptuous.Required(CONF_MODEL)
+        suggested_name = discovery_info.name
+        if default_machine:
+            model_schema = voluptuous.Required(
+                CONF_MODEL, default=default_machine.get("product_code")
+            )
+            suggested_name = default_machine.get("name", suggested_name)
+
         self._schema = voluptuous.Schema(
             {
                 voluptuous.Required(
                     CONF_NAME,
-                    description={"suggested_value": discovery_info.name},
+                    description={"suggested_value": suggested_name},
                 ): str,
                 voluptuous.Required(
                     CONF_MAC,
                     description={"suggested_value": discovery_info.address},
                 ): str,
-                voluptuous.Required(CONF_MODEL): SelectSelector(
+                model_schema: SelectSelector(
                     SelectSelectorConfig(
                         options=MODEL_OPTIONS,
                         mode=SelectSelectorMode.DROPDOWN,
