@@ -46,3 +46,21 @@ def get_model_options(connection_type: str = "BT") -> list[SelectOptionDict]:
         if name and code:
             options.append(SelectOptionDict(value=code, label=name))
     return options
+
+
+def guess_product_code(name: str) -> dict[str, Any] | None:
+    """Return machine description for a Bluetooth name."""
+    if not name:
+        return None
+
+    base = name[1:] if name.startswith("D") else name
+    if len(base) <= 2:
+        return None
+
+    suffix = base[:-2]
+
+    for machine in _load_machines():
+        product_code = machine.get("product_code")
+        if product_code and str(product_code).endswith(suffix):
+            return machine
+    return None
