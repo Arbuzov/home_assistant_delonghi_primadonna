@@ -29,10 +29,14 @@ def _load_machines() -> list[dict[str, Any]]:
 
 def get_model(product_code: str) -> dict[str, Any] | None:
     """Return attributes for a model by product code."""
-    for machine in _load_machines():
-        if machine.get("product_code") == product_code:
-            return machine
-    return None
+    return next(
+        (
+            machine
+            for machine in _load_machines()
+            if machine.get("product_code") == product_code
+        ),
+        None,
+    )
 
 
 def get_model_options(connection_type: str = "BT") -> list[SelectOptionDict]:
