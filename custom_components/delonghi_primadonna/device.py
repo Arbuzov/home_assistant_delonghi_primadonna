@@ -9,9 +9,8 @@ from enum import IntFlag
 
 from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
-from const import CONF_MODEL
 from homeassistant.components import bluetooth
-from homeassistant.const import CONF_MAC, CONF_NAME
+from homeassistant.const import CONF_MAC, CONF_MODEL, CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
