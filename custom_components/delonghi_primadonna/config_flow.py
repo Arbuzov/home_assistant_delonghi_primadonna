@@ -58,7 +58,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             "Discovered Delonghi device: %s %s %s",
             discovery_info.address,
             discovery_info.name,
-            hexlify(bytearray(discovery_info.raw), " "
+            hexlify(bytearray(discovery_info.raw), " ")
         )
         _LOGGER.warning("Dump all discovery info: %s", discovery_info)
 
