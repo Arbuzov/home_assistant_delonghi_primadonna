@@ -276,10 +276,11 @@ class DelongiPrimadonna:
                         self._client.connect(),
                         timeout=10,
                     )
-                    await asyncio.wait_for(
-                        self._client.get_services(),
-                        timeout=10,
-                    )
+                    # Service discovery is performed during the connection
+                    # process. Accessing ``get_services`` directly raises a
+                    # ``FutureWarning`` in recent versions of Bleak.
+                    # ``self._client.services`` will contain the discovered
+                    # services once the connection succeeds.
                     await asyncio.wait_for(
                         self._client.start_notify(
                             uuid.UUID(CONTROLL_CHARACTERISTIC),
