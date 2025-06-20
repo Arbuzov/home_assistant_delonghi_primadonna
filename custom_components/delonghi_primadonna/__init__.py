@@ -38,7 +38,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         logging.getLogger(__package__).setLevel(logging.WARNING)
         _LOGGER.warning("BLE discovery entry - log level set to WARNING")
     _LOGGER.debug('Device id %s', entry.unique_id)
-    _LOGGER.warning('Device data %s', entry.data)
+    _LOGGER.debug("Device data %s", entry.data)
     hass.async_create_task(delonghi_device.get_device_name())
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
