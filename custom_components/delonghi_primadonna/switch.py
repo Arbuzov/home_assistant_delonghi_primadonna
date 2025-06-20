@@ -31,7 +31,10 @@ async def async_setup_entry(
     ]
 
     if model and model.get("cup_light_settings", False):
-        switches.insert(0, DelongiPrimadonnaCupLightSwitch(delongh_device, hass))
+        switches.insert(
+            0,
+            DelongiPrimadonnaCupLightSwitch(delongh_device, hass),
+        )
 
     async_add_entities(switches)
     return True

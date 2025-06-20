@@ -3,9 +3,7 @@
 from __future__ import annotations
 
 import logging
-
 from binascii import hexlify
-from importlib import resources
 from typing import Any
 
 import voluptuous
@@ -54,11 +52,24 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, discovery_info: BluetoothServiceInfoBleak
     ) -> FlowResult:
         """Handle the bluetooth discovery step."""
+        raw_data = discovery_info.raw
+        if raw_data is None:
+            try:
+                from bluetooth_data_tools.utils import newest_manufacturer_data
+
+                raw_data = newest_manufacturer_data(
+                    discovery_info.manufacturer_data or {}
+                )
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.debug("Failed to get raw manufacturer data: %s", err)
+
+        raw_hex = hexlify(bytearray(raw_data), " ") if raw_data else "none"
+
         _LOGGER.info(
             "Discovered Delonghi device: %s %s %s",
             discovery_info.address,
             discovery_info.name,
-            hexlify(bytearray(discovery_info.raw), " ")
+            raw_hex,
         )
         _LOGGER.warning("Dump all discovery info: %s", discovery_info)
 
