@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import logging
+
+from binascii import hexlify
 from importlib import resources
 from typing import Any
 
@@ -75,9 +77,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> FlowResult:
         """Handle the bluetooth discovery step."""
         _LOGGER.info(
-            "Discovered Delonghi device: %s %s",
+            "Discovered Delonghi device: %s %s %s",
             discovery_info.address,
             discovery_info.name,
+            hexlify(bytearray(discovery_info.raw), " "
         )
         _LOGGER.warning("Dump all discovery info: %s", discovery_info)
 
