@@ -12,7 +12,8 @@
       "user": {
         "data": {
           "mac": "MAC",
-          "name": "名称"
+          "name": "名称",
+          "model": "型号"
         }
       }
     }

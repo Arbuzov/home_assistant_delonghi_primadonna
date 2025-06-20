@@ -46,6 +46,24 @@ Please join
 
 ### Management protocol
 
+### The commands have a request and response id
+
+The request id is the third byte of the command, the response id must be the same as request id.
+|Request ID|Purpose                                              |
+|----------|-----------------------------------------------------|
+| 0x75     | Device status                                       |
+| 0x83     | Prepare or manage beverage                          |
+| 0x84     | Power on command                                    |
+| 0x90     | Manage device settings                              |
+| 0x95     |                                                     |
+| 0xa2     |                                                     |
+| 0xa3     |                                                     |
+| 0xa4     | Request profile list                                |
+| 0xa5     |                                                     |
+| 0xa9     | Switch the user profile                             |
+| 0xaa     |                                                     |
+| 0xd2     |                                                     |
+
 Switches managed by command [0x0d, 0x0b, 0x90, 0x0f, 0x00, 0x3f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
 The nine digit (counted from 0) is the command bitmask
 

@@ -11,13 +11,19 @@ NAME_CHARACTERISTIC = '00002A00-0000-1000-8000-00805F9B34FB'
 
 DESCRIPTOR = '00002902-0000-1000-8000-00805f9b34fb'
 
+DEFAULT_IMAGE_URL = (
+    'https://delonghibe.s3.eu-west-1.amazonaws.com/cms/prod/img/'
+    '_opt_delonghi_uploads_PD_CLASS_TOP_INT_ECAM550.85.MS.png'
+)
+
 BEVERAGE_SERVICE_NAME = 'make_beverage'
 
+# Mapping of profile id to profile name
 AVAILABLE_PROFILES = {
-    'Profile 1': 1,
-    'Profile 2': 2,
-    'Profile 3': 3,
-    'Guest': 4
+    1: 'Profile 1',
+    2: 'Profile 2',
+    3: 'Profile 3',
+    4: 'Guest',
 }
 
 POWER_OFF_OPTIONS = {

@@ -12,7 +12,8 @@
       "user": {
         "data": {
           "mac": "MAC",
-          "name": "Name"
+          "name": "Name",
+          "model": "Model"
         }
       }
     }
