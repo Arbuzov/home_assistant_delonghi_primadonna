@@ -58,6 +58,8 @@ Copy all files from this repository in custom_components/delonghi_primadonna to 
 * Enter "Delonghi"
 * Select "Delonghi Primadonna" integration
 * Enter the name and the MAC address
+* To change these settings later open the integration options and update the
+  values
 
 ![Charts](./images/image.png)
 

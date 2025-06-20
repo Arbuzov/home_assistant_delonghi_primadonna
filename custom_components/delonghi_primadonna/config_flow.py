@@ -101,3 +101,58 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 title=user_input[CONF_NAME],
                 data=user_input,
             )
+
+
+class OptionsFlowHandler(config_entries.OptionsFlow):
+    """Handle options for existing entry."""
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Initialize options flow."""
+        self.config_entry = config_entry
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Manage the Delonghi configuration."""
+
+        if user_input is None:
+            data = self.config_entry.data
+            return self.async_show_form(
+                step_id="init",
+                data_schema=voluptuous.Schema(
+                    {
+                        voluptuous.Required(
+                            CONF_NAME, default=data.get(CONF_NAME)
+                        ): str,
+                        voluptuous.Required(
+                            CONF_MAC, default=data.get(CONF_MAC)
+                        ): str,
+                        voluptuous.Required(
+                            CONF_MODEL, default=data.get(CONF_MODEL)
+                        ): SelectSelector(
+                            SelectSelectorConfig(
+                                options=MODEL_OPTIONS,
+                                mode=SelectSelectorMode.DROPDOWN,
+                                sort=True,
+                            )
+                        ),
+                    }
+                ),
+            )
+
+        await self.hass.config_entries.async_update_entry(
+            self.config_entry,
+            data=user_input,
+        )
+        self.hass.async_create_task(
+            self.hass.config_entries.async_reload(self.config_entry.entry_id)
+        )
+        return self.async_create_entry(title="", data={})
+
+
+async def async_get_options_flow(
+    config_entry: config_entries.ConfigEntry,
+) -> OptionsFlowHandler:
+    """Return the options flow handler."""
+
+    return OptionsFlowHandler(config_entry)
