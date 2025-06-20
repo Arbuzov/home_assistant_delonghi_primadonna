@@ -34,9 +34,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN] = {}
     delonghi_device = DelongiPrimadonna(entry.data, hass)
     hass.data[DOMAIN][entry.unique_id] = delonghi_device
-    if entry.source == SOURCE_BLUETOOTH:
-        logging.getLogger(__package__).setLevel(logging.WARNING)
-        _LOGGER.warning("BLE discovery entry - log level set to WARNING")
     _LOGGER.debug('Device id %s', entry.unique_id)
     _LOGGER.debug("Device data %s", entry.data)
     hass.async_create_task(delonghi_device.get_device_name())

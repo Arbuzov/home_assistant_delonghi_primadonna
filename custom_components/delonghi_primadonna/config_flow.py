@@ -71,7 +71,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             discovery_info.name,
             raw_hex,
         )
-        _LOGGER.warning("Dump all discovery info: %s", discovery_info)
+        _LOGGER.debug("Dump all discovery info: %s", discovery_info)
 
         await self.async_set_unique_id(discovery_info.address)
         self._abort_if_unique_id_configured()
