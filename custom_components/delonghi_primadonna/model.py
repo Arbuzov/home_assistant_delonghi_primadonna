@@ -6,54 +6,66 @@ import json
 import logging
 from functools import lru_cache
 from importlib import resources
-from typing import Any
 
-from homeassistant.helpers.selector import SelectOptionDict
+from .machine_entities import BeverageName, MachineModel, MachineModels, Recipe
 
 _LOGGER = logging.getLogger(__name__)
 
 
 @lru_cache
-def _load_machines() -> list[dict[str, Any]]:
-    """Load machine models from bundled JSON."""
-    try:
-        with resources.files(__package__).joinpath("MachinesModels.json").open(
-            "r", encoding="utf-8"
-        ) as file:
-            data = json.load(file)
-        return data.get("machines", [])
-    except Exception as err:  # pragma: no cover
-        _LOGGER.error("Failed to load machine models: %s", err)
-        return []
+def get_machine_models() -> MachineModels:
+    """Return machine data parsed into dataclasses."""
+    with resources.files(__package__).joinpath("MachinesModels.json").open(
+        "r", encoding="utf-8"
+    ) as file:
+        data = json.load(file)
+
+    models = MachineModels(
+        result=data.get("result", {}),
+        name=data.get("name"),
+        version=data.get("version"),
+    )
+    for machine in data.get("machines", []):
+        recipes: list[Recipe] = []
+        for r in machine.get("recipes", []):
+            name = r.get("name")
+            r["name"] = (
+                BeverageName(name)
+                if name in BeverageName._value2member_map_
+                else None
+            )
+            recipes.append(Recipe(**r))
+        models.machines.append(MachineModel(**{**machine, "recipes": recipes}))
+    return models
 
 
-def get_model(product_code: str) -> dict[str, Any] | None:
-    """Return attributes for a model by product code."""
+def get_machine_model(product_code: str) -> MachineModel | None:
+    """Return machine model by product code."""
+    if product_code is None:
+        return None
     return next(
         (
-            machine
-            for machine in _load_machines()
-            if machine.get("product_code") == product_code
+            model
+            for model in get_machine_models().machines
+            if model.product_code == product_code
         ),
         None,
     )
 
 
-def get_model_options(connection_type: str = "BT") -> list[SelectOptionDict]:
-    """Return selector options for models of the given connection type."""
-    options: list[SelectOptionDict] = []
-    for machine in filter(
-        lambda m: m.get("connectionType") == connection_type, _load_machines()
-    ):
-        name = machine.get("name")
-        code = machine.get("product_code")
-        if name and code:
-            options.append(SelectOptionDict(value=code, label=name))
-    return options
+def get_machine_models_by_connection(
+    connection_type: str = "BT",
+) -> list[MachineModel]:
+    """Return machine models of the given connection type."""
+    return [
+        model
+        for model in get_machine_models().machines
+        if model.connectionType == connection_type
+    ]
 
 
-def guess_product_code(name: str) -> dict[str, Any] | None:
-    """Return machine description for a Bluetooth name."""
+def guess_machine_model(name: str) -> MachineModel | None:
+    """Return machine model for a Bluetooth name."""
     if not name:
         return None
 
@@ -63,8 +75,8 @@ def guess_product_code(name: str) -> dict[str, Any] | None:
 
     suffix = base[:-2]
 
-    for machine in _load_machines():
-        product_code = machine.get("product_code")
+    for model in get_machine_models().machines:
+        product_code = model.product_code
         if product_code and str(product_code).endswith(suffix):
-            return machine
+            return model
     return None
