@@ -4,7 +4,8 @@ import copy
 import enum
 import logging
 import uuid
-from binascii import hexlify
+import warnings
+from binascii import hexlify, crc_hqx
 from enum import IntFlag
 
 from bleak import BleakClient
@@ -179,7 +180,16 @@ class DelonghiDeviceEntity:
 
 
 def sign_request(message: list[int]) -> None:
-    """Request signer"""
+    """Request signer.
+
+    .. deprecated:: 1.6.4
+       Use ``binascii.crc_hqx`` instead.
+    """
+    warnings.warn(
+        "sign_request is deprecated, use binascii.crc_hqx instead",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     _LOGGER.debug("Signing request: %s", hexlify(bytearray(message), " "))
     deviser = 0x1D0F
     for item in message[: len(message) - 2]:
@@ -583,7 +593,10 @@ class DelongiPrimadonna:
             for attempt in range(retries):
                 try:
                     await self._connect()
-                    sign_request(message_to_send)
+                    crc = crc_hqx(bytearray(message_to_send[:-2]), 0x1D0F)
+                    crc_bytes = crc.to_bytes(2, byteorder='big')
+                    message_to_send[-2] = crc_bytes[0]
+                    message_to_send[-1] = crc_bytes[1]
                     _LOGGER.info(
                         'Send command: %s',
                         hexlify(bytearray(message_to_send), " ")
