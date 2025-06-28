@@ -5,7 +5,7 @@ import enum
 import logging
 import uuid
 import warnings
-from binascii import hexlify, crc_hqx
+from binascii import crc_hqx, hexlify
 from enum import IntFlag
 
 from bleak import BleakClient
