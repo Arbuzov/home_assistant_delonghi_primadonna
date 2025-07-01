@@ -56,7 +56,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await hass.http.async_register_static_paths(
             [StaticPathConfig(card_url, str(local_card), False)]
         )
-    frontend.add_extra_js_url(hass, card_url)
+    frontend.add_extra_js_url(hass, card_url, es5=True)
 
     async def make_beverage(call: ServiceCall) -> None:
         _LOGGER.debug('Make beverage %s', call.data)

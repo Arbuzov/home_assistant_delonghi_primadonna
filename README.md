@@ -66,7 +66,8 @@ Copy all files from this repository in custom_components/delonghi_primadonna to 
 ## Lovelace card
 
 This repository also provides a simple Lovelace card that displays an image of
-your coffee machine. The integration registers the card automatically, so after
+your coffee machine. The integration registers the card automatically using a
+manifest entry, so after
 installing it you only need to add a **Manual** card with the type:
 
 ```yaml
