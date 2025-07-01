@@ -1,20 +1,39 @@
-const LitElement = Object.getPrototypeOf(
-  customElements.get("ha-panel-lovelace")
-);
+const LitElement = Object.getPrototypeOf(customElements.get("ha-panel-lovelace"));
 const html = LitElement.prototype.html;
 const css = LitElement.prototype.css;
 
-class PlantPictureCard extends HTMLElement {}
+const DEFAULT_IMAGE_URL = "https://delonghibe.s3.eu-west-1.amazonaws.com/cms/prod/img/_opt_delonghi_uploads_PD_CLASS_TOP_INT_ECAM550.85.MS.png";
 
-export class PlantPictureCardEditor extends LitElement {}
+class DelonghiImageCard extends LitElement {
+  static get properties() {
+    return { hass: {}, _config: {} };
+  }
 
-customElements.define("plant-picture-card", PlantPictureCard);
-customElements.define("plant-picture-card-editor", PlantPictureCardEditor);
+  setConfig(config) {
+    this._config = config;
+  }
+
+  render() {
+    const image = this._config.image || DEFAULT_IMAGE_URL;
+    return html`<ha-card><img class="machine-image" src="${image}" /></ha-card>`;
+  }
+
+  static get styles() {
+    return css`
+      .machine-image {
+        width: 100%;
+        display: block;
+      }
+    `;
+  }
+}
+
+customElements.define("delonghi-image-card", DelonghiImageCard);
 
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "plant-picture-card",
-  name: "Plant Picture Card",
-  preview: true, // Optional - defaults to false
-  description: "Like a picture glance card but for plant data" // Optional
+  type: "delonghi-image-card",
+  name: "Delonghi Image Card",
+  preview: true,
+  description: "Card showing Delonghi coffee machine image",
 });
