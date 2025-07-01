@@ -14,13 +14,11 @@
     ],
     "config_flow": true,
     "dependencies": [
-        "bluetooth"
+        "bluetooth",
+        "http"
     ],
     "documentation": "https://github.com/Arbuzov/home_assistant_delonghi_primadonna",
     "iot_class": "local_polling",
     "issue_tracker": "https://github.com/Arbuzov/home_assistant_delonghi_primadonna/issues",
-    "version": "1.6.4",
-    "frontend": {
-        "extra_module_url": ["dist/DelonghiPrimadonna.js"]
-    }
+    "version": "1.6.4"
 }
