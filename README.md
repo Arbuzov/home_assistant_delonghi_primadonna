@@ -63,6 +63,29 @@ Copy all files from this repository in custom_components/delonghi_primadonna to 
 
 ![Charts](./images/image.png)
 
+## Lovelace card
+
+This repository also provides a simple Lovelace card that displays an image of
+your coffee machine. If you installed the integration using HACS, the card file
+is available under `hacsfiles/home_assistant_delonghi_primadonna/`.
+
+1. Open **Settings → Dashboards → Resources** and add a new resource with this
+   path:
+
+   ```text
+   /hacsfiles/home_assistant_delonghi_primadonna/DelonghiPrimadonna.js
+   ```
+
+   Set the resource type to **JavaScript Module**.
+
+2. Edit your dashboard and add a **Manual** card with the following type:
+
+   ```yaml
+   type: delonghi-image-card
+   ```
+
+After these steps the card will appear in the Home Assistant interface.
+
 
 ## Compatible devices
 
