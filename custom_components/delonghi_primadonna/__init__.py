@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 import logging
+import os
+from pathlib import Path
 
 import voluptuous as vol
+from homeassistant.components import frontend
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -38,6 +42,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.debug("Device data %s", entry.data)
     hass.async_create_task(delonghi_device.get_device_name())
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    # Automatically load the Lovelace card
+    card_name = "DelonghiPrimadonna.js"
+    hacs_path = hass.config.path(
+        f"www/community/{DOMAIN}/{card_name}"
+    )
+    if await hass.async_add_executor_job(os.path.isfile, hacs_path):
+        card_url = f"/hacsfiles/{DOMAIN}/{card_name}"
+    else:
+        local_card = Path(__file__).parents[1] / "dist" / card_name
+        card_url = f"/{DOMAIN}/{card_name}"
+        await hass.http.async_register_static_paths(
+            [StaticPathConfig(card_url, str(local_card), False)]
+        )
+    frontend.add_extra_js_url(hass, card_url, es5=True)
 
     async def make_beverage(call: ServiceCall) -> None:
         _LOGGER.debug('Make beverage %s', call.data)
