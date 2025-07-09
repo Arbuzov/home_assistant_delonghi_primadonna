@@ -27,6 +27,7 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
                     NAME_CHARACTERISTIC, START_COFFEE, STEAM_OFF, STEAM_ON,
                     WATER_SHORTAGE, WATER_TANK_DETACHED)
+from .machine_switch import MachineSwitch, parse_switches
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -228,6 +229,7 @@ class DelongiPrimadonna:
         self.service = 0
         self.status = DEVICE_STATUS[5]
         self.switches = DeviceSwitches()
+        self.active_switches: list[MachineSwitch] = []
         self._lock = asyncio.Lock()
         self._rx_buffer = bytearray()
         self._response_event = None
@@ -412,6 +414,7 @@ class DelongiPrimadonna:
             self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
             self.service = value[7]
             self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS[5])
+            self.active_switches = parse_switches(value)
         elif answer_id == 0xA4:
             parsed = []
             try:
