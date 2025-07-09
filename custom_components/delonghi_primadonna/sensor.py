@@ -11,7 +11,6 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import DOMAIN
 from .device import DEVICE_STATUS, NOZZLE_STATE, DelonghiDeviceEntity
-from .machine_switch import MachineSwitch
 
 
 async def async_setup_entry(
@@ -107,12 +106,8 @@ class DelongiPrimadonnaSwitchesSensor(
 ):
     """Show active machine switches."""
 
-    _attr_device_class = SensorDeviceClass.ENUM
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = 'Switches'
-    _attr_options = [s.value for s in MachineSwitch if s not in (
-        MachineSwitch.IGNORE_SWITCH, MachineSwitch.UNKNOWN_SWITCH
-    )]
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
@@ -122,7 +117,7 @@ class DelongiPrimadonnaSwitchesSensor(
     @property
     def native_value(self):
         if not self.device.active_switches:
-            return 'none'
+            return None
         return ', '.join(s.value for s in self.device.active_switches)
 
     @property
