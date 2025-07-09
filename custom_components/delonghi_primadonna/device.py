@@ -20,6 +20,7 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     BYTES_LOAD_PROFILES, BYTES_POWER, BYTES_SWITCH_COMMAND,
                     BYTES_WATER_HARDNESS_COMMAND,
                     BYTES_WATER_TEMPERATURE_COMMAND, COFFE_OFF, COFFE_ON,
+                    COFFEE_GROUNDS_CONTAINER_CLEAN,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
                     COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
                     DEBUG, DEVICE_READY, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
@@ -146,6 +147,9 @@ DEVICE_NOTIFICATION = {
         NotificationType.STATUS, 'NoGroundsContainer'
     ),
     str(bytearray(COFFEE_GROUNDS_CONTAINER_FULL)): BeverageNotify(
+        NotificationType.STATUS, 'GroundsContainerFull'
+    ),
+    str(bytearray(COFFEE_GROUNDS_CONTAINER_CLEAN)): BeverageNotify(
         NotificationType.STATUS, 'GroundsContainerFull'
     ),
     str(bytearray(START_COFFEE)): BeverageNotify(
