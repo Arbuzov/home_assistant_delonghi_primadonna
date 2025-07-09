@@ -110,9 +110,13 @@ class DelongiPrimadonnaSwitchesSensor(
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_name = 'Switches'
-    _attr_options = [s.value for s in MachineSwitch if s not in (
-        MachineSwitch.IGNORE_SWITCH, MachineSwitch.UNKNOWN_SWITCH
-    )]
+    _attr_options = [
+        'none',
+        *[s.value for s in MachineSwitch if s not in (
+            MachineSwitch.IGNORE_SWITCH,
+            MachineSwitch.UNKNOWN_SWITCH,
+        )],
+    ]
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
