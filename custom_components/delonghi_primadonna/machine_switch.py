@@ -38,7 +38,7 @@ _SWITCH_BIT_MAP: dict[int, MachineSwitch] = {
     6: MachineSwitch.IGNORE_SWITCH,
     7: MachineSwitch.IGNORE_SWITCH,
     8: MachineSwitch.IFD_CARAFFE,
-    9: MachineSwitch.CIOCCO_TANK,
+    9: MachineSwitch.COFFEE_WASTE_CONTAINER,
     10: MachineSwitch.CLEAN_KNOB,
     11: MachineSwitch.IGNORE_SWITCH,
     12: MachineSwitch.IGNORE_SWITCH,
@@ -56,7 +56,7 @@ def parse_switches(data: bytes) -> List[MachineSwitch]:
     """Parse switch states from a monitor mode response."""
     if len(data) < 7:
         return []
-    mask = data[5] | (data[6] << 8)
+    mask = data[5] | (data[7] << 8)
     result: List[MachineSwitch] = []
     for bit in range(16):
         if mask & (1 << bit):
