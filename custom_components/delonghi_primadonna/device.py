@@ -27,7 +27,7 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF,
                     ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
                     NAME_CHARACTERISTIC, START_COFFEE, STEAM_OFF, STEAM_ON,
-                    WATER_SHORTAGE, WATER_TANK_DETACHED)
+                    WATER_SHORTAGE, WATER_TANK_DETACHED, GRAINS_SHORTAGE)
 from .machine_switch import MachineSwitch, parse_switches
 
 _LOGGER = logging.getLogger(__name__)
@@ -81,6 +81,7 @@ DEVICE_STATUS = {
     5: 'OK',
     13: 'COFFEE_GROUNDS_CONTAINER_DETACHED',
     21: 'WATER_TANK_DETACHED',
+    22: 'COFFEE_BEANS_EMPTY',
 }
 
 
@@ -151,6 +152,9 @@ DEVICE_NOTIFICATION = {
     ),
     str(bytearray(COFFEE_GROUNDS_CONTAINER_CLEAN)): BeverageNotify(
         NotificationType.STATUS, 'GroundsContainerFull'
+    ),
+    str(bytearray(GRAINS_SHORTAGE)): BeverageNotify(
+        NotificationType.STATUS, 'NoCoffeeBeans'
     ),
     str(bytearray(START_COFFEE)): BeverageNotify(
         NotificationType.STATUS, 'START_COFFEE'
@@ -417,7 +421,10 @@ class DelongiPrimadonna:
             self.switches.is_on = value[9] > 0
             self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
             self.service = value[7]
-            self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS[5])
+            if value[7] == 0x08:
+                self.status = DEVICE_STATUS[22]
+            else:
+                self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS[5])
             self.active_switches = parse_switches(value)
         elif answer_id == 0xA4:
             parsed = []

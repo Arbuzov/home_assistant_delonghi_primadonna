@@ -20,6 +20,7 @@ class MachineSwitch(Enum):
     CLEAN_KNOB = "clean_knob"
     DOOR_OPENED = "door_opened"
     PREGROUND_DOOR_OPENED = "preground_door_opened"
+    COFFEE_BEANS_EMPTY = "coffee_beans_empty"
     UNKNOWN_SWITCH = "unknown_switch"
     IGNORE_SWITCH = "ignore_switch"
 
@@ -54,8 +55,13 @@ def switch_from_bit(index: int) -> MachineSwitch:
 
 def parse_switches(data: bytes) -> List[MachineSwitch]:
     """Parse switch states from a monitor mode response."""
-    if len(data) < 7:
+    if len(data) < 8:
         return []
+
+    service = data[7]
+    if service == 0x08:
+        return [MachineSwitch.COFFEE_BEANS_EMPTY]
+
     mask = data[5] | (data[6] << 8)
     result: List[MachineSwitch] = []
     for bit in range(16):
