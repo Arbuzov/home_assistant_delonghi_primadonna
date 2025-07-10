@@ -54,6 +54,14 @@
       "sounds": {
         "name": "Suoni"
       }
+    },
+    "sensor": {
+      "nozzle_status": {
+        "name": "Stato dell'ugello"
+      },
+      "switches": {
+        "name": "Interruttori"
+      }
     }
   },
   "services": {
@@ -84,6 +92,33 @@
         "espresso": "Espresso",
         "americano": "Americano",
         "espresso2": "Espresso 2"
+      }
+    }
+  },
+  "state": {
+    "sensor": {
+      "nozzle_status": {
+        "UNKNOWN": "Sconosciuto",
+        "DETACHED": "Rimosso",
+        "STEAM": "Vapore",
+        "MILK_FROTHER": "Montalatte",
+        "MILK_FROTHER_CLEANING": "Montalatte (pulizia)"
+      },
+      "switches": {
+        "none": "Nessuno",
+        "water_spout": "Erogatore d'acqua",
+        "motor_up": "Motore su",
+        "motor_down": "Motore giù",
+        "coffee_waste_container": "Contenitore fondi caffè",
+        "water_tank_absent": "Serbatoio acqua assente",
+        "knob": "Manopola",
+        "water_level_low": "Livello acqua basso",
+        "coffee_jug": "Caraffa del caffè",
+        "ifd_caraffe": "Caraffa del latte",
+        "ciocco_tank": "Serbatoio cioccolata",
+        "clean_knob": "Manopola pulizia",
+        "door_opened": "Sportello aperto",
+        "preground_door_opened": "Sportello caffè macinato aperto"
       }
     }
   }

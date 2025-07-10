@@ -54,6 +54,14 @@
       "sounds": {
         "name": "Geräusche"
       }
+    },
+    "sensor": {
+      "nozzle_status": {
+        "name": "Düsenzustand"
+      },
+      "switches": {
+        "name": "Schalter"
+      }
     }
   },
   "services": {
@@ -84,6 +92,33 @@
         "espresso": "Espresso",
         "americano": "Americano",
         "espresso2": "Espresso 2"
+      }
+    }
+  },
+  "state": {
+    "sensor": {
+      "nozzle_status": {
+        "UNKNOWN": "Unbekannt",
+        "DETACHED": "Abgenommen",
+        "STEAM": "Dampf",
+        "MILK_FROTHER": "Milchaufschäumer",
+        "MILK_FROTHER_CLEANING": "Milchaufschäumer (Reinigung)"
+      },
+      "switches": {
+        "none": "Keine",
+        "water_spout": "Wasserauslauf",
+        "motor_up": "Motor hoch",
+        "motor_down": "Motor runter",
+        "coffee_waste_container": "Kaffeesatzbehälter",
+        "water_tank_absent": "Wassertank fehlt",
+        "knob": "Knopf",
+        "water_level_low": "Wasserstand niedrig",
+        "coffee_jug": "Kaffeekanne",
+        "ifd_caraffe": "Milchkaraffe",
+        "ciocco_tank": "Schokoladentank",
+        "clean_knob": "Reinigungsknopf",
+        "door_opened": "Tür geöffnet",
+        "preground_door_opened": "Fach für gemahlenen Kaffee geöffnet"
       }
     }
   }
