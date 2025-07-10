@@ -54,9 +54,12 @@ def switch_from_bit(index: int) -> MachineSwitch:
 
 def parse_switches(data: bytes) -> List[MachineSwitch]:
     """Parse switch states from a monitor mode response."""
-    if len(data) < 7:
+    if len(data) < 8:
         return []
     mask = data[5] | (data[7] << 8)
+    if data[7] & 0x08:
+        mask &= ~(1 << 2)
+        mask &= ~(1 << 9)
     result: List[MachineSwitch] = []
     for bit in range(16):
         if mask & (1 << bit):
