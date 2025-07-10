@@ -57,10 +57,33 @@
     },
     "sensor": {
       "nozzle_status": {
-        "name": "Stan dyszy"
+        "name": "Stan dyszy",
+        "state": {
+          "UNKNOWN": "Nieznany",
+          "DETACHED": "Odłączona",
+          "STEAM": "Para",
+          "MILK_FROTHER": "Spieniacz mleka",
+          "MILK_FROTHER_CLEANING": "Spieniacz mleka (czyszczenie)"
+        }
       },
       "switches": {
-        "name": "Przełączniki"
+        "name": "Przełączniki",
+        "state": {
+          "none": "Brak",
+          "water_spout": "Wylewka wodna",
+          "motor_up": "Silnik w górę",
+          "motor_down": "Silnik w dół",
+          "coffee_waste_container": "Pojemnik na fusy",
+          "water_tank_absent": "Brak zbiornika wody",
+          "knob": "Pokrętło",
+          "water_level_low": "Niski poziom wody",
+          "coffee_jug": "Dzbanek do kawy",
+          "ifd_caraffe": "Dzbanek na mleko",
+          "ciocco_tank": "Zbiornik czekolady",
+          "clean_knob": "Pokrętło czyszczenia",
+          "door_opened": "Drzwi otwarte",
+          "preground_door_opened": "Otwarta klapka mielonej kawy"
+        }
       }
     }
   },
@@ -92,33 +115,6 @@
         "espresso": "Espresso",
         "americano": "Americano",
         "espresso2": "Podwójne Espresso"
-      }
-    }
-  },
-  "state": {
-    "sensor": {
-      "nozzle_status": {
-        "UNKNOWN": "Nieznany",
-        "DETACHED": "Odłączona",
-        "STEAM": "Para",
-        "MILK_FROTHER": "Spieniacz mleka",
-        "MILK_FROTHER_CLEANING": "Spieniacz mleka (czyszczenie)"
-      },
-      "switches": {
-        "none": "Brak",
-        "water_spout": "Wylewka wodna",
-        "motor_up": "Silnik w górę",
-        "motor_down": "Silnik w dół",
-        "coffee_waste_container": "Pojemnik na fusy",
-        "water_tank_absent": "Brak zbiornika wody",
-        "knob": "Pokrętło",
-        "water_level_low": "Niski poziom wody",
-        "coffee_jug": "Dzbanek do kawy",
-        "ifd_caraffe": "Dzbanek na mleko",
-        "ciocco_tank": "Zbiornik czekolady",
-        "clean_knob": "Pokrętło czyszczenia",
-        "door_opened": "Drzwi otwarte",
-        "preground_door_opened": "Otwarta klapka mielonej kawy"
       }
     }
   }

@@ -57,10 +57,33 @@
     },
     "sensor": {
       "nozzle_status": {
-        "name": "Fúvóka állapota"
+        "name": "Fúvóka állapota",
+        "state": {
+          "UNKNOWN": "Ismeretlen",
+          "DETACHED": "Leválasztva",
+          "STEAM": "Gőz",
+          "MILK_FROTHER": "Tejhabosító",
+          "MILK_FROTHER_CLEANING": "Tejhabosító (tisztítás)"
+        }
       },
       "switches": {
-        "name": "Kapcsolók"
+        "name": "Kapcsolók",
+        "state": {
+          "none": "Nincs",
+          "water_spout": "Vízkifolyó",
+          "motor_up": "Motor fel",
+          "motor_down": "Motor le",
+          "coffee_waste_container": "Kávézacc tartály",
+          "water_tank_absent": "Víztartály hiányzik",
+          "knob": "Gomb",
+          "water_level_low": "Alacsony vízszint",
+          "coffee_jug": "Kávés kancsó",
+          "ifd_caraffe": "Tejes kancsó",
+          "ciocco_tank": "Csokoládétartály",
+          "clean_knob": "Tisztító gomb",
+          "door_opened": "Ajtó nyitva",
+          "preground_door_opened": "Őrölt kávé nyílás nyitva"
+        }
       }
     }
   },
@@ -92,33 +115,6 @@
         "espresso": "Eszpresszó",
         "americano": "Amerikai",
         "espresso2": "Espresso 2"
-      }
-    }
-  },
-  "state": {
-    "sensor": {
-      "nozzle_status": {
-        "UNKNOWN": "Ismeretlen",
-        "DETACHED": "Leválasztva",
-        "STEAM": "Gőz",
-        "MILK_FROTHER": "Tejhabosító",
-        "MILK_FROTHER_CLEANING": "Tejhabosító (tisztítás)"
-      },
-      "switches": {
-        "none": "Nincs",
-        "water_spout": "Vízkifolyó",
-        "motor_up": "Motor fel",
-        "motor_down": "Motor le",
-        "coffee_waste_container": "Kávézacc tartály",
-        "water_tank_absent": "Víztartály hiányzik",
-        "knob": "Gomb",
-        "water_level_low": "Alacsony vízszint",
-        "coffee_jug": "Kávés kancsó",
-        "ifd_caraffe": "Tejes kancsó",
-        "ciocco_tank": "Csokoládétartály",
-        "clean_knob": "Tisztító gomb",
-        "door_opened": "Ajtó nyitva",
-        "preground_door_opened": "Őrölt kávé nyílás nyitva"
       }
     }
   }

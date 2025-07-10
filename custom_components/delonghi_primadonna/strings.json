@@ -18,30 +18,36 @@
             "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
         }
     },
-    "state": {
+    "entity": {
         "sensor": {
             "nozzle_status": {
-                "UNKNOWN": null,
-                "DETACHED": null,
-                "STEAM": null,
-                "MILK_FROTHER": null,
-                "MILK_FROTHER_CLEANING": null
+                "name": "Nozzle Status",
+                "state": {
+                    "UNKNOWN": null,
+                    "DETACHED": null,
+                    "STEAM": null,
+                    "MILK_FROTHER": null,
+                    "MILK_FROTHER_CLEANING": null
+                }
             },
             "switches": {
-                "none": null,
-                "water_spout": null,
-                "motor_up": null,
-                "motor_down": null,
-                "coffee_waste_container": null,
-                "water_tank_absent": null,
-                "knob": null,
-                "water_level_low": null,
-                "coffee_jug": null,
-                "ifd_caraffe": null,
-                "ciocco_tank": null,
-                "clean_knob": null,
-                "door_opened": null,
-                "preground_door_opened": null
+                "name": "Switches",
+                "state": {
+                    "none": null,
+                    "water_spout": null,
+                    "motor_up": null,
+                    "motor_down": null,
+                    "coffee_waste_container": null,
+                    "water_tank_absent": null,
+                    "knob": null,
+                    "water_level_low": null,
+                    "coffee_jug": null,
+                    "ifd_caraffe": null,
+                    "ciocco_tank": null,
+                    "clean_knob": null,
+                    "door_opened": null,
+                    "preground_door_opened": null
+                }
             }
         }
     }

@@ -57,10 +57,33 @@
     },
     "sensor": {
       "nozzle_status": {
-        "name": "Starea duzei"
+        "name": "Starea duzei",
+        "state": {
+          "UNKNOWN": "Necunoscut",
+          "DETACHED": "Detașată",
+          "STEAM": "Abur",
+          "MILK_FROTHER": "Spumator de lapte",
+          "MILK_FROTHER_CLEANING": "Spumator de lapte (curățare)"
+        }
       },
       "switches": {
-        "name": "Comutatoare"
+        "name": "Comutatoare",
+        "state": {
+          "none": "Niciuna",
+          "water_spout": "Gura de apă",
+          "motor_up": "Motor sus",
+          "motor_down": "Motor jos",
+          "coffee_waste_container": "Recipient zaț de cafea",
+          "water_tank_absent": "Lipsă rezervor apă",
+          "knob": "Buton",
+          "water_level_low": "Nivel scăzut de apă",
+          "coffee_jug": "Carafă de cafea",
+          "ifd_caraffe": "Carafă de lapte",
+          "ciocco_tank": "Recipient ciocolată",
+          "clean_knob": "Buton curățare",
+          "door_opened": "Ușă deschisă",
+          "preground_door_opened": "Compartiment cafea măcinată deschis"
+        }
       }
     }
   },
@@ -92,33 +115,6 @@
         "espresso": "Espresso",
         "americano": "Americano",
         "espresso2": "Espresso 2"
-      }
-    }
-  },
-  "state": {
-    "sensor": {
-      "nozzle_status": {
-        "UNKNOWN": "Necunoscut",
-        "DETACHED": "Detașată",
-        "STEAM": "Abur",
-        "MILK_FROTHER": "Spumator de lapte",
-        "MILK_FROTHER_CLEANING": "Spumator de lapte (curățare)"
-      },
-      "switches": {
-        "none": "Niciuna",
-        "water_spout": "Gura de apă",
-        "motor_up": "Motor sus",
-        "motor_down": "Motor jos",
-        "coffee_waste_container": "Recipient zaț de cafea",
-        "water_tank_absent": "Lipsă rezervor apă",
-        "knob": "Buton",
-        "water_level_low": "Nivel scăzut de apă",
-        "coffee_jug": "Carafă de cafea",
-        "ifd_caraffe": "Carafă de lapte",
-        "ciocco_tank": "Recipient ciocolată",
-        "clean_knob": "Buton curățare",
-        "door_opened": "Ușă deschisă",
-        "preground_door_opened": "Compartiment cafea măcinată deschis"
       }
     }
   }

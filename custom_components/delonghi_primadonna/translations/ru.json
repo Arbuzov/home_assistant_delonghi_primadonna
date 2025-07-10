@@ -57,37 +57,33 @@
     },
     "sensor": {
       "nozzle_status": {
-        "name": "Статус насадки"
+        "name": "Статус насадки",
+        "state": {
+          "UNKNOWN": "Неизвестно",
+          "DETACHED": "Отсоединена",
+          "STEAM": "Паровая насадка",
+          "MILK_FROTHER": "Капучинатор",
+          "MILK_FROTHER_CLEANING": "Капучинатор (чистка)"
+        }
       },
       "switches": {
-        "name": "Переключатели"
-      }
-    }
-  },
-  "state": {
-    "sensor": {
-      "nozzle_status": {
-        "UNKNOWN": "Неизвестно",
-        "DETACHED": "Отсоединена",
-        "STEAM": "Паровая насадка",
-        "MILK_FROTHER": "Капучинатор",
-        "MILK_FROTHER_CLEANING": "Капучинатор (чистка)"
-      },
-      "switches": {
-        "none": "Нет",
-        "water_spout": "Вывод воды",
-        "motor_up": "Двигатель вверх",
-        "motor_down": "Двигатель вниз",
-        "coffee_waste_container": "Контейнер для отходов кофе",
-        "water_tank_absent": "Нет резервуара для воды",
-        "knob": "Ручка",
-        "water_level_low": "Низкий уровень воды",
-        "coffee_jug": "Кофейник",
-        "ifd_caraffe": "Молочник",
-        "ciocco_tank": "Емкость для шоколада",
-        "clean_knob": "Ручка очистки",
-        "door_opened": "Дверца открыта",
-        "preground_door_opened": "Отсек молотого кофе открыт"
+        "name": "Переключатели",
+        "state": {
+          "none": "Нет",
+          "water_spout": "Вывод воды",
+          "motor_up": "Двигатель вверх",
+          "motor_down": "Двигатель вниз",
+          "coffee_waste_container": "Контейнер для отходов кофе",
+          "water_tank_absent": "Нет резервуара для воды",
+          "knob": "Ручка",
+          "water_level_low": "Низкий уровень воды",
+          "coffee_jug": "Кофейник",
+          "ifd_caraffe": "Молочник",
+          "ciocco_tank": "Емкость для шоколада",
+          "clean_knob": "Ручка очистки",
+          "door_opened": "Дверца открыта",
+          "preground_door_opened": "Отсек молотого кофе открыт"
+        }
       }
     }
   },

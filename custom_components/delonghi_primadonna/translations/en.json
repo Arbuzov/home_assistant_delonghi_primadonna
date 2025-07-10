@@ -57,37 +57,33 @@
     },
     "sensor": {
       "nozzle_status": {
-        "name": "Nozzle Status"
+        "name": "Nozzle Status",
+        "state": {
+          "UNKNOWN": "Unknown",
+          "DETACHED": "Detached",
+          "STEAM": "Steam",
+          "MILK_FROTHER": "Milk frother",
+          "MILK_FROTHER_CLEANING": "Milk frother cleaning"
+        }
       },
       "switches": {
-        "name": "Switches"
-      }
-    }
-  },
-  "state": {
-    "sensor": {
-      "nozzle_status": {
-        "UNKNOWN": "Unknown",
-        "DETACHED": "Detached",
-        "STEAM": "Steam",
-        "MILK_FROTHER": "Milk frother",
-        "MILK_FROTHER_CLEANING": "Milk frother cleaning"
-      },
-      "switches": {
-        "none": "None",
-        "water_spout": "Water spout",
-        "motor_up": "Motor up",
-        "motor_down": "Motor down",
-        "coffee_waste_container": "Coffee waste container",
-        "water_tank_absent": "Water tank absent",
-        "knob": "Knob",
-        "water_level_low": "Water level low",
-        "coffee_jug": "Coffee jug",
-        "ifd_caraffe": "Milk carafe",
-        "ciocco_tank": "Chocolate tank",
-        "clean_knob": "Clean knob",
-        "door_opened": "Door opened",
-        "preground_door_opened": "Preground door opened"
+        "name": "Switches",
+        "state": {
+          "none": "None",
+          "water_spout": "Water spout",
+          "motor_up": "Motor up",
+          "motor_down": "Motor down",
+          "coffee_waste_container": "Coffee waste container",
+          "water_tank_absent": "Water tank absent",
+          "knob": "Knob",
+          "water_level_low": "Water level low",
+          "coffee_jug": "Coffee jug",
+          "ifd_caraffe": "Milk carafe",
+          "ciocco_tank": "Chocolate tank",
+          "clean_knob": "Clean knob",
+          "door_opened": "Door opened",
+          "preground_door_opened": "Preground door opened"
+        }
       }
     }
   },

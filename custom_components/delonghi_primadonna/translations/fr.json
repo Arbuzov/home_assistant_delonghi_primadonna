@@ -57,10 +57,33 @@
     },
     "sensor": {
       "nozzle_status": {
-        "name": "État de la buse"
+        "name": "État de la buse",
+        "state": {
+          "UNKNOWN": "Inconnu",
+          "DETACHED": "Détachée",
+          "STEAM": "Vapeur",
+          "MILK_FROTHER": "Mousseur à lait",
+          "MILK_FROTHER_CLEANING": "Mousseur à lait (nettoyage)"
+        }
       },
       "switches": {
-        "name": "Interrupteurs"
+        "name": "Interrupteurs",
+        "state": {
+          "none": "Aucun",
+          "water_spout": "Sortie d'eau",
+          "motor_up": "Moteur vers le haut",
+          "motor_down": "Moteur vers le bas",
+          "coffee_waste_container": "Bac à marc de café",
+          "water_tank_absent": "Réservoir d'eau absent",
+          "knob": "Bouton",
+          "water_level_low": "Niveau d'eau bas",
+          "coffee_jug": "Carafe à café",
+          "ifd_caraffe": "Carafe à lait",
+          "ciocco_tank": "Réservoir de chocolat",
+          "clean_knob": "Bouton de nettoyage",
+          "door_opened": "Porte ouverte",
+          "preground_door_opened": "Trappe à café moulu ouverte"
+        }
       }
     }
   },
@@ -92,33 +115,6 @@
         "espresso": "Espresso",
         "americano": "Américain",
         "espresso2": "Expresso 2"
-      }
-    }
-  },
-  "state": {
-    "sensor": {
-      "nozzle_status": {
-        "UNKNOWN": "Inconnu",
-        "DETACHED": "Détachée",
-        "STEAM": "Vapeur",
-        "MILK_FROTHER": "Mousseur à lait",
-        "MILK_FROTHER_CLEANING": "Mousseur à lait (nettoyage)"
-      },
-      "switches": {
-        "none": "Aucun",
-        "water_spout": "Sortie d'eau",
-        "motor_up": "Moteur vers le haut",
-        "motor_down": "Moteur vers le bas",
-        "coffee_waste_container": "Bac à marc de café",
-        "water_tank_absent": "Réservoir d'eau absent",
-        "knob": "Bouton",
-        "water_level_low": "Niveau d'eau bas",
-        "coffee_jug": "Carafe à café",
-        "ifd_caraffe": "Carafe à lait",
-        "ciocco_tank": "Réservoir de chocolat",
-        "clean_knob": "Bouton de nettoyage",
-        "door_opened": "Porte ouverte",
-        "preground_door_opened": "Trappe à café moulu ouverte"
       }
     }
   }
