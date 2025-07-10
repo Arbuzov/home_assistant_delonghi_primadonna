@@ -15,7 +15,6 @@ class MachineSwitch(Enum):
     KNOB = "knob"
     WATER_LEVEL_LOW = "water_level_low"
     COFFEE_JUG = "coffee_jug"
-    BEANS_EMPTY = "beans_empty"
     IFD_CARAFFE = "ifd_caraffe"
     CIOCCO_TANK = "ciocco_tank"
     CLEAN_KNOB = "clean_knob"
@@ -41,7 +40,7 @@ _SWITCH_BIT_MAP: dict[int, MachineSwitch] = {
     8: MachineSwitch.IFD_CARAFFE,
     9: MachineSwitch.COFFEE_WASTE_CONTAINER,
     10: MachineSwitch.CLEAN_KNOB,
-    11: MachineSwitch.BEANS_EMPTY,
+    11: MachineSwitch.IGNORE_SWITCH,
     12: MachineSwitch.IGNORE_SWITCH,
     13: MachineSwitch.DOOR_OPENED,
     14: MachineSwitch.PREGROUND_DOOR_OPENED,
@@ -55,9 +54,12 @@ def switch_from_bit(index: int) -> MachineSwitch:
 
 def parse_switches(data: bytes) -> List[MachineSwitch]:
     """Parse switch states from a monitor mode response."""
-    if len(data) < 7:
+    if len(data) < 8:
         return []
-    mask = data[6] | (data[7] << 8)
+    mask = data[5] | (data[7] << 8)
+    if data[7] & 0x08:
+        mask &= ~(1 << 2)
+        mask &= ~(1 << 9)
     result: List[MachineSwitch] = []
     for bit in range(16):
         if mask & (1 << bit):
