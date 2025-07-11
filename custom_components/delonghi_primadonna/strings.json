@@ -23,30 +23,30 @@
             "nozzle_status": {
                 "name": "Nozzle Status",
                 "state": {
-                    "UNKNOWN": null,
-                    "DETACHED": null,
-                    "STEAM": null,
-                    "MILK_FROTHER": null,
-                    "MILK_FROTHER_CLEANING": null
+                    "unknown": "Unknown",
+                    "detached": "Detached",
+                    "steam": "Steam",
+                    "milk_frother": "Milk frother",
+                    "milk_frother_cleaning": "Milk frother cleaning"
                 }
             },
             "switches": {
                 "name": "Switches",
                 "state": {
-                    "none": null,
-                    "water_spout": null,
-                    "motor_up": null,
-                    "motor_down": null,
-                    "coffee_waste_container": null,
-                    "water_tank_absent": null,
-                    "knob": null,
-                    "water_level_low": null,
-                    "coffee_jug": null,
-                    "ifd_caraffe": null,
-                    "ciocco_tank": null,
-                    "clean_knob": null,
-                    "door_opened": null,
-                    "preground_door_opened": null
+                    "none": "None",
+                    "water_spout": "Water spout",
+                    "motor_up": "Motor up",
+                    "motor_down": "Motor down",
+                    "coffee_waste_container": "Coffee waste container",
+                    "water_tank_absent": "Water tank absent",
+                    "knob": "Knob",
+                    "water_level_low": "Water level low",
+                    "coffee_jug": "Coffee jug",
+                    "ifd_caraffe": "Milk carafe",
+                    "ciocco_tank": "Chocolate tank",
+                    "clean_knob": "Clean knob",
+                    "door_opened": "Door opened",
+                    "preground_door_opened": "Preground door opened"
                 }
             }
         }

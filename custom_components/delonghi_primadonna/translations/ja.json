@@ -59,11 +59,11 @@
       "nozzle_status": {
         "name": "ノズル状態",
         "state": {
-          "UNKNOWN": "不明",
-          "DETACHED": "取り外し",
-          "STEAM": "スチーム",
-          "MILK_FROTHER": "ミルクフロッサー",
-          "MILK_FROTHER_CLEANING": "ミルクフロッサー（清掃）"
+          "unknown": "不明",
+          "detached": "取り外し",
+          "steam": "スチーム",
+          "milk_frother": "ミルクフロッサー",
+          "milk_frother_cleaning": "ミルクフロッサー（清掃）"
         }
       },
       "switches": {

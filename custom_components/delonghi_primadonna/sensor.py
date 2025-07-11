@@ -63,9 +63,9 @@ class DelongiPrimadonnaNozzleSensor(
     @property
     def icon(self):
         result = 'mdi:coffee'
-        if self.device.steam_nozzle == 'DETACHED':
+        if self.device.steam_nozzle == "detached":
             result = 'mdi:coffee-off-outline'
-        if self.device.steam_nozzle == 'MILK':
+        if self.device.steam_nozzle.startswith("milk"):
             result = 'mdi:coffee-outline'
         return result
 

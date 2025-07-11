@@ -59,11 +59,11 @@
       "nozzle_status": {
         "name": "喷嘴状态",
         "state": {
-          "UNKNOWN": "未知",
-          "DETACHED": "已拆卸",
-          "STEAM": "蒸汽",
-          "MILK_FROTHER": "奶泥器",
-          "MILK_FROTHER_CLEANING": "奶泥器（清洗）"
+          "unknown": "未知",
+          "detached": "已拆卸",
+          "steam": "蒸汽",
+          "milk_frother": "奶泥器",
+          "milk_frother_cleaning": "奶泥器（清洗）"
         }
       },
       "switches": {

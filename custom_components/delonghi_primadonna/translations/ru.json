@@ -59,11 +59,11 @@
       "nozzle_status": {
         "name": "Статус насадки",
         "state": {
-          "UNKNOWN": "Неизвестно",
-          "DETACHED": "Отсоединена",
-          "STEAM": "Паровая насадка",
-          "MILK_FROTHER": "Капучинатор",
-          "MILK_FROTHER_CLEANING": "Капучинатор (чистка)"
+          "unknown": "Неизвестно",
+          "detached": "Отсоединена",
+          "steam": "Паровая насадка",
+          "milk_frother": "Капучинатор",
+          "milk_frother_cleaning": "Капучинатор (чистка)"
         }
       },
       "switches": {

@@ -59,11 +59,11 @@
       "nozzle_status": {
         "name": "노즈 상태",
         "state": {
-          "UNKNOWN": "알 수 없음",
-          "DETACHED": "분리됨",
-          "STEAM": "스티림",
-          "MILK_FROTHER": "우육 푸름기",
-          "MILK_FROTHER_CLEANING": "우육 푸름기 세청"
+          "unknown": "알 수 없음",
+          "detached": "분리됨",
+          "steam": "스티림",
+          "milk_frother": "우육 푸름기",
+          "milk_frother_cleaning": "우육 푸름기 세청"
         }
       },
       "switches": {

@@ -59,11 +59,11 @@
       "nozzle_status": {
         "name": "Starea duzei",
         "state": {
-          "UNKNOWN": "Necunoscut",
-          "DETACHED": "Detașată",
-          "STEAM": "Abur",
-          "MILK_FROTHER": "Spumator de lapte",
-          "MILK_FROTHER_CLEANING": "Spumator de lapte (curățare)"
+          "unknown": "Necunoscut",
+          "detached": "Detașată",
+          "steam": "Abur",
+          "milk_frother": "Spumator de lapte",
+          "milk_frother_cleaning": "Spumator de lapte (curățare)"
         }
       },
       "switches": {

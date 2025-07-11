@@ -59,11 +59,11 @@
       "nozzle_status": {
         "name": "Nozzle Status",
         "state": {
-          "UNKNOWN": "Unknown",
-          "DETACHED": "Detached",
-          "STEAM": "Steam",
-          "MILK_FROTHER": "Milk frother",
-          "MILK_FROTHER_CLEANING": "Milk frother cleaning"
+          "unknown": "Unknown",
+          "detached": "Detached",
+          "steam": "Steam",
+          "milk_frother": "Milk frother",
+          "milk_frother_cleaning": "Milk frother cleaning"
         }
       },
       "switches": {

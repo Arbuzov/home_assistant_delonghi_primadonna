@@ -59,11 +59,11 @@
       "nozzle_status": {
         "name": "Düsenzustand",
         "state": {
-          "UNKNOWN": "Unbekannt",
-          "DETACHED": "Abgenommen",
-          "STEAM": "Dampf",
-          "MILK_FROTHER": "Milchaufschäumer",
-          "MILK_FROTHER_CLEANING": "Milchaufschäumer (Reinigung)"
+          "unknown": "Unbekannt",
+          "detached": "Abgenommen",
+          "steam": "Dampf",
+          "milk_frother": "Milchaufschäumer",
+          "milk_frother_cleaning": "Milchaufschäumer (Reinigung)"
         }
       },
       "switches": {

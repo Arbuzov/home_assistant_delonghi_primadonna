@@ -58,18 +58,15 @@ class AvailableBeverage(enum.StrEnum):
 
 
 NOZZLE_STATE = {
-    -1: 'UNKNOWN',
-    0: 'DETACHED',
-    1: 'STEAM',
-    2: 'MILK_FROTHER',  # May also be Detached
-                        # It shows detached, as the water
-                        # is not flowing out
-                        # from the nozzle directly, like
-                        # the STEAM/HOT WATER nozzle does.
-    4: 'MILK_FROTHER_CLEANING',  # It shows attached,
-                                 # as the state similar to the STEAM/HOT
-                                 # WATER nozzle, water flows
-                                 # directly out the nozzle.
+    -1: "unknown",
+    0: "detached",
+    1: "steam",
+    2: "milk_frother",  # May also be Detached
+    # It shows detached, as the water is not flowing out
+    # from the nozzle directly, like the STEAM/HOT WATER nozzle does.
+    4: "milk_frother_cleaning",  # It shows attached, as the state
+    # similar to the STEAM/HOT WATER nozzle, water flows directly out
+    # the nozzle.
 }
 
 # Skipable maintanence states

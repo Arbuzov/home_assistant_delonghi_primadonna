@@ -59,11 +59,11 @@
       "nozzle_status": {
         "name": "Fúvóka állapota",
         "state": {
-          "UNKNOWN": "Ismeretlen",
-          "DETACHED": "Leválasztva",
-          "STEAM": "Gőz",
-          "MILK_FROTHER": "Tejhabosító",
-          "MILK_FROTHER_CLEANING": "Tejhabosító (tisztítás)"
+          "unknown": "Ismeretlen",
+          "detached": "Leválasztva",
+          "steam": "Gőz",
+          "milk_frother": "Tejhabosító",
+          "milk_frother_cleaning": "Tejhabosító (tisztítás)"
         }
       },
       "switches": {

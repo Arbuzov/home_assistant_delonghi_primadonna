@@ -59,11 +59,11 @@
       "nozzle_status": {
         "name": "Stato dell'ugello",
         "state": {
-          "UNKNOWN": "Sconosciuto",
-          "DETACHED": "Rimosso",
-          "STEAM": "Vapore",
-          "MILK_FROTHER": "Montalatte",
-          "MILK_FROTHER_CLEANING": "Montalatte (pulizia)"
+          "unknown": "Sconosciuto",
+          "detached": "Rimosso",
+          "steam": "Vapore",
+          "milk_frother": "Montalatte",
+          "milk_frother_cleaning": "Montalatte (pulizia)"
         }
       },
       "switches": {

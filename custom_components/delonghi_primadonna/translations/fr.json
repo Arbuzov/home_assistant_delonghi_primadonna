@@ -59,11 +59,11 @@
       "nozzle_status": {
         "name": "État de la buse",
         "state": {
-          "UNKNOWN": "Inconnu",
-          "DETACHED": "Détachée",
-          "STEAM": "Vapeur",
-          "MILK_FROTHER": "Mousseur à lait",
-          "MILK_FROTHER_CLEANING": "Mousseur à lait (nettoyage)"
+          "unknown": "Inconnu",
+          "detached": "Détachée",
+          "steam": "Vapeur",
+          "milk_frother": "Mousseur à lait",
+          "milk_frother_cleaning": "Mousseur à lait (nettoyage)"
         }
       },
       "switches": {

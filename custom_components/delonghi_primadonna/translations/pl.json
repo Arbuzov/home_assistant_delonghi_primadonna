@@ -59,11 +59,11 @@
       "nozzle_status": {
         "name": "Stan dyszy",
         "state": {
-          "UNKNOWN": "Nieznany",
-          "DETACHED": "Odłączona",
-          "STEAM": "Para",
-          "MILK_FROTHER": "Spieniacz mleka",
-          "MILK_FROTHER_CLEANING": "Spieniacz mleka (czyszczenie)"
+          "unknown": "Nieznany",
+          "detached": "Odłączona",
+          "steam": "Para",
+          "milk_frother": "Spieniacz mleka",
+          "milk_frother_cleaning": "Spieniacz mleka (czyszczenie)"
         }
       },
       "switches": {
