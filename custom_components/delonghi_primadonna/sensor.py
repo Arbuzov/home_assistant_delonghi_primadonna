@@ -42,7 +42,7 @@ class DelongiPrimadonnaNozzleSensor(
 
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_name = 'Nozzle'
+    _attr_translation_key = 'nozzle_status'
 
     _attr_options = list(NOZZLE_STATE.values())
 
@@ -63,9 +63,9 @@ class DelongiPrimadonnaNozzleSensor(
     @property
     def icon(self):
         result = 'mdi:coffee'
-        if self.device.steam_nozzle == 'DETACHED':
+        if self.device.steam_nozzle == "detached":
             result = 'mdi:coffee-off-outline'
-        if self.device.steam_nozzle == 'MILK':
+        if self.device.steam_nozzle.startswith("milk"):
             result = 'mdi:coffee-outline'
         return result
 
@@ -109,7 +109,7 @@ class DelongiPrimadonnaSwitchesSensor(
 
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_name = 'Switches'
+    _attr_translation_key = 'switches'
     _attr_options = [
         'none',
         *[s.value for s in MachineSwitch if s not in (

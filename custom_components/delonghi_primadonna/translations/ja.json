@@ -54,6 +54,37 @@
       "sounds": {
         "name": "音"
       }
+    },
+    "sensor": {
+      "nozzle_status": {
+        "name": "ノズル状態",
+        "state": {
+          "unknown": "不明",
+          "detached": "取り外し",
+          "steam": "スチーム",
+          "milk_frother": "ミルクフロッサー",
+          "milk_frother_cleaning": "ミルクフロッサー（清掃）"
+        }
+      },
+      "switches": {
+        "name": "スイッチ",
+        "state": {
+          "none": "なし",
+          "water_spout": "緊水口",
+          "motor_up": "モーター上",
+          "motor_down": "モーター下",
+          "coffee_waste_container": "コーヒーカス容器",
+          "water_tank_absent": "水タンクなし",
+          "knob": "ノブ",
+          "water_level_low": "水位低下",
+          "coffee_jug": "コーヒージャグ",
+          "ifd_caraffe": "ミルクカラフェ",
+          "ciocco_tank": "チョコレートタンク",
+          "clean_knob": "清掃ノブ",
+          "door_opened": "ドア開",
+          "preground_door_opened": "粉入れ口開"
+        }
+      }
     }
   },
   "services": {
