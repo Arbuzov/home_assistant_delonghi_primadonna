@@ -1,7 +1,12 @@
 """Delongi primadonna device description"""
 import asyncio
 import copy
-import enum
+
+try:
+    from enum import StrEnum
+except ImportError:  # pragma: no cover - fallback for older Home Assistant
+    from homeassistant.backports.enum import StrEnum
+
 import logging
 import uuid
 import warnings
@@ -43,7 +48,7 @@ class BeverageEntityFeature(IntFlag):
     SET_INTENCE = 4
 
 
-class AvailableBeverage(enum.StrEnum):
+class AvailableBeverage(StrEnum):
     """Coffee machine available beverages"""
 
     NONE = 'none'
@@ -81,7 +86,7 @@ DEVICE_STATUS = {
 }
 
 
-class NotificationType(enum.StrEnum):
+class NotificationType(StrEnum):
     """Coffee machine notification types"""
 
     STATUS = 'status'
