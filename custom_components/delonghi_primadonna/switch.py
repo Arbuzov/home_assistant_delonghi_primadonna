@@ -11,7 +11,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import DOMAIN
 from .device import DelonghiDeviceEntity
-from .model import get_model
+from .model import get_machine_model
 
 
 async def async_setup_entry(
@@ -22,7 +22,7 @@ async def async_setup_entry(
     """Register switch entities for a config entry."""
 
     delongh_device = hass.data[DOMAIN][entry.unique_id]
-    model = get_model(delongh_device.product_code)
+    model = get_machine_model(delongh_device.product_code)
 
     switches = [
         DelongiPrimadonnaNotificationSwitch(delongh_device, hass),
@@ -30,7 +30,7 @@ async def async_setup_entry(
         DelongiPrimadonnaSoundsSwitch(delongh_device, hass),
     ]
 
-    if model and model.get("cup_light_settings", False):
+    if model and model.cup_light_settings:
         switches.insert(
             0,
             DelongiPrimadonnaCupLightSwitch(delongh_device, hass),

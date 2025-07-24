@@ -11,17 +11,21 @@ from homeassistant import config_entries
 from homeassistant.components.bluetooth import BluetoothServiceInfoBleak
 from homeassistant.const import CONF_MAC, CONF_MODEL, CONF_NAME
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.helpers.selector import (SelectSelector,
+from homeassistant.helpers.selector import (SelectOptionDict, SelectSelector,
                                             SelectSelectorConfig,
                                             SelectSelectorMode)
 
 from .const import DOMAIN
-from .model import get_model_options, guess_product_code
+from .model import get_machine_models_by_connection, guess_machine_model
 
 _LOGGER = logging.getLogger(__name__)
 
 
-MODEL_OPTIONS = get_model_options()
+MODEL_OPTIONS = [
+    SelectOptionDict(value=model.product_code, label=model.name)
+    for model in get_machine_models_by_connection()
+    if model.product_code and model.name
+]
 
 STEP_USER_DATA_SCHEMA = voluptuous.Schema(
     {
@@ -76,14 +80,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         await self.async_set_unique_id(discovery_info.address)
         self._abort_if_unique_id_configured()
 
-        default_machine = guess_product_code(discovery_info.name)
+        default_machine = guess_machine_model(discovery_info.name)
         model_schema = voluptuous.Required(CONF_MODEL)
         suggested_name = discovery_info.name
         if default_machine:
             model_schema = voluptuous.Required(
-                CONF_MODEL, default=default_machine.get("product_code")
+                CONF_MODEL, default=default_machine.product_code
             )
-            suggested_name = default_machine.get("name", suggested_name)
+            suggested_name = default_machine.name or suggested_name
 
         self._schema = voluptuous.Schema(
             {

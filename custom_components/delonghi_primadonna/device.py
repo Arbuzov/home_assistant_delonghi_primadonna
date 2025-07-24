@@ -1,10 +1,16 @@
 """Delongi primadonna device description"""
 import asyncio
 import copy
-import enum
+
+try:
+    from enum import StrEnum
+except ImportError:  # pragma: no cover - fallback for older Home Assistant
+    from homeassistant.backports.enum import StrEnum
+
 import logging
 import uuid
-from binascii import hexlify
+import warnings
+from binascii import crc_hqx, hexlify
 from enum import IntFlag
 
 from bleak import BleakClient
@@ -19,6 +25,7 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     BYTES_LOAD_PROFILES, BYTES_POWER, BYTES_SWITCH_COMMAND,
                     BYTES_WATER_HARDNESS_COMMAND,
                     BYTES_WATER_TEMPERATURE_COMMAND, COFFE_OFF, COFFE_ON,
+                    COFFEE_GROUNDS_CONTAINER_CLEAN,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
                     COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
                     DEBUG, DEVICE_READY, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
@@ -26,6 +33,7 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
                     NAME_CHARACTERISTIC, START_COFFEE, STEAM_OFF, STEAM_ON,
                     WATER_SHORTAGE, WATER_TANK_DETACHED)
+from .machine_switch import MachineSwitch, parse_switches
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,7 +48,7 @@ class BeverageEntityFeature(IntFlag):
     SET_INTENCE = 4
 
 
-class AvailableBeverage(enum.StrEnum):
+class AvailableBeverage(StrEnum):
     """Coffee machine available beverages"""
 
     NONE = 'none'
@@ -55,18 +63,15 @@ class AvailableBeverage(enum.StrEnum):
 
 
 NOZZLE_STATE = {
-    -1: 'UNKNOWN',
-    0: 'DETACHED',
-    1: 'STEAM',
-    2: 'MILK_FROTHER',  # May also be Detached
-                        # It shows detached, as the water
-                        # is not flowing out
-                        # from the nozzle directly, like
-                        # the STEAM/HOT WATER nozzle does.
-    4: 'MILK_FROTHER_CLEANING',  # It shows attached,
-                                 # as the state similar to the STEAM/HOT
-                                 # WATER nozzle, water flows
-                                 # directly out the nozzle.
+    -1: "unknown",
+    0: "detached",
+    1: "steam",
+    2: "milk_frother",  # May also be Detached
+    # It shows detached, as the water is not flowing out
+    # from the nozzle directly, like the STEAM/HOT WATER nozzle does.
+    4: "milk_frother_cleaning",  # It shows attached, as the state
+    # similar to the STEAM/HOT WATER nozzle, water flows directly out
+    # the nozzle.
 }
 
 # Skipable maintanence states
@@ -81,7 +86,7 @@ DEVICE_STATUS = {
 }
 
 
-class NotificationType(enum.StrEnum):
+class NotificationType(StrEnum):
     """Coffee machine notification types"""
 
     STATUS = 'status'
@@ -146,6 +151,9 @@ DEVICE_NOTIFICATION = {
     str(bytearray(COFFEE_GROUNDS_CONTAINER_FULL)): BeverageNotify(
         NotificationType.STATUS, 'GroundsContainerFull'
     ),
+    str(bytearray(COFFEE_GROUNDS_CONTAINER_CLEAN)): BeverageNotify(
+        NotificationType.STATUS, 'GroundsContainerFull'
+    ),
     str(bytearray(START_COFFEE)): BeverageNotify(
         NotificationType.STATUS, 'START_COFFEE'
     ),
@@ -179,7 +187,20 @@ class DelonghiDeviceEntity:
 
 
 def sign_request(message: list[int]) -> None:
-    """Request signer"""
+    """Request signer.
+
+    .. deprecated:: 1.6.4
+       Use ``binascii.crc_hqx`` instead.
+    """
+    warnings.warn(
+        "sign_request is deprecated, use binascii.crc_hqx instead",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    _LOGGER.warning(
+        "sign_request is deprecated and will be removed in a future release. "
+        "Use binascii.crc_hqx instead."
+    )
     _LOGGER.debug("Signing request: %s", hexlify(bytearray(message), " "))
     deviser = 0x1D0F
     for item in message[: len(message) - 2]:
@@ -218,6 +239,7 @@ class DelongiPrimadonna:
         self.service = 0
         self.status = DEVICE_STATUS[5]
         self.switches = DeviceSwitches()
+        self.active_switches: list[MachineSwitch] = []
         self._lock = asyncio.Lock()
         self._rx_buffer = bytearray()
         self._response_event = None
@@ -402,6 +424,7 @@ class DelongiPrimadonna:
             self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
             self.service = value[7]
             self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS[5])
+            self.active_switches = parse_switches(value)
         elif answer_id == 0xA4:
             parsed = []
             try:
@@ -583,7 +606,10 @@ class DelongiPrimadonna:
             for attempt in range(retries):
                 try:
                     await self._connect()
-                    sign_request(message_to_send)
+                    crc = crc_hqx(bytearray(message_to_send[:-2]), 0x1D0F)
+                    crc_bytes = crc.to_bytes(2, byteorder='big')
+                    message_to_send[-2] = crc_bytes[0]
+                    message_to_send[-1] = crc_bytes[1]
                     _LOGGER.info(
                         'Send command: %s',
                         hexlify(bytearray(message_to_send), " ")
