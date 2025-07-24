@@ -1,6 +1,6 @@
 const LitElement = Object.getPrototypeOf(customElements.get("ha-panel-lovelace"));
 const {html} = LitElement.prototype;
-const css = LitElement.prototype.css;
+const {css} = LitElement.prototype;
 
 const DEFAULT_IMAGE_URL = "https://delonghibe.s3.eu-west-1.amazonaws.com/cms/prod/img/_opt_delonghi_uploads_PD_CLASS_TOP_INT_ECAM550.85.MS.png";
 
