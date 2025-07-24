@@ -48,15 +48,27 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hacs_path = hass.config.path(
         f"www/community/{DOMAIN}/{card_name}"
     )
-    if await hass.async_add_executor_job(os.path.isfile, hacs_path):
+    local_card = Path(__file__).parents[1] / "dist" / card_name
+
+    hacs_exists = await hass.async_add_executor_job(os.path.isfile, hacs_path)
+    local_exists = await hass.async_add_executor_job(os.path.isfile, str(local_card))
+
+    if hacs_exists:
         card_url = f"/hacsfiles/{DOMAIN}/{card_name}"
-    else:
-        local_card = Path(__file__).parents[1] / "dist" / card_name
+        frontend.add_extra_js_url(hass, card_url, es5=True)
+        _LOGGER.debug("Registered Lovelace card from HACS path: %s", hacs_path)
+    elif local_exists:
         card_url = f"/{DOMAIN}/{card_name}"
         await hass.http.async_register_static_paths(
             [StaticPathConfig(card_url, str(local_card), False)]
         )
-    frontend.add_extra_js_url(hass, card_url, es5=True)
+        frontend.add_extra_js_url(hass, card_url, es5=True)
+        _LOGGER.debug("Registered Lovelace card from local dist path: %s", local_card)
+    else:
+        _LOGGER.error(
+            "Lovelace card not found in either HACS path (%s) or local dist path (%s). Card will not be registered.",
+            hacs_path, local_card
+        )
 
     async def make_beverage(call: ServiceCall) -> None:
         _LOGGER.debug('Make beverage %s', call.data)
