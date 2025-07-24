@@ -197,7 +197,10 @@ def sign_request(message: list[int]) -> None:
         DeprecationWarning,
         stacklevel=2,
     )
-    _LOGGER.warning("sign_request is deprecated and will be removed in a future release. Use binascii.crc_hqx instead.")
+    _LOGGER.warning(
+        "sign_request is deprecated and will be removed in a future release. "
+        "Use binascii.crc_hqx instead."
+    )
     _LOGGER.debug("Signing request: %s", hexlify(bytearray(message), " "))
     deviser = 0x1D0F
     for item in message[: len(message) - 2]:
