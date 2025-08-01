@@ -137,7 +137,7 @@ DEVICE_NOTIFICATION = {
     ),
     str(bytearray(COFFEE_GROUNDS_CONTAINER_CLEAN)): BeverageNotify(
         NotificationType.STATUS,
-        "GroundsContainerFull",
+        "GroundsContainerClean",
     ),
     str(bytearray(START_COFFEE)): BeverageNotify(
         NotificationType.STATUS,
