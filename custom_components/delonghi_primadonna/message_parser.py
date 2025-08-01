@@ -1,4 +1,10 @@
-"""Helpers to parse messages from the device."""
+"""Utilities for decoding BLE messages from the PrimaDonna coffee maker.
+
+The parsing logic here is shared by the BLE client and individual entities.
+It assembles packets from the raw byte stream, interprets known
+notifications and dispatches events within Home Assistant when device
+state changes occur.
+"""
 
 from __future__ import annotations
 
@@ -16,7 +22,12 @@ START_BYTE = 0xD0
 
 
 class MessageParser:
-    """Mixin class for BLE message handling."""
+    """Mixin class providing common logic for packet processing.
+
+    It contains helpers used by :class:`DelongiPrimadonna` to assemble full
+    messages from fragmented notifications and to convert them into Home
+    Assistant events.
+    """
 
     _rx_buffer: bytearray
     _response_event: None

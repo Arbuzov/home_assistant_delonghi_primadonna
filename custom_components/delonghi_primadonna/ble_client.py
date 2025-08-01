@@ -1,4 +1,10 @@
-"""BLE client for Delonghi Primadonna devices."""
+"""Bluetooth client used by the integration to talk to coffee machines.
+
+This module wraps :class:`~bleak.BleakClient` and exposes high level helper
+methods to send commands to the device and process replies.  It also
+implements reconnection logic and publishes Home Assistant events when the
+machine notifies about state changes.
+"""
 
 from __future__ import annotations
 
@@ -29,7 +35,13 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class DelongiPrimadonna(MessageParser):
-    """Delonghi Primadonna BLE client."""
+    """Handle low-level BLE communication with the coffee machine.
+
+    This class manages the connection lifecycle, sends prepared byte
+    commands and feeds every received packet into :class:`MessageParser`
+    for decoding.  Home Assistant entities keep a reference to an instance
+    of this client to perform actions on the device.
+    """
 
     def __init__(self, config: dict, hass: HomeAssistant) -> None:
         """Initialize device."""

@@ -1,4 +1,9 @@
-"""Data models and constants for the Delonghi integration."""
+"""Data structures describing beverage commands, statuses and notifications.
+
+All enumerations, dataclasses and mappings used across the integration are
+collected here to keep the other modules tidy and make the available
+capabilities explicit in one place.
+"""
 
 from dataclasses import dataclass
 from enum import IntFlag
@@ -68,7 +73,7 @@ class NotificationType(StrEnum):
 
 @dataclass(slots=True)
 class BeverageCommand:
-    """Coffee machine beverage commands."""
+    """Byte sequences used to start and stop a beverage."""
 
     on: list[int]
     off: list[int]
@@ -76,7 +81,7 @@ class BeverageCommand:
 
 @dataclass(slots=True)
 class BeverageNotify:
-    """Coffee machine beverage notifications."""
+    """Description of a notification produced by the machine."""
 
     kind: str
     description: str
@@ -84,7 +89,7 @@ class BeverageNotify:
 
 @dataclass(slots=True)
 class DeviceSwitches:
-    """All binary switches for the device."""
+    """Current states of machine switches and toggles."""
 
     sounds: bool = False
     energy_save: bool = False

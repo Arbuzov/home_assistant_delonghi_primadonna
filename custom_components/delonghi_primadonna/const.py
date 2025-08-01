@@ -1,4 +1,8 @@
-"""Constants for the oiot integration."""
+"""Constant values and command templates for the integration.
+
+These bytes sequences represent the device protocol messages used to
+control the machine and decode its responses.
+"""
 from homeassistant.const import EntityCategory
 
 DOMAIN = 'delonghi_primadonna'

@@ -1,4 +1,10 @@
-"""Delonghi Primadonna device helpers."""
+"""High level helpers used by the Home Assistant entities.
+
+This module exposes the :class:`DelongiPrimadonna` BLE client together with
+entity base classes and a deprecated utility for manually generating CRC
+signatures.  It provides an abstraction layer between Home Assistant and the
+raw protocol messages defined in :mod:`ble_client` and :mod:`message_parser`.
+"""
 
 from __future__ import annotations
 
