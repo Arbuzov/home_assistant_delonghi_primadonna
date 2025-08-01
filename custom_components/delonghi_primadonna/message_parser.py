@@ -143,7 +143,12 @@ class MessageParser:
         profile_index = 1
         idx = NAME_HEADER
         while idx + NAME_SIZE < len(b):
-            profiles[profile_index] = b[idx : idx + NAME_SIZE].decode("utf-16-be").rstrip("\x00").strip()  # noqa: E203
+            profiles[profile_index] = (
+                b[idx : idx + NAME_SIZE]  # noqa: E203
+                .decode("utf-16-be")
+                .rstrip("\x00")
+                .strip()
+            )  # noqa: E203,E501
             profile_index += 1
             idx += NAME_SIZE + NAME_OFFSET
         return profiles
