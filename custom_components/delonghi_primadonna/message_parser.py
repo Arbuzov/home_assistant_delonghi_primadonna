@@ -148,7 +148,7 @@ class MessageParser:
                 .decode("utf-16-be")
                 .rstrip("\x00")
                 .strip()
-            )  # noqa: E203,E501
+            )  # noqa: E203
             profile_index += 1
             idx += NAME_SIZE + NAME_OFFSET
         return profiles
