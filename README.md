@@ -63,19 +63,6 @@ Copy all files from this repository in custom_components/delonghi_primadonna to 
 
 ![Charts](./images/image.png)
 
-## Lovelace card
-
-This repository also provides a simple Lovelace card that displays an image of
-your coffee machine. The integration automatically registers the card when it
-starts, so after installing it you only need to add a **Manual** card with the type:
-
-```yaml
-type: delonghi-image-card
-```
-
-The card file will be served either from `hacsfiles/` when installed via HACS or
-directly from the integration when copied manually.
-
 
 ## Compatible devices
 
