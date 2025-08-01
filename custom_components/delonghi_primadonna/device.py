@@ -11,6 +11,7 @@ import logging
 import uuid
 import warnings
 from binascii import crc_hqx, hexlify
+from dataclasses import dataclass
 from enum import IntFlag
 
 from bleak import BleakClient
@@ -93,31 +94,31 @@ class NotificationType(StrEnum):
     PROCESS = 'process'
 
 
+@dataclass(slots=True)
 class BeverageCommand:
-    """Coffee machine beverage commands"""
+    """Coffee machine beverage commands."""
 
-    def __init__(self, on, off):
-        self.on = on
-        self.off = off
+    on: list[int]
+    off: list[int]
 
 
+@dataclass(slots=True)
 class BeverageNotify:
-    """Coffee machine beverage notifications"""
+    """Coffee machine beverage notifications."""
 
-    def __init__(self, kind, description):
-        self.kind = str(kind)
-        self.description = str(description)
+    kind: str
+    description: str
 
 
+@dataclass(slots=True)
 class DeviceSwitches:
-    """All binary switches for the device"""
+    """All binary switches for the device."""
 
-    def __init__(self):
-        self.sounds = False
-        self.energy_save = False
-        self.cup_light = False
-        self.filter = False
-        self.is_on = False
+    sounds: bool = False
+    energy_save: bool = False
+    cup_light: bool = False
+    filter: bool = False
+    is_on: bool = False
 
 
 BEVERAGE_COMMANDS = {
