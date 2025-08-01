@@ -28,7 +28,7 @@ class BeverageEntityFeature(IntFlag):
 
     MAKE_BEVERAGE = 1
     SET_TEMPERATURE = 2
-    SET_INTENCE = 4
+    SET_INTENSITY = 4
 
 
 class AvailableBeverage(StrEnum):
