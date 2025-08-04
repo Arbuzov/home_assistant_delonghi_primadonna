@@ -30,6 +30,7 @@ from .machine_switch import MachineSwitch
 from .message_parser import MessageParser
 from .models import (BEVERAGE_COMMANDS, DEVICE_STATUS, NOZZLE_STATE,
                      AvailableBeverage, DeviceSwitches)
+from .statistics import StatisticsReader
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -247,9 +248,7 @@ class DelongiPrimadonna(MessageParser):
 
     async def read_statistics(self) -> list[int]:
         """Read statistical parameters from the coffee machine."""
-        from .statistics import read_all_stats
-
-        return await read_all_stats(self)
+        return await StatisticsReader(self).read_all()
 
     async def send_command(self, message, retries: int = 3) -> bytes | None:
         async with self._lock:

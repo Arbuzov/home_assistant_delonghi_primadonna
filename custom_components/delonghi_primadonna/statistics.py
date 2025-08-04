@@ -3,8 +3,15 @@
 from __future__ import annotations
 
 from binascii import crc_hqx
+from typing import Protocol
 
-from .ble_client import DelongiPrimadonna
+
+class _CommandSender(Protocol):
+    """Protocol representing the BLE client used for communication."""
+
+    async def send_command(self, message: list[int]) -> bytes | None:
+        """Send a command to the device and return the raw response."""
+
 
 # (address, number of parameters) pairs to request from the device.
 BLOCKS: list[tuple[int, int]] = [
@@ -25,43 +32,52 @@ BLOCKS: list[tuple[int, int]] = [
 ]
 
 
-def make_stat_request(addr: int, count: int) -> list[int]:
-    """Form a packet for the ``getStatisticalParameters`` command (0xA2)."""
+class StatisticsReader:
+    """Read statistical parameters from the coffee machine."""
 
-    count = min(count, 10)
-    packet = [
-        0x0D,
-        8,
-        0xA2,
-        0x0F,
-        addr >> 8,
-        addr & 0xFF,
-        count,
-        0x00,
-        0x00,
-    ]
-    return packet
+    def __init__(self, ble_device: _CommandSender) -> None:
+        """Initialize the reader with a BLE client."""
+        self._ble = ble_device
 
+    def _make_request(self, addr: int, count: int) -> list[int]:
+        """Form packet for ``getStatisticalParameters`` (0xA2)."""
 
-def parse_stat_response(resp: bytes) -> list[int]:
-    """Validate CRC and extract integer parameters from the response."""
+        count = min(count, 10)
+        packet = [
+            0x0D,
+            8,
+            0xA2,
+            0x0F,
+            addr >> 8,
+            addr & 0xFF,
+            count,
+            0x00,
+            0x00,
+        ]
+        return packet
 
-    if crc_hqx(bytearray(resp[:-2]), 0x1D0F) != int.from_bytes(resp[-2:], "big"):
-        raise ValueError("CRC mismatch")
+    def _parse_response(self, resp: bytes) -> list[int]:
+        """Validate CRC and extract integer parameters from the response."""
 
-    count = resp[6]
-    data = resp[7 : 7 + count * 2]
-    return [int.from_bytes(data[i : i + 2], "big") for i in range(0, len(data), 2)]
+        if crc_hqx(bytearray(resp[:-2]), 0x1D0F) != int.from_bytes(
+            resp[-2:], "big"
+        ):
+            raise ValueError("CRC mismatch")
 
+        count = resp[6]
+        data = resp[7:7 + count * 2]
+        return [
+            int.from_bytes(data[i:i + 2], "big")
+            for i in range(0, len(data), 2)
+        ]
 
-async def read_all_stats(ble_device: DelongiPrimadonna) -> list[int]:
-    """Send requests for all blocks and collect responses."""
+    async def read_all(self) -> list[int]:
+        """Send requests for all blocks and collect responses."""
 
-    result: list[int] = []
-    for addr, qty in BLOCKS:
-        packet = make_stat_request(addr, qty)
-        resp = await ble_device.send_command(packet)
-        if resp is not None:
-            result.extend(parse_stat_response(resp))
-    return result
-
+        result: list[int] = []
+        for addr, qty in BLOCKS:
+            packet = self._make_request(addr, qty)
+            resp = await self._ble.send_command(packet)
+            if resp is not None:
+                result.extend(self._parse_response(resp))
+        return result
