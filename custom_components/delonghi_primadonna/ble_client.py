@@ -67,6 +67,7 @@ class DelongiPrimadonna(MessageParser):
         self._lock = asyncio.Lock()
         self._rx_buffer = bytearray()
         self._response_event = None
+        self._last_response: bytes | None = None
         self.profiles = list(AVAILABLE_PROFILES.values())
         self._profiles_loaded = False
 
@@ -244,7 +245,13 @@ class DelongiPrimadonna(MessageParser):
         message = [int(x, 16) for x in command.split(" ")]
         await self.send_command(message)
 
-    async def send_command(self, message, retries: int = 3) -> None:
+    async def read_statistics(self) -> list[int]:
+        """Read statistical parameters from the coffee machine."""
+        from .statistics import read_all_stats
+
+        return await read_all_stats(self)
+
+    async def send_command(self, message, retries: int = 3) -> bytes | None:
         async with self._lock:
             message_to_send = copy.deepcopy(message)
             for attempt in range(retries):
@@ -259,6 +266,7 @@ class DelongiPrimadonna(MessageParser):
                         hexlify(bytearray(message_to_send), " "),
                     )
                     self._response_event = asyncio.Event()
+                    self._last_response = None
                     await self._client.write_gatt_char(
                         CONTROLL_CHARACTERISTIC, bytearray(message_to_send)
                     )
@@ -273,7 +281,7 @@ class DelongiPrimadonna(MessageParser):
                         )
                     finally:
                         self._response_event = None
-                    return
+                    return self._last_response
                 except BleakError as error:
                     self.connected = False
                     self._client = None
@@ -282,3 +290,4 @@ class DelongiPrimadonna(MessageParser):
                     )
                     await asyncio.sleep(2)
             _LOGGER.error("Failed to send command after %d attempts", retries)
+            return None
