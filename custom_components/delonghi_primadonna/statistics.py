@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 from binascii import crc_hqx
 from typing import Protocol
+
+LOGGER = logging.getLogger(__name__)
 
 
 class _CommandSender(Protocol):
@@ -59,12 +62,19 @@ class StatisticsReader:
     def _parse_response(self, resp: bytes) -> list[int]:
         """Validate CRC and extract integer parameters from the response."""
 
+        if len(resp) < 9:
+            raise ValueError("Response too short")
+
         if crc_hqx(bytearray(resp[:-2]), 0x1D0F) != int.from_bytes(
             resp[-2:], "big"
         ):
             raise ValueError("CRC mismatch")
 
         count = resp[6]
+        expected = 7 + count * 2 + 2
+        if len(resp) < expected:
+            raise ValueError("Incomplete response")
+
         data = resp[7:7 + count * 2]
         return [
             int.from_bytes(data[i:i + 2], "big")
@@ -78,6 +88,8 @@ class StatisticsReader:
         for addr, qty in BLOCKS:
             packet = self._make_request(addr, qty)
             resp = await self._ble.send_command(packet)
-            if resp is not None:
-                result.extend(self._parse_response(resp))
+            if resp is None:
+                LOGGER.warning("No response for statistical block %s", addr)
+                continue
+            result.extend(self._parse_response(resp))
         return result
