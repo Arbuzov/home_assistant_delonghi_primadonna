@@ -31,7 +31,7 @@ BLOCKS: list[tuple[int, int]] = [
     (50, 10),
     (60, 7),
     (200, 10),
-    (250, 9),  # 250 = ImageRequest.DEFAULT_IMAGE_TIMEOUT_MS
+    (250, 9),
 ]
 
 
