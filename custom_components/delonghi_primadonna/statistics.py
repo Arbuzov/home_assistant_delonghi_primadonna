@@ -65,7 +65,7 @@ class StatisticsReader:
         if len(resp) < 9:
             raise ValueError("Response too short")
 
-        if crc_hqx(bytearray(resp[:-2]), 0x1D0F) != int.from_bytes(
+        if crc_hqx(bytearray(resp[:-2]), CRC16_CCITT_INITIAL) != int.from_bytes(
             resp[-2:], "big"
         ):
             raise ValueError("CRC mismatch")
