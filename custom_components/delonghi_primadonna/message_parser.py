@@ -98,6 +98,7 @@ class MessageParser:
             self._response_event is not None
             and not self._response_event.is_set()
         ):
+            self._last_response = value
             self._response_event.set()
         answer_id = value[2] if len(value) > 2 else None
         if answer_id == 0x75:
