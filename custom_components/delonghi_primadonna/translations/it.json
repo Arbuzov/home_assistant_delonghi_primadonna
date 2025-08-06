@@ -39,6 +39,9 @@
     "button": {
       "power_on": {
         "name": "Accendi"
+      },
+      "statistics": {
+        "name": "Ottieni statistiche"
       }
     },
     "switch": {

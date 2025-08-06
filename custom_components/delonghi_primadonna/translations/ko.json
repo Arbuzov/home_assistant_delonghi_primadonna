@@ -39,6 +39,9 @@
     "button": {
       "power_on": {
         "name": "켜십시오"
+      },
+      "statistics": {
+        "name": "통계 가져오기"
       }
     },
     "switch": {

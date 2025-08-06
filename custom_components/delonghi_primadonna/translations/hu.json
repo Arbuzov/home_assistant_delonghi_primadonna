@@ -39,6 +39,9 @@
     "button": {
       "power_on": {
         "name": "Bekapcsol"
+      },
+      "statistics": {
+        "name": "Statisztika lekérése"
       }
     },
     "switch": {

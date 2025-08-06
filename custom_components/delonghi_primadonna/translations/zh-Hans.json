@@ -39,6 +39,9 @@
     "button": {
       "power_on": {
         "name": "打开"
+      },
+      "statistics": {
+        "name": "获取统计信息"
       }
     },
     "switch": {
