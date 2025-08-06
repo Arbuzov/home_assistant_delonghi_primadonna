@@ -50,9 +50,13 @@ class DelongiPrimadonnaStatisticsButton(DelonghiDeviceEntity, ButtonEntity):
     @property
     def available(self) -> bool:
         """Return if entity is available (debug mode only)."""
-        return self.device.notify
+        return super().available and self.device.notify
 
     async def async_press(self) -> None:
         """Fetch statistics from the device and log them."""
-        stats = await self.device.read_statistics()
-        _LOGGER.info("Machine statistics: %s", stats)
+        try:
+            stats = await self.device.read_statistics()
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.error("Failed to read statistics: %s", err)
+            return
+        _LOGGER.debug("Machine statistics: %s", stats)
