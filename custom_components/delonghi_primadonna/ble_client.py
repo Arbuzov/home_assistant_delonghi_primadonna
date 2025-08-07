@@ -28,6 +28,7 @@ from .const import (AVAILABLE_PROFILES, BASE_COMMAND,
                     DEBUG, NAME_CHARACTERISTIC)
 from .machine_switch import MachineSwitch
 from .message_parser import MessageParser
+from .model import get_machine_model
 from .models import (BEVERAGE_COMMANDS, DEVICE_STATUS, NOZZLE_STATE,
                      AvailableBeverage, DeviceSwitches)
 from .statistics import StatisticsReader
@@ -69,6 +70,17 @@ class DelongiPrimadonna(MessageParser):
         self._rx_buffer = bytearray()
         self._response_event = None
         self._last_response: bytes | None = None
+        machine = get_machine_model(self.product_code)
+        self._n_profiles = (
+            machine.nProfiles
+            if machine and machine.nProfiles
+            else len(AVAILABLE_PROFILES)
+        )
+        for pid in range(1, self._n_profiles + 1):
+            AVAILABLE_PROFILES.setdefault(pid, f"Profile {pid}")
+        for pid in list(AVAILABLE_PROFILES):
+            if pid > self._n_profiles:
+                AVAILABLE_PROFILES.pop(pid)
         self.profiles = list(AVAILABLE_PROFILES.values())
         self._profiles_loaded = False
 
@@ -219,7 +231,9 @@ class DelongiPrimadonna(MessageParser):
                 self.connected = False
                 _LOGGER.warning("CancelledError: %s", error)
         if self.connected and not self._profiles_loaded:
-            await self.send_command(BYTES_LOAD_PROFILES)
+            command = BYTES_LOAD_PROFILES.copy()
+            command[5] = self._n_profiles
+            await self.send_command(command)
             self._profiles_loaded = True
 
     async def select_profile(self, profile_id: int) -> None:
