@@ -39,6 +39,9 @@
     "button": {
       "power_on": {
         "name": "Sich einschalten"
+      },
+      "statistics": {
+        "name": "Statistiken abrufen"
       }
     },
     "switch": {

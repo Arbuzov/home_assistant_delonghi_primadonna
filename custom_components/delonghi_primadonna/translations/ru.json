@@ -39,6 +39,9 @@
     "button": {
       "power_on": {
         "name": "Включить"
+      },
+      "statistics": {
+        "name": "Получить статистику"
       }
     },
     "switch": {

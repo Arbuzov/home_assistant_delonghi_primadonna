@@ -39,6 +39,9 @@
     "button": {
       "power_on": {
         "name": "オンにする"
+      },
+      "statistics": {
+        "name": "統計を取得"
       }
     },
     "switch": {

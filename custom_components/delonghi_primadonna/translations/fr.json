@@ -39,6 +39,9 @@
     "button": {
       "power_on": {
         "name": "Allumer"
+      },
+      "statistics": {
+        "name": "Obtenir des statistiques"
       }
     },
     "switch": {
