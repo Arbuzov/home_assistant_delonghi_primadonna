@@ -6,6 +6,8 @@ import logging
 from binascii import crc_hqx
 from typing import Protocol
 
+CRC16_CCITT_INITIAL = 0xFFFF
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -65,9 +67,8 @@ class StatisticsReader:
         if len(resp) < 9:
             raise ValueError("Response too short")
 
-        if crc_hqx(bytearray(resp[:-2]), CRC16_CCITT_INITIAL) != int.from_bytes(
-            resp[-2:], "big"
-        ):
+        crc = crc_hqx(bytearray(resp[:-2]), CRC16_CCITT_INITIAL)
+        if crc != int.from_bytes(resp[-2:], "big"):
             raise ValueError("CRC mismatch")
 
         count = resp[6]

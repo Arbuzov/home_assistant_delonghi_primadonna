@@ -11,7 +11,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import DOMAIN
 from .device import DelonghiDeviceEntity, DelongiPrimadonna
 
-
 _LOGGER = logging.getLogger(__name__)
 
 
