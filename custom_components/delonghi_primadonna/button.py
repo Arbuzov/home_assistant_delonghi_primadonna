@@ -49,7 +49,7 @@ class DelongiPrimadonnaStatisticsButton(DelonghiDeviceEntity, ButtonEntity):
     @property
     def available(self) -> bool:
         """Return if entity is available (debug mode only)."""
-        return super().available and self.device.notify
+        return self.device.notify
 
     async def async_press(self) -> None:
         """Fetch statistics from the device and log them."""
