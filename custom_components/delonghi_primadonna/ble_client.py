@@ -261,7 +261,11 @@ class DelongiPrimadonna(MessageParser):
         await self.send_command(message)
 
     async def read_statistics(self) -> None:
-        """Request statistical parameters from the coffee machine."""
+        """Request statistical parameters from the coffee machine.
+
+        This coroutine no longer returns parsed statistics; callers should
+        consume logged output instead.
+        """
         await StatisticsReader(self).request_all()
 
     async def send_command(self, message, retries: int = 3) -> bytes | None:
