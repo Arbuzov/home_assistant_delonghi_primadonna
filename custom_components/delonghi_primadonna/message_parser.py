@@ -19,6 +19,10 @@ from .models import DEVICE_NOTIFICATION, DEVICE_STATUS, NOZZLE_STATE
 _LOGGER = logging.getLogger(__name__)
 
 START_BYTE = 0xD0
+STAT_HEADER_SIZE = 4
+STAT_RECORD_SIZE = 6
+CRC_SIZE = 2
+EXPECTED_PARAM_MASK = 0x0F
 
 
 def parse_stat_response(resp: bytes) -> list[int]:
@@ -31,24 +35,31 @@ def parse_stat_response(resp: bytes) -> list[int]:
     the CRC and returns the list of integer values.
     """
 
-    if len(resp) < 9 or resp[0] != START_BYTE or resp[2] != 0xA2:
+    if (
+        len(resp) < STAT_HEADER_SIZE + CRC_SIZE + STAT_RECORD_SIZE
+        or resp[0] != START_BYTE
+        or resp[2] != 0xA2
+    ):
         raise ValueError("Invalid statistics response")
 
     if resp[1] + 1 != len(resp):
         raise ValueError("Mismatched statistics length")
 
-    crc = int.from_bytes(resp[-2:], "big")
-    calc_crc = crc_hqx(bytearray(resp[:-2]), 0x1D0F)
+    if resp[3] != EXPECTED_PARAM_MASK:
+        raise ValueError("Unexpected statistics parameter mask")
+
+    crc = int.from_bytes(resp[-CRC_SIZE:], "big")
+    calc_crc = crc_hqx(bytearray(resp[:-CRC_SIZE]), 0x1D0F)
     if crc != calc_crc:
         raise ValueError("Statistics CRC mismatch")
 
-    data = resp[4:-2]  # skip start/len/cmd and parameter mask
-    if len(data) % 6 != 0:
+    data = resp[STAT_HEADER_SIZE:-CRC_SIZE]
+    if len(data) % STAT_RECORD_SIZE != 0:
         raise ValueError("Unexpected statistics payload size")
 
     stats: list[int] = []
-    for i in range(0, len(data), 6):
-        stats.append(int.from_bytes(data[i + 2:i + 6], "big"))
+    for i in range(0, len(data), STAT_RECORD_SIZE):
+        stats.append(int.from_bytes(data[i + 2:i + STAT_RECORD_SIZE], "big"))
     return stats
 
 
