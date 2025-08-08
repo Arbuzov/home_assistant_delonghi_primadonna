@@ -24,7 +24,11 @@ START_BYTE = 0xD0
 def parse_stat_response(resp: bytes) -> list[int]:
     """Extract integer parameters from a statistics response.
 
-    Validates packet structure and CRC to protect against malformed data.
+    The PrimaDonna encodes statistics as a sequence of ``address``/``value``
+    pairs where each value occupies four bytes.  The response does not carry
+    an explicit count of parameters; instead the length byte determines how
+    many pairs follow.  This parser validates the packet structure, verifies
+    the CRC and returns the list of integer values.
     """
 
     if len(resp) < 9 or resp[0] != START_BYTE or resp[2] != 0xA2:
@@ -33,21 +37,19 @@ def parse_stat_response(resp: bytes) -> list[int]:
     if resp[1] + 1 != len(resp):
         raise ValueError("Mismatched statistics length")
 
-    count = resp[6]
-    expected_len = 7 + count * 2 + 2
-    if len(resp) != expected_len:
-        raise ValueError("Unexpected statistics payload size")
-
     crc = int.from_bytes(resp[-2:], "big")
     calc_crc = crc_hqx(bytearray(resp[:-2]), 0x1D0F)
     if crc != calc_crc:
         raise ValueError("Statistics CRC mismatch")
 
-    data = resp[7:-2]
-    return [
-        int.from_bytes(data[i:i + 2], "big")
-        for i in range(0, len(data), 2)
-    ]
+    data = resp[4:-2]  # skip start/len/cmd and parameter mask
+    if len(data) % 6 != 0:
+        raise ValueError("Unexpected statistics payload size")
+
+    stats: list[int] = []
+    for i in range(0, len(data), 6):
+        stats.append(int.from_bytes(data[i + 2:i + 6], "big"))
+    return stats
 
 
 class MessageParser:
