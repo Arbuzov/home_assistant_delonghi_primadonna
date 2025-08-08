@@ -21,6 +21,17 @@ _LOGGER = logging.getLogger(__name__)
 START_BYTE = 0xD0
 
 
+def parse_stat_response(resp: bytes) -> list[int]:
+    """Extract integer parameters from a statistics response."""
+
+    count = resp[6]
+    data = resp[7:7 + count * 2]
+    return [
+        int.from_bytes(data[i:i + 2], "big")
+        for i in range(0, len(data), 2)
+    ]
+
+
 class MessageParser:
     """Mixin class providing common logic for packet processing.
 
@@ -126,6 +137,13 @@ class MessageParser:
                 status,
                 hexlify(value, " "),
             )
+        elif answer_id == 0xA2:
+            stats = []
+            try:
+                stats = parse_stat_response(value)
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.warning("Failed to parse statistics response: %s", err)
+            _LOGGER.warning("Machine statistics: %s", stats)
         hex_value = hexlify(value, " ")
         if getattr(self, "_device_status", None) != hex_value:
             _LOGGER.info("Received data: %s from %s", hex_value, sender)
