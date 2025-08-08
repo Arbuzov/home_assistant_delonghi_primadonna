@@ -52,6 +52,22 @@ BYTES_POWER = [0x0d, 0x07, 0x84, 0x0f, 0x02, 0x01, 0x55, 0x12]
 # Default bitmask for commands
 BASE_COMMAND = '10000001'
 
+# Mask used when requesting statistical parameters
+STATISTICS_PARAM_MASK = 0x0F
+
+# Template command for requesting statistical parameters (0xA2)
+BYTES_STATISTICS_REQUEST = [
+    0x0D,
+    0x08,
+    0xA2,
+    STATISTICS_PARAM_MASK,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+]
+
 # This command change device switches
 BYTES_SWITCH_COMMAND = [
     0x0d, 0x0b, 0x90, 0x0f, 0x00, 0x3f,

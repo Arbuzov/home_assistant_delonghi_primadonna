@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 import uuid
-from binascii import hexlify
+from binascii import crc_hqx, hexlify
 
 from .const import AVAILABLE_PROFILES, DOMAIN
 from .machine_switch import parse_switches
@@ -19,6 +19,35 @@ from .models import DEVICE_NOTIFICATION, DEVICE_STATUS, NOZZLE_STATE
 _LOGGER = logging.getLogger(__name__)
 
 START_BYTE = 0xD0
+
+
+def parse_stat_response(resp: bytes) -> list[int]:
+    """Extract integer parameters from a statistics response.
+
+    Validates packet structure and CRC to protect against malformed data.
+    """
+
+    if len(resp) < 9 or resp[0] != START_BYTE or resp[2] != 0xA2:
+        raise ValueError("Invalid statistics response")
+
+    if resp[1] + 1 != len(resp):
+        raise ValueError("Mismatched statistics length")
+
+    count = resp[6]
+    expected_len = 7 + count * 2 + 2
+    if len(resp) != expected_len:
+        raise ValueError("Unexpected statistics payload size")
+
+    crc = int.from_bytes(resp[-2:], "big")
+    calc_crc = crc_hqx(bytearray(resp[:-2]), 0x1D0F)
+    if crc != calc_crc:
+        raise ValueError("Statistics CRC mismatch")
+
+    data = resp[7:-2]
+    return [
+        int.from_bytes(data[i:i + 2], "big")
+        for i in range(0, len(data), 2)
+    ]
 
 
 class MessageParser:
@@ -126,6 +155,13 @@ class MessageParser:
                 status,
                 hexlify(value, " "),
             )
+        elif answer_id == 0xA2:
+            stats = []
+            try:
+                stats = parse_stat_response(value)
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.warning("Failed to parse statistics response: %s", err)
+            _LOGGER.info("Machine statistics: %s", stats)
         hex_value = hexlify(value, " ")
         if getattr(self, "_device_status", None) != hex_value:
             _LOGGER.info("Received data: %s from %s", hex_value, sender)
