@@ -19,35 +19,51 @@ from .models import DEVICE_NOTIFICATION, DEVICE_STATUS, NOZZLE_STATE
 _LOGGER = logging.getLogger(__name__)
 
 START_BYTE = 0xD0
+STAT_HEADER_SIZE = 4
+STAT_RECORD_SIZE = 6
+CRC_SIZE = 2
+EXPECTED_PARAM_MASK = 0x0F
 
 
 def parse_stat_response(resp: bytes) -> list[int]:
     """Extract integer parameters from a statistics response.
 
-    Validates packet structure and CRC to protect against malformed data.
+    The PrimaDonna encodes statistics as a sequence of ``address``/``value``
+    pairs where each value occupies four bytes.  The response does not carry
+    an explicit count of parameters; instead the length byte determines how
+    many pairs follow.  This parser validates the packet structure, verifies
+    the CRC and returns the list of integer values.
     """
 
-    if len(resp) < 9 or resp[0] != START_BYTE or resp[2] != 0xA2:
+    if (
+        len(resp) < STAT_HEADER_SIZE + CRC_SIZE + STAT_RECORD_SIZE
+        or resp[0] != START_BYTE
+        or resp[2] != 0xA2
+    ):
         raise ValueError("Invalid statistics response")
 
     if resp[1] + 1 != len(resp):
         raise ValueError("Mismatched statistics length")
 
-    count = resp[6]
-    expected_len = 7 + count * 2 + 2
-    if len(resp) != expected_len:
-        raise ValueError("Unexpected statistics payload size")
+    if resp[3] != EXPECTED_PARAM_MASK:
+        raise ValueError("Unexpected statistics parameter mask")
 
-    crc = int.from_bytes(resp[-2:], "big")
-    calc_crc = crc_hqx(bytearray(resp[:-2]), 0x1D0F)
+    crc = int.from_bytes(resp[-CRC_SIZE:], "big")
+    calc_crc = crc_hqx(bytearray(resp[:-CRC_SIZE]), 0x1D0F)
     if crc != calc_crc:
         raise ValueError("Statistics CRC mismatch")
 
-    data = resp[7:-2]
-    return [
-        int.from_bytes(data[i:i + 2], "big")
-        for i in range(0, len(data), 2)
-    ]
+    data = resp[STAT_HEADER_SIZE:-CRC_SIZE]
+    if len(data) % STAT_RECORD_SIZE != 0:
+        raise ValueError("Unexpected statistics payload size")
+
+    stats: list[int] = []
+    for i in range(0, len(data), STAT_RECORD_SIZE):
+        # Each statistics record is STAT_RECORD_SIZE bytes.
+        # The first two bytes are skipped as they are reserved or unused according to the protocol specification.
+        # If the record format changes, update this logic accordingly.
+        stats.append(int.from_bytes(data[i + 2:i + STAT_RECORD_SIZE], "big"))
+    return stats
 
 
 class MessageParser:
