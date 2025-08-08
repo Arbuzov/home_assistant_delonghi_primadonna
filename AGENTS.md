@@ -4,3 +4,5 @@ Always ensure linting passes:
 - Run `flake8 custom_components/delonghi_primadonna`.
 
 Only commit changes when these checks succeed.
+
+Increase hotfix version when making changes to the code.
