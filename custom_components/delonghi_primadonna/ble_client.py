@@ -262,7 +262,7 @@ class DelongiPrimadonna(MessageParser):
 
     async def read_statistics(self) -> None:
         """Request statistical parameters from the coffee machine."""
-        await StatisticsReader(self).read_all()
+        await StatisticsReader(self).request_all()
 
     async def send_command(self, message, retries: int = 3) -> bytes | None:
         async with self._lock:

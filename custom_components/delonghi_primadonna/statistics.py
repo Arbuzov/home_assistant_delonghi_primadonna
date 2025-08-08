@@ -2,16 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Protocol
+from typing import TYPE_CHECKING
 
-from .const import STATISTICS_PARAM_MASK
+from .const import BYTES_STATISTICS_REQUEST
 
-
-class _CommandSender(Protocol):
-    """Protocol representing the BLE client used for communication."""
-
-    async def send_command(self, message: list[int]) -> bytes | None:
-        """Send a command to the device."""
+if TYPE_CHECKING:
+    from .ble_client import DelongiPrimadonna
 
 
 # (address, number of parameters) pairs to request from the device.
@@ -34,30 +30,22 @@ BLOCKS: list[tuple[int, int]] = [
 
 
 class StatisticsReader:
-    """Read statistical parameters from the coffee machine."""
+    """Handle requesting statistical parameters from the machine."""
 
-    def __init__(self, ble_device: _CommandSender) -> None:
+    def __init__(self, ble_device: "DelongiPrimadonna") -> None:
         """Initialize the reader with a BLE client."""
         self._ble = ble_device
 
     def _make_request(self, addr: int, count: int) -> list[int]:
         """Form packet for ``getStatisticalParameters`` (0xA2)."""
 
-        count = min(count, 10)
-        packet = [
-            0x0D,
-            8,
-            0xA2,
-            STATISTICS_PARAM_MASK,
-            addr >> 8,
-            addr & 0xFF,
-            count,
-            0x00,
-            0x00,
-        ]
+        packet = BYTES_STATISTICS_REQUEST.copy()
+        packet[4] = addr >> 8
+        packet[5] = addr & 0xFF
+        packet[6] = min(count, 10)
         return packet
 
-    async def read_all(self) -> None:
+    async def request_all(self) -> None:
         """Send requests for all blocks."""
 
         for addr, qty in BLOCKS:
