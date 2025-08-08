@@ -59,6 +59,9 @@ def parse_stat_response(resp: bytes) -> list[int]:
 
     stats: list[int] = []
     for i in range(0, len(data), STAT_RECORD_SIZE):
+        # Each statistics record is STAT_RECORD_SIZE bytes.
+        # The first two bytes are skipped as they are reserved or unused according to the protocol specification.
+        # If the record format changes, update this logic accordingly.
         stats.append(int.from_bytes(data[i + 2:i + STAT_RECORD_SIZE], "big"))
     return stats
 
