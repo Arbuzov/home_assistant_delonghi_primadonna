@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 import logging
-from binascii import crc_hqx
+from binascii import hexlify
 from typing import Protocol
-
-CRC16_CCITT_INITIAL = 0xFFFF
 
 LOGGER = logging.getLogger(__name__)
 
@@ -62,25 +60,24 @@ class StatisticsReader:
         return packet
 
     def _parse_response(self, resp: bytes) -> list[int]:
-        """Validate CRC and extract integer parameters from the response."""
+        """Extract integer parameters from the response."""
 
-        if len(resp) < 9:
-            raise ValueError("Response too short")
-
-        crc = crc_hqx(bytearray(resp[:-2]), CRC16_CCITT_INITIAL)
-        if crc != int.from_bytes(resp[-2:], "big"):
-            raise ValueError("CRC mismatch")
+        if len(resp) < 7:
+            LOGGER.warning("Response too short: %s", hexlify(resp, " "))
+            return []
 
         count = resp[6]
-        expected = 7 + count * 2 + 2
-        if len(resp) < expected:
-            raise ValueError("Incomplete response")
-
-        data = resp[7:7 + count * 2]
-        return [
+        data = resp[7:-2]
+        available = len(data) // 2
+        values = [
             int.from_bytes(data[i:i + 2], "big")
-            for i in range(0, len(data), 2)
+            for i in range(0, available * 2, 2)
         ]
+        if available < count:
+            LOGGER.warning(
+                "Expected %s values, got %s", count, available
+            )
+        return values
 
     async def read_all(self) -> list[int]:
         """Send requests for all blocks and collect responses."""
@@ -92,5 +89,16 @@ class StatisticsReader:
             if resp is None:
                 LOGGER.warning("No response for statistical block %s", addr)
                 continue
-            result.extend(self._parse_response(resp))
+            LOGGER.debug(
+                "Raw statistics response for block %s: %s",
+                addr,
+                hexlify(resp, " "),
+            )
+            parsed = self._parse_response(resp)
+            LOGGER.debug(
+                "Parsed statistics for block %s: %s",
+                addr,
+                parsed,
+            )
+            result.extend(parsed)
         return result
