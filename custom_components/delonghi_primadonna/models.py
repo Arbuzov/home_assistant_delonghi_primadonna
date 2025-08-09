@@ -5,8 +5,12 @@ collected here to keep the other modules tidy and make the available
 capabilities explicit in one place.
 """
 
+import json
+import re
+import unicodedata
 from dataclasses import dataclass, field
 from enum import IntFlag
+from importlib import resources
 from typing import Any
 
 try:
@@ -23,67 +27,38 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, COFFE_OFF, COFFE_ON,
                     HOTWATER_ON, LONG_OFF, LONG_ON, START_COFFEE, STEAM_OFF,
                     STEAM_ON, WATER_SHORTAGE, WATER_TANK_DETACHED)
 
+# BeverageName enum is dynamically generated from bundled machine data to
+# avoid manual upkeep of a long static list.
 
-class BeverageName(StrEnum):
-    """Known beverage names from bundled machine data."""
 
-    _2X_ESPRESSO_COFFEE = "2X Espresso Coffee"
-    AMERICANO = "Americano"
-    BREW_OVER_ICE = "Brew Over Ice"
-    CAFFE_FREDDO = "Caffè freddo"
-    CAFFE_LATTE = "Caffé Latte"
-    CAPPUCCINO = "Cappuccino"
-    CAPPUCCINO_DOPPIOPLUS = "Cappuccino Doppio+"
-    CAPPUCCINO_REVERSE = "Cappuccino Reverse"
-    CIOCCO = "Ciocco"
-    COFFEE_POT = "Coffee pot"
-    COLD_MILK = "Cold Milk"
-    CORTADO = "Cortado"
-    CUSTOM = "Custom"
-    CUSTOM_01 = "Custom 01"
-    CUSTOM_02 = "Custom 02"
-    CUSTOM_03 = "Custom 03"
-    CUSTOM_04 = "Custom 04"
-    CUSTOM_05 = "Custom 05"
-    CUSTOM_06 = "Custom 06"
-    DOPPIOPLUS = "Doppio+"
-    ESPRESSO_BS_1 = "Espresso BS 1"
-    ESPRESSO_COFFEE = "Espresso Coffee"
-    ESPRESSO_MACCHIATO = "Espresso Macchiato"
-    ESPRESSO_LUNGO = "Espresso lungo"
-    FLAT_WHITE = "Flat White"
-    HOT_MILK = "Hot Milk"
-    HOT_WATER = "Hot Water"
-    ICED_AMERICANO = "Iced Americano"
-    ICED_CAFFELATTE = "Iced Caffelatte"
-    ICED_CAPPUCCINO = "Iced Cappuccino"
-    ICED_CAPPUCCINO_MIX = "Iced Cappuccino Mix"
-    ICED_COLD_MILK = "Iced Cold Milk"
-    ICED_FLAT_WHITE = "Iced Flat White"
-    ICED_LATTE_MACCHIATO = "Iced Latte Macchiato"
-    LATTE_MACCHIATO = "Latte Macchiato"
-    LONG_BLACK = "Long Black"
-    LONG_COFFEE = "Long Coffee"
-    MUG_AMERICANO = "Mug Americano"
-    MUG_CAFFELATTE = "Mug Caffelatte"
-    MUG_CAPPUCCINO = "Mug Cappuccino"
-    MUG_CAPPUCCINO_MIX = "Mug Cappuccino Mix"
-    MUG_FLAT_WHITE = "Mug Flat White"
-    MUG_HOT_MILK = "Mug Hot Milk"
-    MUG_ICED_AMERICANO = "Mug Iced Americano"
-    MUG_ICED_BREW_OVER_ICE = "Mug Iced Brew Over ice"
-    MUG_ICED_CAFFELATTE = "Mug Iced Caffelatte"
-    MUG_ICED_CAPPUCCINO = "Mug Iced Cappuccino"
-    MUG_ICED_CAPPUCCINO_MIX = "Mug Iced Cappuccino Mix"
-    MUG_ICED_COLD_MILK = "Mug Iced Cold Milk"
-    MUG_ICED_FLAT_WHITE = "Mug Iced Flat White"
-    MUG_ICED_LATTE_MACCHIATO = "Mug Iced Latte Macchiato"
-    MUG_LATTE_MACCHIATO = "Mug Latte Macchiato"
-    REGULAR_COFFEE = "Regular Coffee"
-    RISTRETTO = "Ristretto"
-    STEAM = "Steam"
-    TEA = "Tea"
-    TRAVEL_MUG = "Travel Mug"
+def _enum_name(value: str) -> str:
+    """Convert an arbitrary beverage string to a valid enum name."""
+    value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode()
+    value = value.replace("+", "PLUS").replace("&", "AND")
+    value = re.sub(r"[^0-9A-Za-z]+", "_", value).strip("_")
+    if value and value[0].isdigit():
+        value = f"_{value}"
+    return value.upper()
+
+
+def _load_beverage_names() -> list[str]:
+    """Return sorted beverage names from the bundled machine models file."""
+    with resources.files(__package__).joinpath("MachinesModels.json").open(
+        "r", encoding="utf-8"
+    ) as file:
+        data = json.load(file)
+    names: set[str] = set()
+    for machine in data.get("machines", []):
+        for recipe in machine.get("recipes", []):
+            name = recipe.get("name")
+            if name:
+                names.add(name)
+    return sorted(names)
+
+
+BeverageName = StrEnum(
+    "BeverageName", {_enum_name(name): name for name in _load_beverage_names()}
+)
 
 
 @dataclass(slots=True)
@@ -100,7 +75,7 @@ class Recipe:
     min_coffee: int | None = None
     id: str | None = None
     max_coffee: int | None = None
-    useForCustomRecipes: bool | None = None
+    use_for_custom_recipes: bool | None = None
 
 
 @dataclass(slots=True)
@@ -108,41 +83,41 @@ class MachineModel:
     """Machine model description."""
 
     profile_names_customizable: bool | None = None
-    characterSet: str | None = None
+    character_set: str | None = None
     profile_icons_set: str | None = None
     auto_start_settings: bool | None = None
-    globalTemperature: bool | None = None
+    global_temperature: bool | None = None
     filter_settings: bool | None = None
     product_code: str | None = None
     type: str | None = None
     auto_off_settings: bool | None = None
-    connectionType: str | None = None
+    connection_type: str | None = None
     buzzer_settings: bool | None = None
     multibeverage: bool | None = None
-    creationRecipes: bool | None = None
+    creation_recipes: bool | None = None
     image_name: str | None = None
     water_hardness_settings: bool | None = None
     default: bool | None = None
     cup_warmer_settings: bool | None = None
     image2_url: str | None = None
-    protocolVersion: int | None = None
+    protocol_version: int | None = None
     id: int | None = None
-    appModelId: str | None = None
+    app_model_id: str | None = None
     recipes: list[Recipe] = field(default_factory=list)
     image_url: str | None = None
     cup_light_settings: bool | None = None
     time_settings: bool | None = None
     profile_icons_customizable: bool | None = None
-    nGrinders: int | None = None
+    n_grinders: int | None = None
     pin_settings: bool | None = None
-    nCustomRecipes: int | None = None
+    n_custom_recipes: int | None = None
     energy_saving_settings: bool | None = None
     protocol_minor_version: int | None = None
     name: str | None = None
-    customizableProfiles: bool | None = None
-    nStandardRecipes: int | None = None
-    nProfiles: int | None = None
-    internationalsku: bool | None = None
+    customizable_profiles: bool | None = None
+    n_standard_recipes: int | None = None
+    n_profiles: int | None = None
+    international_sku: bool | None = None
 
 
 @dataclass(slots=True)
