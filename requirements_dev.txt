@@ -7,3 +7,4 @@ pyserial
 tzdata
 bleak
 bleak-retry-connector
+bluetooth-auto-recovery
