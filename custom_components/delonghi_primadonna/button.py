@@ -44,4 +44,4 @@ class DelongiPrimadonnaStatisticsButton(DelonghiDeviceEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         """Request statistics from the device."""
-        await self.device.read_statistics()
+        await self.device.request_statistics()

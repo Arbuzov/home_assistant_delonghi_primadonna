@@ -22,16 +22,15 @@ from homeassistant.core import HomeAssistant
 
 from .const import (AVAILABLE_PROFILES, BASE_COMMAND,
                     BYTES_AUTOPOWEROFF_COMMAND, BYTES_LOAD_PROFILES,
-                    BYTES_POWER, BYTES_SWITCH_COMMAND,
-                    BYTES_WATER_HARDNESS_COMMAND,
+                    BYTES_POWER, BYTES_STATISTICS_REQUEST,
+                    BYTES_SWITCH_COMMAND, BYTES_WATER_HARDNESS_COMMAND,
                     BYTES_WATER_TEMPERATURE_COMMAND, CONTROLL_CHARACTERISTIC,
-                    DEBUG, NAME_CHARACTERISTIC)
+                    DEBUG, NAME_CHARACTERISTIC, STATISTICS_BLOCKS)
 from .machine_switch import MachineSwitch
 from .message_parser import MessageParser
 from .model import get_machine_model
 from .models import (BEVERAGE_COMMANDS, DEVICE_STATUS, NOZZLE_STATE,
                      AvailableBeverage, DeviceSwitches)
-from .statistics import StatisticsReader
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -260,13 +259,19 @@ class DelongiPrimadonna(MessageParser):
         message = [int(x, 16) for x in command.split(" ")]
         await self.send_command(message)
 
-    async def read_statistics(self) -> None:
-        """Request statistical parameters from the coffee machine.
+    def _make_statistics_request(self, addr: int, count: int) -> list[int]:
+        """Form packet for ``getStatisticalParameters`` (0xA2)."""
+        packet = BYTES_STATISTICS_REQUEST.copy()
+        packet[4] = addr >> 8
+        packet[5] = addr & 0xFF
+        packet[6] = min(count, 10)
+        return packet
 
-        This coroutine no longer returns parsed statistics; callers should
-        consume logged output instead.
-        """
-        await StatisticsReader(self).request_all()
+    async def request_statistics(self) -> None:
+        """Send requests for all statistics blocks."""
+        for addr, qty in STATISTICS_BLOCKS:
+            packet = self._make_statistics_request(addr, qty)
+            await self.send_command(packet)
 
     async def send_command(self, message, retries: int = 3) -> bytes | None:
         async with self._lock:

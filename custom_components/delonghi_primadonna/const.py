@@ -68,6 +68,24 @@ BYTES_STATISTICS_REQUEST = [
     0x00,
 ]
 
+# (address, number of parameters) pairs to request from the device.
+STATISTICS_BLOCKS: list[tuple[int, int]] = [
+    (160, 10),
+    (170, 10),
+    (180, 10),
+    (150, 10),
+    (190, 4),
+    (110, 10),
+    (120, 10),
+    (130, 10),
+    (140, 10),
+    (100, 10),
+    (50, 10),
+    (60, 7),
+    (200, 10),
+    (250, 9),
+]
+
 # This command change device switches
 BYTES_SWITCH_COMMAND = [
     0x0d, 0x0b, 0x90, 0x0f, 0x00, 0x3f,
