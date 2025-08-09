@@ -37,7 +37,6 @@ STEP_USER_DATA_SCHEMA = voluptuous.Schema(
             SelectSelectorConfig(
                 options=MODEL_OPTIONS,
                 mode=SelectSelectorMode.DROPDOWN,
-                sort=True,
             )
         ),
     }
@@ -103,7 +102,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     SelectSelectorConfig(
                         options=MODEL_OPTIONS,
                         mode=SelectSelectorMode.DROPDOWN,
-                        sort=True,
                     )
                 ),
             }
@@ -161,7 +159,6 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                             SelectSelectorConfig(
                                 options=MODEL_OPTIONS,
                                 mode=SelectSelectorMode.DROPDOWN,
-                                sort=True,
                             )
                         ),
                     }
