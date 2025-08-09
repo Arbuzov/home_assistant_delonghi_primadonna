@@ -6,4 +6,7 @@ Always ensure linting and tests pass:
 
 Only commit changes when these checks succeed.
 
-Increase hotfix version when making changes to the code. Only one increment is allowed per change request. Multiple commits could be included into single change request. For example, if the current version is `1.0.0`, the next hotfix version should be `1.0.1`.
+Increase the patch version exactly once per change request. If a version bump has
+already been applied for this request, leave the version unchanged in further
+commits. For example, if the current version is `1.0.0`, set it to `1.0.1` and
+keep that value throughout the merge.
