@@ -7,7 +7,7 @@ import logging
 from functools import lru_cache
 from importlib import resources
 
-from .machine_entities import BeverageName, MachineModel, MachineModels, Recipe
+from .models import BeverageName, MachineModel, MachineModels, Recipe
 
 _LOGGER = logging.getLogger(__name__)
 
