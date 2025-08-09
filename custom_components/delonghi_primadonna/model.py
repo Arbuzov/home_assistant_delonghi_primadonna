@@ -28,6 +28,8 @@ def get_machine_models() -> MachineModels:
     )
 
     def _to_snake_case(key: str) -> str:
+        if key.lower() == "internationalsku":
+            return "international_sku"
         return re.sub(r"(?<!^)(?=[A-Z])", "_", key).lower()
 
     for machine in data.get("machines", []):
