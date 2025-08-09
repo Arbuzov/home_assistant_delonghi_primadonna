@@ -70,11 +70,10 @@ class DelongiPrimadonna(MessageParser):
         self._response_event = None
         self._last_response: bytes | None = None
         machine = get_machine_model(self.product_code)
-        self._n_profiles = (
-            machine.nProfiles
-            if machine and machine.nProfiles
-            else len(AVAILABLE_PROFILES)
-        )
+        if machine is not None and machine.n_profiles is not None:
+            self._n_profiles = machine.n_profiles
+        else:
+            self._n_profiles = len(AVAILABLE_PROFILES)
         for pid in range(1, self._n_profiles + 1):
             AVAILABLE_PROFILES.setdefault(pid, f"Profile {pid}")
         for pid in list(AVAILABLE_PROFILES):
