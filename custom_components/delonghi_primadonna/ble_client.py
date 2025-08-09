@@ -71,8 +71,8 @@ class DelongiPrimadonna(MessageParser):
         self._last_response: bytes | None = None
         machine = get_machine_model(self.product_code)
         self._n_profiles = (
-            machine.nProfiles
-            if machine and machine.nProfiles
+            machine.n_profiles
+            if machine and machine.n_profiles
             else len(AVAILABLE_PROFILES)
         )
         for pid in range(1, self._n_profiles + 1):
