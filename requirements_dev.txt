@@ -1,2 +1,10 @@
 isort
 flake8
+pytest
+pytest-asyncio
+pytest-homeassistant-custom-component
+pyserial
+tzdata
+bleak
+bleak-retry-connector
+bluetooth-auto-recovery
