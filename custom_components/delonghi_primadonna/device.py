@@ -35,8 +35,7 @@ __all__ = [
     "BeverageCommand",
     "BeverageNotify",
     "DEVICE_NOTIFICATION",
-    "DelonghiDeviceEntity",
-    "sign_request",
+    "DelonghiDeviceEntity"
 ]
 
 _LOGGER = logging.getLogger(__name__)
@@ -66,28 +65,3 @@ class DelonghiDeviceEntity:
             "model": self.device.model,
         }
 
-
-def sign_request(message: list[int]) -> None:
-    """Deprecated manual CRC signer."""
-    warnings.warn(
-        "sign_request is deprecated, use binascii.crc_hqx instead",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    _LOGGER.warning(
-        "sign_request is deprecated and will be removed in a future release. "
-        "Use binascii.crc_hqx instead.",
-    )
-    _LOGGER.debug("Signing request: %s", hexlify(bytearray(message), " "))
-    deviser = 0x1D0F
-    for item in message[: len(message) - 2]:
-        i3 = (((deviser << 8) | (deviser >> 8)) & 0x0000FFFF) ^ (item & 0xFFFF)
-        i4 = i3 ^ ((i3 & 0xFF) >> 4)
-        i5 = i4 ^ ((i4 << 12) & 0x0000FFFF)
-        deviser = i5 ^ (((i5 & 0xFF) << 5) & 0x0000FFFF)
-    signature = list((deviser & 0x0000FFFF).to_bytes(2, byteorder="big"))
-    message[len(message) - 2] = signature[0]
-    message[len(message) - 1] = signature[1]
-    _LOGGER.debug(
-        "Request signature bytes: %s %s", hex(signature[0]), hex(signature[1])
-    )

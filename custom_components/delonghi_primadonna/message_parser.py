@@ -87,8 +87,8 @@ class MessageParser:
     _hass: object
     profiles: list
 
-    async def _event_trigger(self, value: bytes) -> None:
-        """Create Home Assistant events for raw messages."""
+    def _event_trigger(self, value: bytes) -> None:
+        """Create Home Assistant events for raw messages (sync version)."""
         event_data = {"data": str(hexlify(value, " "))}
         notification_message = (
             str(hexlify(value, " "))
@@ -101,10 +101,10 @@ class MessageParser:
             notification_message = note.description
             event_data.setdefault("type", note.kind)
             event_data.setdefault("description", note.description)
-        self._hass.bus.async_fire(f"{DOMAIN}_event", event_data)
+        self._hass.bus.fire(f"{DOMAIN}_event", event_data)
         if self.notify:
             answer_id = f"{value[2]:02x}"
-            await self._hass.services.async_call(
+            self._hass.services.call(
                 "persistent_notification",
                 "create",
                 {
@@ -115,7 +115,7 @@ class MessageParser:
             )
         _LOGGER.info("Event triggered: %s", event_data)
 
-    async def _process_raw_data(self, sender, value: bytes) -> None:
+    def _process_raw_data(self, sender, value: bytes) -> None:
         """Assemble incoming BLE packets and pass complete messages."""
         self._rx_buffer.extend(value)
         while True:
@@ -135,9 +135,9 @@ class MessageParser:
                 return
             packet = bytes(self._rx_buffer[:msg_len])
             del self._rx_buffer[:msg_len]
-            await self._handle_data(sender, packet)
+            self._handle_data(sender, packet)
 
-    async def _handle_data(self, sender, value: bytes) -> None:
+    def _handle_data(self, sender, value: bytes) -> None:
         """Handle notifications from the device."""
         if (
             self._response_event is not None
@@ -181,7 +181,7 @@ class MessageParser:
         hex_value = hexlify(value, " ")
         if getattr(self, "_device_status", None) != hex_value:
             _LOGGER.info("Received data: %s from %s", hex_value, sender)
-            await self._event_trigger(value)
+            self._event_trigger(value)
             self._device_status = hex_value
 
     def _parse_profile_response(self, data: list[int]) -> dict[int, str]:
