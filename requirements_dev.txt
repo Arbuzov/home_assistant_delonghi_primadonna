@@ -5,3 +5,4 @@ pytest-asyncio
 pytest-homeassistant-custom-component
 pyserial
 tzdata
+bleak
