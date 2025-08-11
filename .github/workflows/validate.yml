@@ -52,10 +52,10 @@ jobs:
         run: pip install -r requirements_dev.txt
 
       - name: Run tests with coverage
-        run: >-
-          pytest --cov=custom_components/delonghi_primadonna
-                 --cov-report=xml
-                 --cov-report=html
+        run: |
+          pytest --cov=custom_components/delonghi_primadonna \
+                 --cov-report=xml \
+                 --cov-report=html \
                  --cov-report=term-missing
 
       - name: Upload coverage report
