@@ -1,6 +1,7 @@
 isort
 flake8
 pytest
+pytest-cov
 pytest-asyncio
 pytest-homeassistant-custom-component
 pyserial
