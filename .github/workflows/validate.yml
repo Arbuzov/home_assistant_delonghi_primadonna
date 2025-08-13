@@ -66,11 +66,13 @@ jobs:
           python <<'PY'
           import xml.etree.ElementTree as ET
 
-          tests = ET.parse('pytest.xml').getroot().attrib
-          total = int(tests.get('tests', 0))
-          failures = int(tests.get('failures', 0))
-          errors = int(tests.get('errors', 0))
-          skipped = int(tests.get('skipped', 0))
+          root = ET.parse('pytest.xml').getroot()
+          suite = root if root.tag == 'testsuite' else root.find('testsuite')
+          stats = suite.attrib if suite is not None else {}
+          total = int(stats.get('tests', 0))
+          failures = int(stats.get('failures', 0))
+          errors = int(stats.get('errors', 0))
+          skipped = int(stats.get('skipped', 0))
           passed = total - failures - errors - skipped
           summary = f"**Tests:** {passed} passed, {failures + errors} failed, {skipped} skipped, {total} total"
 
