@@ -56,7 +56,50 @@ jobs:
           pytest --cov=custom_components/delonghi_primadonna \
                  --cov-report=xml \
                  --cov-report=html \
-                 --cov-report=term-missing
+                 --cov-report=term-missing \
+                 --junitxml=pytest.xml
+          coverage report > coverage.txt
+
+      - name: Prepare PR comment
+        if: github.event_name == 'pull_request'
+        run: |
+          python <<'PY'
+          import xml.etree.ElementTree as ET
+
+          root = ET.parse('pytest.xml').getroot()
+          suite = root if root.tag == 'testsuite' else root.find('testsuite')
+          stats = suite.attrib if suite is not None else {}
+          total = int(stats.get('tests', 0))
+          failures = int(stats.get('failures', 0))
+          errors = int(stats.get('errors', 0))
+          skipped = int(stats.get('skipped', 0))
+          passed = total - failures - errors - skipped
+          summary = f"**Tests:** {passed} passed, {failures + errors} failed, {skipped} skipped, {total} total"
+
+          coverage_report = open('coverage.txt').read()
+
+          import textwrap
+
+          comment = textwrap.dedent(f"""
+          ### Test Results
+          {summary}
+
+          ### Coverage
+          ```
+          {coverage_report}
+          ```
+          """)
+          with open('pr_comment.md', 'w') as f:
+              f.write(comment)
+          PY
+
+      - name: Comment test results
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body-path: pr_comment.md
+          identifier: test-and-coverage
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
