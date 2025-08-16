@@ -152,9 +152,7 @@ class DelongiPrimadonnaStatisticsSensor(
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
         if self.device.statistics:
-            stats = self.device.statistics
-            self._attr_native_value = len(stats)
-            self._attr_extra_state_attributes = self._format_stats(stats)
+            self._update_stats(self.device.statistics)
         elif (last_state := await self.async_get_last_state()) is not None:
             self._attr_native_value = last_state.state
             self._attr_extra_state_attributes = last_state.attributes
@@ -171,11 +169,22 @@ class DelongiPrimadonnaStatisticsSensor(
         stats = event.data.get("statistics")
         if stats is None:
             return
-        self._attr_native_value = len(stats)
-        self._attr_extra_state_attributes = self._format_stats(stats)
+        self._update_stats(stats)
         self.async_write_ha_state()
 
+    def _update_stats(self, stats: list[int]) -> None:
+        """Store stats as raw list and formatted table."""
+        self._attr_native_value = len(stats)
+        self._attr_extra_state_attributes = {
+            "statistics": stats,
+            "statistics_table": self._format_stats(stats),
+        }
+
     @staticmethod
-    def _format_stats(stats: list[int]) -> dict[str, int]:
-        """Convert statistics list into a table-friendly dict."""
-        return {f"stat_{idx + 1}": value for idx, value in enumerate(stats)}
+    def _format_stats(stats: list[int]) -> str:
+        """Convert statistics list into a markdown table."""
+        lines = ["| Index | Value |", "| ----- | ----- |"]
+        lines.extend(
+            f"| {idx + 1} | {value} |" for idx, value in enumerate(stats)
+        )
+        return "\n".join(lines)

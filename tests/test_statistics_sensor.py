@@ -19,9 +19,8 @@ async def test_statistics_sensor_attributes_update(hass):
 
     assert sensor.native_value == 3
     assert sensor.extra_state_attributes == {
-        "stat_1": 10,
-        "stat_2": 20,
-        "stat_3": 30,
+        "statistics": [10, 20, 30],
+        "statistics_table": sensor._format_stats([10, 20, 30]),
     }
 
     hass.bus.async_fire(f"{DOMAIN}_statistics", {"statistics": [1, 2]})
@@ -29,6 +28,6 @@ async def test_statistics_sensor_attributes_update(hass):
 
     assert sensor.native_value == 2
     assert sensor.extra_state_attributes == {
-        "stat_1": 1,
-        "stat_2": 2,
+        "statistics": [1, 2],
+        "statistics_table": sensor._format_stats([1, 2]),
     }
