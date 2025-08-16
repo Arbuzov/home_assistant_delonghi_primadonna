@@ -153,8 +153,8 @@ class DelongiPrimadonnaStatisticsSensor(
         await super().async_added_to_hass()
         if self.device.statistics:
             stats = self.device.statistics
-            self._attr_native_value = str(stats)
-            self._attr_extra_state_attributes = {"statistics": stats}
+            self._attr_native_value = len(stats)
+            self._attr_extra_state_attributes = self._format_stats(stats)
         elif (last_state := await self.async_get_last_state()) is not None:
             self._attr_native_value = last_state.state
             self._attr_extra_state_attributes = last_state.attributes
@@ -171,6 +171,11 @@ class DelongiPrimadonnaStatisticsSensor(
         stats = event.data.get("statistics")
         if stats is None:
             return
-        self._attr_native_value = str(stats)
-        self._attr_extra_state_attributes = {"statistics": stats}
+        self._attr_native_value = len(stats)
+        self._attr_extra_state_attributes = self._format_stats(stats)
         self.async_write_ha_state()
+
+    @staticmethod
+    def _format_stats(stats: list[int]) -> dict[str, int]:
+        """Convert statistics list into a table-friendly dict."""
+        return {f"stat_{idx + 1}": value for idx, value in enumerate(stats)}
