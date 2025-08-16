@@ -1,11 +1,11 @@
 """Sensor entities for Delonghi Primadonna."""
 
-from typing import Any
+from typing import Any, Callable
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
@@ -27,6 +27,7 @@ async def async_setup_entry(
             DelongiPrimadonnaNozzleSensor(delongh_device, hass),
             DelongiPrimadonnaStatusSensor(delongh_device, hass),
             DelongiPrimadonnaSwitchesSensor(delongh_device, hass),
+            DelongiPrimadonnaStatisticsSensor(delongh_device, hass),
         ]
     )
     return True
@@ -133,3 +134,43 @@ class DelongiPrimadonnaSwitchesSensor(
     def entity_category(self, **kwargs: Any) -> None:
         """Return the category of the entity."""
         return EntityCategory.DIAGNOSTIC
+
+
+class DelongiPrimadonnaStatisticsSensor(
+    DelonghiDeviceEntity, SensorEntity, RestoreEntity
+):
+    """Show statistics returned by the machine."""
+
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_icon = "mdi:chart-bar"
+    _attr_name = "Statistics debug"
+
+    def __init__(self, delongh_device, hass: HomeAssistant) -> None:
+        super().__init__(delongh_device, hass)
+        self._remove_listener: Callable | None = None
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if self.device.statistics:
+            stats = self.device.statistics
+            self._attr_native_value = str(stats)
+            self._attr_extra_state_attributes = {"statistics": stats}
+        elif (last_state := await self.async_get_last_state()) is not None:
+            self._attr_native_value = last_state.state
+            self._attr_extra_state_attributes = last_state.attributes
+        self._remove_listener = self.hass.bus.async_listen(
+            f"{DOMAIN}_statistics", self._handle_statistics
+        )
+
+    async def async_will_remove_from_hass(self) -> None:
+        if self._remove_listener:
+            self._remove_listener()
+
+    @callback
+    def _handle_statistics(self, event) -> None:
+        stats = event.data.get("statistics")
+        if stats is None:
+            return
+        self._attr_native_value = str(stats)
+        self._attr_extra_state_attributes = {"statistics": stats}
+        self.async_write_ha_state()

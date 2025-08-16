@@ -177,6 +177,8 @@ class MessageParser:
                 stats = parse_stat_response(value)
             except Exception as err:  # noqa: BLE001
                 _LOGGER.warning("Failed to parse statistics response: %s", err)
+            self.statistics = stats
+            self._hass.bus.fire(f"{DOMAIN}_statistics", {"statistics": stats})
             _LOGGER.info("Machine statistics: %s", stats)
         hex_value = hexlify(value, " ")
         if getattr(self, "_device_status", None) != hex_value:

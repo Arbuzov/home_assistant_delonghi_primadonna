@@ -69,6 +69,7 @@ class DelongiPrimadonna(MessageParser):
         self._rx_buffer = bytearray()
         self._response_event = None
         self._last_response: bytes | None = None
+        self.statistics: list[int] = []
         machine = get_machine_model(self.product_code)
         if machine is not None and machine.n_profiles is not None:
             self._n_profiles = machine.n_profiles
