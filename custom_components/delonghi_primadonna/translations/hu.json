@@ -69,8 +69,8 @@
           "milk_frother_cleaning": "Tejhabosító (tisztítás)"
         }
       },
-      "switches": {
-        "name": "Kapcsolók",
+      "alarms": {
+        "name": "Riasztások",
         "state": {
           "none": "Nincs",
           "water_spout": "Vízkifolyó",

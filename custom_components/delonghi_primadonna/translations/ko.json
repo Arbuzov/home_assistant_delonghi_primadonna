@@ -69,8 +69,8 @@
           "milk_frother_cleaning": "우육 푸름기 세청"
         }
       },
-      "switches": {
-        "name": "스위치",
+      "alarms": {
+        "name": "알람",
         "state": {
           "none": "없음",
           "water_spout": "물 남기",

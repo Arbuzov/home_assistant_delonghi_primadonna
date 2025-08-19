@@ -11,7 +11,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import DOMAIN
 from .device import DEVICE_STATUS, NOZZLE_STATE, DelonghiDeviceEntity
-from .machine_switch import MachineSwitch
+from .const import MachineAlarm
 
 
 async def async_setup_entry(
@@ -26,7 +26,7 @@ async def async_setup_entry(
         [
             DelongiPrimadonnaNozzleSensor(delongh_device, hass),
             DelongiPrimadonnaStatusSensor(delongh_device, hass),
-            DelongiPrimadonnaSwitchesSensor(delongh_device, hass),
+            DelongiPrimadonnaAlarmsSensor(delongh_device, hass),
             DelongiPrimadonnaStatisticsSensor(delongh_device, hass),
         ]
     )
@@ -103,19 +103,19 @@ class DelongiPrimadonnaStatusSensor(
         return result
 
 
-class DelongiPrimadonnaSwitchesSensor(
+class DelongiPrimadonnaAlarmsSensor(
     DelonghiDeviceEntity, SensorEntity, RestoreEntity
 ):
-    """Show active machine switches."""
+    """Show active machine alarms that block operation."""
 
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_translation_key = 'switches'
+    _attr_translation_key = 'alarms'
     _attr_options = [
         'none',
-        *[s.value for s in MachineSwitch if s not in (
-            MachineSwitch.IGNORE_SWITCH,
-            MachineSwitch.UNKNOWN_SWITCH,
+        *[s.value for s in MachineAlarm if s not in (
+            MachineAlarm.IGNORE,
+            MachineAlarm.UNKNOWN,
         )],
     ]
 
@@ -126,9 +126,9 @@ class DelongiPrimadonnaSwitchesSensor(
 
     @property
     def native_value(self):
-        if not self.device.active_switches:
+        if not getattr(self.device, "active_alarms", None):
             return 'none'
-        return ', '.join(s.value for s in self.device.active_switches)
+        return ', '.join(s.value for s in self.device.active_alarms)
 
     @property
     def entity_category(self, **kwargs: Any) -> None:

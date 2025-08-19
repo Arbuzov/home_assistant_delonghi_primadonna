@@ -28,7 +28,7 @@ from .const import (AVAILABLE_PROFILES, BASE_COMMAND,
                     BYTES_WATER_HARDNESS_COMMAND,
                     BYTES_WATER_TEMPERATURE_COMMAND, CONTROLL_CHARACTERISTIC,
                     DEBUG, NAME_CHARACTERISTIC, STATISTICS_BLOCKS)
-from .machine_switch import MachineSwitch
+from .const import MachineAlarm
 from .message_parser import MessageParser
 from .model import get_machine_model
 from .models import (BEVERAGE_COMMANDS, DEVICE_STATUS, NOZZLE_STATE,
@@ -66,12 +66,12 @@ class DelongiPrimadonna(MessageParser):
         self.service = 0
         self.status = DEVICE_STATUS[5]
         self.switches = DeviceSwitches()
-        self.active_switches: list[MachineSwitch] = []
+        self.active_alarms = []
         self._lock = asyncio.Lock()
         self._rx_buffer = bytearray()
         self._response_event = None
-        self._last_response: bytes | None = None
-        self.statistics: list[int] = []
+        self._last_response = None
+        self.statistics = []
         machine = get_machine_model(self.product_code)
         if machine is not None and machine.n_profiles is not None:
             self._n_profiles = machine.n_profiles

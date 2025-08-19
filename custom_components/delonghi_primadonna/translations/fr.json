@@ -69,8 +69,8 @@
           "milk_frother_cleaning": "Mousseur à lait (nettoyage)"
         }
       },
-      "switches": {
-        "name": "Interrupteurs",
+        "alarms": {
+          "name": "Alertes",
         "state": {
           "none": "Aucun",
           "water_spout": "Sortie d'eau",

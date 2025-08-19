@@ -69,8 +69,8 @@
           "milk_frother_cleaning": "Milk frother cleaning"
         }
       },
-      "switches": {
-        "name": "Switches",
+      "alarms": {
+        "name": "Alarms",
         "state": {
           "none": "None",
           "water_spout": "Water spout",

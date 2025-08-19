@@ -69,8 +69,8 @@
           "milk_frother_cleaning": "ミルクフロッサー（清掃）"
         }
       },
-      "switches": {
-        "name": "スイッチ",
+      "alarms": {
+        "name": "アラーム",
         "state": {
           "none": "なし",
           "water_spout": "緊水口",

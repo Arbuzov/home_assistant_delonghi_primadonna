@@ -69,8 +69,8 @@
           "milk_frother_cleaning": "Spieniacz mleka (czyszczenie)"
         }
       },
-      "switches": {
-        "name": "Przełączniki",
+      "alarms": {
+        "name": "Alarmy",
         "state": {
           "none": "Brak",
           "water_spout": "Wylewka wodna",

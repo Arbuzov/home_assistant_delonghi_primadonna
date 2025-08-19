@@ -69,8 +69,8 @@
           "milk_frother_cleaning": "奶泥器（清洗）"
         }
       },
-      "switches": {
-        "name": "开关",
+      "alarms": {
+        "name": "警报",
         "state": {
           "none": "无",
           "water_spout": "出水口",

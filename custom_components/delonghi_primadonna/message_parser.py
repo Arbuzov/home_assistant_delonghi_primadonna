@@ -12,8 +12,7 @@ import logging
 import uuid
 from binascii import crc_hqx, hexlify
 
-from .const import AVAILABLE_PROFILES, DOMAIN
-from .machine_switch import parse_switches
+from .const import AVAILABLE_PROFILES, DOMAIN, MachineAlarm, ALARM_BIT_MAP
 from .models import DEVICE_NOTIFICATION, DEVICE_STATUS, NOZZLE_STATE
 
 _LOGGER = logging.getLogger(__name__)
@@ -80,7 +79,7 @@ class MessageParser:
     steam_nozzle: str
     service: int
     status: str
-    active_switches: list
+    active_alarms: list[MachineAlarm]
     notify: bool
     mac: str
     name: str
@@ -151,7 +150,7 @@ class MessageParser:
             self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
             self.service = value[7]
             self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS[5])
-            self.active_switches = parse_switches(value)
+            self.active_alarms = parse_alarms(value)
         elif answer_id == 0xA4:
             parsed = []
             try:
@@ -185,6 +184,40 @@ class MessageParser:
             _LOGGER.info("Received data: %s from %s", hex_value, sender)
             self._event_trigger(value)
             self._device_status = hex_value
+
+
+def _alarm_from_bit(index: int) -> MachineAlarm:
+    """Return machine alarm for a bit index."""
+    return ALARM_BIT_MAP.get(index, MachineAlarm.UNKNOWN)
+
+
+def parse_alarms(data: bytes) -> list[MachineAlarm]:
+    """Parse active alarm flags from a monitor mode response.
+
+    The device packs alarm bits into the 5th and 7th bytes of the payload.
+    Some models duplicate the grounds container flag on two bits; we mask
+    duplicates to avoid double-reporting.
+    """
+    if len(data) < 8:
+        return []
+    mask = data[5] | (data[7] << 8)
+    # If 0x08 in high byte is set, clear duplicate grounds bits (2 and 9)
+    if data[7] & 0x08:
+        mask &= ~(1 << 2)
+        mask &= ~(1 << 9)
+    result: list[MachineAlarm] = []
+    for bit in range(16):
+        if mask & (1 << bit):
+            alarm = _alarm_from_bit(bit)
+            if alarm not in (
+                MachineAlarm.IGNORE,
+                MachineAlarm.WATER_SPOUT,
+                MachineAlarm.IFD_CARAFFE,
+                MachineAlarm.CIOCCO_TANK,
+                MachineAlarm.UNKNOWN,
+            ) and alarm not in result:
+                result.append(alarm)
+    return result
 
     def _parse_profile_response(self, data: list[int]) -> dict[int, str]:
         """Parse profile names sent by the machine."""

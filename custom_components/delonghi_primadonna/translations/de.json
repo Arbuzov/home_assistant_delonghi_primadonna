@@ -69,8 +69,8 @@
           "milk_frother_cleaning": "Milchaufschäumer (Reinigung)"
         }
       },
-      "switches": {
-        "name": "Schalter",
+      "alarms": {
+        "name": "Alarme",
         "state": {
           "none": "Keine",
           "water_spout": "Wasserauslauf",

@@ -69,8 +69,8 @@
           "milk_frother_cleaning": "Spumator de lapte (curățare)"
         }
       },
-      "switches": {
-        "name": "Comutatoare",
+      "alarms": {
+        "name": "Alerte",
         "state": {
           "none": "Niciuna",
           "water_spout": "Gura de apă",

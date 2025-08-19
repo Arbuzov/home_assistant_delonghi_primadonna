@@ -4,6 +4,7 @@ These bytes sequences represent the device protocol messages used to
 control the machine and decode its responses.
 """
 from homeassistant.const import EntityCategory
+from enum import Enum
 
 DOMAIN = 'delonghi_primadonna'
 
@@ -199,3 +200,48 @@ DEVICE_TURNOFF = [0xd0, 0x12, 0x75, 0x0f, 0x01, 0x01, 0x00, 0x00,
 START_COFFEE = [0xd0, 0x12, 0x75, 0x0f, 0x01, 0x05, 0x00, 0x00,
                 0x00, 0x07, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x5c, 0xa7]
+
+"""
+Alarm bits reported by the machine (formerly called "switches").
+These represent blocking conditions that require user attention.
+"""
+
+
+class MachineAlarm(Enum):
+    WATER_SPOUT = "water_spout"
+    MOTOR_UP = "motor_up"
+    MOTOR_DOWN = "motor_down"
+    COFFEE_WASTE_CONTAINER = "coffee_waste_container"
+    WATER_TANK_ABSENT = "water_tank_absent"
+    KNOB = "knob"
+    WATER_LEVEL_LOW = "water_level_low"
+    COFFEE_JUG = "coffee_jug"
+    IFD_CARAFFE = "ifd_caraffe"
+    CIOCCO_TANK = "ciocco_tank"
+    CLEAN_KNOB = "clean_knob"
+    DOOR_OPENED = "door_opened"
+    PREGROUND_DOOR_OPENED = "preground_door_opened"
+    UNKNOWN = "unknown_switch"
+    IGNORE = "ignore_switch"
+
+
+# Bit index -> alarm mapping
+ALARM_BIT_MAP: dict[int, MachineAlarm] = {
+    0: MachineAlarm.WATER_SPOUT,
+    1: MachineAlarm.IGNORE,
+    # 2 and 3 can both indicate grounds container issues; treat as same
+    2: MachineAlarm.COFFEE_WASTE_CONTAINER,
+    3: MachineAlarm.COFFEE_WASTE_CONTAINER,
+    4: MachineAlarm.WATER_TANK_ABSENT,
+    5: MachineAlarm.KNOB,
+    6: MachineAlarm.IGNORE,
+    7: MachineAlarm.IGNORE,
+    8: MachineAlarm.IFD_CARAFFE,
+    9: MachineAlarm.COFFEE_WASTE_CONTAINER,
+    10: MachineAlarm.CLEAN_KNOB,
+    11: MachineAlarm.IGNORE,
+    12: MachineAlarm.IGNORE,
+    13: MachineAlarm.DOOR_OPENED,
+    14: MachineAlarm.PREGROUND_DOOR_OPENED,
+}
+

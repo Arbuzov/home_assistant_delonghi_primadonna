@@ -69,8 +69,8 @@
           "milk_frother_cleaning": "Капучинатор (чистка)"
         }
       },
-      "switches": {
-        "name": "Переключатели",
+      "alarms": {
+        "name": "Проблемы",
         "state": {
           "none": "Нет",
           "water_spout": "Вывод воды",

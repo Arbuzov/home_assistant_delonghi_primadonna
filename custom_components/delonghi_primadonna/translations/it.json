@@ -69,8 +69,8 @@
           "milk_frother_cleaning": "Montalatte (pulizia)"
         }
       },
-      "switches": {
-        "name": "Interruttori",
+      "alarms": {
+        "name": "Allarmi",
         "state": {
           "none": "Nessuno",
           "water_spout": "Erogatore d'acqua",
@@ -88,7 +88,6 @@
           "preground_door_opened": "Sportello caffè macinato aperto"
         }
       }
-    }
   },
   "services": {
     "make_beverage": {
