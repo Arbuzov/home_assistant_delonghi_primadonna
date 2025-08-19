@@ -151,7 +151,7 @@ class DelongiPrimadonnaStatisticsSensor(
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
-        if self.device.statistics:
+        if self.device.statistics is not None:
             self._update_stats(self.device.statistics)
         elif (last_state := await self.async_get_last_state()) is not None:
             self._attr_native_value = last_state.state
@@ -167,7 +167,11 @@ class DelongiPrimadonnaStatisticsSensor(
     @callback
     def _handle_statistics(self, event) -> None:
         stats = event.data.get("statistics")
-        if stats is None:
+        if (
+            stats is None
+            or not isinstance(stats, list)
+            or not all(isinstance(v, int) for v in stats)
+        ):
             return
         self._update_stats(stats)
         self.async_write_ha_state()
