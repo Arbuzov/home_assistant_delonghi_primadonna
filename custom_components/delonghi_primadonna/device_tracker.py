@@ -1,5 +1,4 @@
 """Device tracker entity for Delonghi Primadonna."""
-import logging
 
 from homeassistant.components.device_tracker.config_entry import ScannerEntity
 from homeassistant.config_entries import ConfigEntry
@@ -8,8 +7,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
 from .device import DelonghiDeviceEntity
-
-_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(

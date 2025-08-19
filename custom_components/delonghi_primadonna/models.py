@@ -1,22 +1,28 @@
-"""Data structures describing machine models, beverage commands and statuses.
+"""Data structures and utilities for machine models and beverages.
 
-All enumerations, dataclasses and mappings used across the integration are
-collected here to keep the other modules tidy and make the available
-capabilities explicit in one place.
+All enumerations, dataclasses, mappings, and lightweight loader utilities used
+across the integration are collected here to keep other modules tidy and make
+the available capabilities explicit in one place.
 """
+from __future__ import annotations
 
 import json
 import re
 import unicodedata
 from dataclasses import dataclass, field
-from enum import IntFlag
+from enum import Enum, IntFlag
 from importlib import resources
 from typing import Any
+from functools import lru_cache
 
-try:
-    from enum import StrEnum
-except ImportError:  # pragma: no cover - fallback for older Home Assistant
-    from homeassistant.backports.enum import StrEnum
+try:  # Python 3.11+
+    from enum import StrEnum  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - fallback for older Home Assistant
+    try:
+        from homeassistant.backports.enum import StrEnum  # type: ignore
+    except Exception:  # final fallback if HA backport is unavailable
+        class StrEnum(str, Enum):
+            pass
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_CLEAN,
@@ -66,7 +72,7 @@ class Recipe:
     """Recipe description for a machine."""
 
     taste: int | None = None
-    name: BeverageName | None = None
+    name: str | None = None
     coffee_qty: int | None = None
     milk_qty: int | None = None
     min_milk: int | None = None
@@ -252,6 +258,93 @@ DEVICE_NOTIFICATION = {
     ),
 }
 
+
+# -----------------------------
+# Models loader/utilities
+# -----------------------------
+
+def _to_snake_case(key: str) -> str:
+    """Convert camelCase/PascalCase keys to snake_case expected by dataclasses."""
+    if key.lower() == "internationalsku":
+        return "international_sku"
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", key).lower()
+
+
+@lru_cache
+def get_machine_models() -> "MachineModels":
+    """Return machine data parsed into dataclasses.
+
+    Uses a tiny cache to avoid re-reading JSON on repeated calls.
+    """
+    with resources.files(__package__).joinpath("MachinesModels.json").open(
+        "r", encoding="utf-8"
+    ) as file:
+        data = json.load(file)
+
+    models = MachineModels(
+        result=data.get("result", {}),
+        name=data.get("name"),
+        version=data.get("version"),
+    )
+
+    for machine in data.get("machines", []):
+        recipes: list[Recipe] = []
+        for r in machine.get("recipes", []):
+            r_snake = {_to_snake_case(k): v for k, v in r.items()}
+            name = r_snake.get("name")
+            r_snake["name"] = (
+                BeverageName(name)
+                if name in BeverageName._value2member_map_
+                else None
+            )
+            recipes.append(Recipe(**r_snake))
+        machine_snake = {
+            _to_snake_case(k): v for k, v in machine.items() if k != "recipes"
+        }
+        models.machines.append(MachineModel(**{**machine_snake, "recipes": recipes}))
+    return models
+
+
+def get_machine_model(product_code: str) -> "MachineModel | None":
+    """Return machine model by product code."""
+    if product_code is None:
+        return None
+    return next(
+        (
+            model
+            for model in get_machine_models().machines
+            if model.product_code == product_code
+        ),
+        None,
+    )
+
+
+def get_machine_models_by_connection(connection_type: str = "BT") -> list["MachineModel"]:
+    """Return machine models of the given connection type."""
+    return [
+        model
+        for model in get_machine_models().machines
+        if model.connection_type == connection_type
+    ]
+
+
+def guess_machine_model(name: str) -> "MachineModel | None":
+    """Return machine model for a Bluetooth name."""
+    if not name:
+        return None
+
+    base = name[1:] if name.startswith("D") else name
+    if len(base) <= 2:
+        return None
+
+    suffix = base[:-2]
+
+    for model in get_machine_models().machines:
+        product_code = model.product_code
+        if product_code and str(product_code).endswith(suffix):
+            return model
+    return None
+
 __all__ = [
     "BeverageName",
     "BeverageEntityFeature",
@@ -268,4 +361,8 @@ __all__ = [
     "DEVICE_STATUS",
     "BEVERAGE_COMMANDS",
     "DEVICE_NOTIFICATION",
+    "get_machine_models",
+    "get_machine_model",
+    "get_machine_models_by_connection",
+    "guess_machine_model",
 ]

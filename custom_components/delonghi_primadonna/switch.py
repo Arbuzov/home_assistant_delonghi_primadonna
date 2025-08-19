@@ -11,7 +11,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import DOMAIN
 from .device import DelonghiDeviceEntity
-from .model import get_machine_model
+from .models import get_machine_model
 
 
 async def async_setup_entry(
@@ -35,9 +35,46 @@ async def async_setup_entry(
             0,
             DelongiPrimadonnaCupLightSwitch(delongh_device, hass),
         )
+    if model and model.time_settings:
+        switches.insert(
+            0,
+            DelonghiPrimadonnaTimeSyncSwitch(delongh_device, hass),
+        )
 
     async_add_entities(switches)
     return True
+
+
+class DelonghiPrimadonnaTimeSyncSwitch(
+    DelonghiDeviceEntity, ToggleEntity, RestoreEntity
+):
+    """This switch enable/disable the time synchronization
+       between HA and the device
+    """
+
+    _attr_is_on = True
+    _attr_icon = 'mdi:clock-sync'
+    _attr_translation_key = 'time_sync'
+
+    @property
+    def entity_category(self, **kwargs: Any) -> None:
+        """Return the category of the entity."""
+        return EntityCategory.CONFIG
+
+    @property
+    def is_on(self, **kwargs: Any) -> None:
+        """Checks if the time sync is ON."""
+        return self.device.time_sync
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Turn the time sync on."""
+        self.device.time_sync = True
+        self._attr_is_on = True
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Turn the time sync off."""
+        self.device.time_sync = False
+        self._attr_is_on = False
 
 
 class DelongiPrimadonnaCupLightSwitch(

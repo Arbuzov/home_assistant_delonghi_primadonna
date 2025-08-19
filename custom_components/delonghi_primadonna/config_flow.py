@@ -16,7 +16,7 @@ from homeassistant.helpers.selector import (SelectOptionDict, SelectSelector,
                                             SelectSelectorMode)
 
 from .const import DOMAIN
-from .model import get_machine_models_by_connection, guess_machine_model
+from .models import get_machine_models_by_connection, guess_machine_model
 
 _LOGGER = logging.getLogger(__name__)
 

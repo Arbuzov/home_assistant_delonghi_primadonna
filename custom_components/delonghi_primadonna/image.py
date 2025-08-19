@@ -7,7 +7,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DEFAULT_IMAGE_URL, DOMAIN
 from .device import DelonghiDeviceEntity, DelongiPrimadonna
-from .model import get_machine_model
+from .models import get_machine_model
 
 
 async def async_setup_entry(

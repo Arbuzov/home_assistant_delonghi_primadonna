@@ -28,9 +28,8 @@ from .const import (AVAILABLE_PROFILES, BASE_COMMAND,
                     BYTES_WATER_HARDNESS_COMMAND,
                     BYTES_WATER_TEMPERATURE_COMMAND, CONTROLL_CHARACTERISTIC,
                     DEBUG, NAME_CHARACTERISTIC, STATISTICS_BLOCKS)
-from .const import MachineAlarm
 from .message_parser import MessageParser
-from .model import get_machine_model
+from .models import get_machine_model
 from .models import (BEVERAGE_COMMANDS, DEVICE_STATUS, NOZZLE_STATE,
                      AvailableBeverage, DeviceSwitches)
 

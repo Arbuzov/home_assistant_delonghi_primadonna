@@ -8,8 +8,6 @@ raw protocol messages defined in :mod:`ble_client` and :mod:`message_parser`.
 
 from __future__ import annotations
 
-import logging
-
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
@@ -35,8 +33,6 @@ __all__ = [
     "DEVICE_NOTIFICATION",
     "DelonghiDeviceEntity"
 ]
-
-_LOGGER = logging.getLogger(__name__)
 
 
 class DelonghiDeviceEntity:

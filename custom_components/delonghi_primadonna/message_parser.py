@@ -24,47 +24,6 @@ CRC_SIZE = 2
 EXPECTED_PARAM_MASK = 0x0F
 
 
-def parse_stat_response(resp: bytes) -> list[int]:
-    """Extract integer parameters from a statistics response.
-
-    The PrimaDonna encodes statistics as a sequence of ``address``/``value``
-    pairs where each value occupies four bytes.  The response does not carry
-    an explicit count of parameters; instead the length byte determines how
-    many pairs follow.  This parser validates the packet structure, verifies
-    the CRC and returns the list of integer values.
-    """
-
-    if (
-        len(resp) < STAT_HEADER_SIZE + CRC_SIZE + STAT_RECORD_SIZE
-        or resp[0] != START_BYTE
-        or resp[2] != 0xA2
-    ):
-        raise ValueError("Invalid statistics response")
-
-    if resp[1] + 1 != len(resp):
-        raise ValueError("Mismatched statistics length")
-
-    if resp[3] != EXPECTED_PARAM_MASK:
-        raise ValueError("Unexpected statistics parameter mask")
-
-    crc = int.from_bytes(resp[-CRC_SIZE:], "big")
-    calc_crc = crc_hqx(bytearray(resp[:-CRC_SIZE]), 0x1D0F)
-    if crc != calc_crc:
-        raise ValueError("Statistics CRC mismatch")
-
-    data = resp[STAT_HEADER_SIZE:-CRC_SIZE]
-    if len(data) % STAT_RECORD_SIZE != 0:
-        raise ValueError("Unexpected statistics payload size")
-
-    stats: list[int] = []
-    for i in range(0, len(data), STAT_RECORD_SIZE):
-        # Each statistics record is STAT_RECORD_SIZE bytes.
-        # The first two bytes are skipped as they are reserved or unused according to the protocol specification.
-        # If the record format changes, update this logic accordingly.
-        stats.append(int.from_bytes(data[i + 2:i + STAT_RECORD_SIZE], "big"))
-    return stats
-
-
 class MessageParser:
     """Mixin class providing common logic for packet processing.
 
@@ -150,7 +109,7 @@ class MessageParser:
             self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
             self.service = value[7]
             self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS[5])
-            self.active_alarms = parse_alarms(value)
+            self.active_alarms = self._parse_alarms(value)
         elif answer_id == 0xA4:
             parsed = []
             try:
@@ -173,7 +132,7 @@ class MessageParser:
         elif answer_id == 0xA2:
             stats = []
             try:
-                stats = parse_stat_response(value)
+                stats = self._parse_stat_response(value)
             except Exception as err:  # noqa: BLE001
                 _LOGGER.warning("Failed to parse statistics response: %s", err)
             self.statistics = stats
@@ -184,40 +143,6 @@ class MessageParser:
             _LOGGER.info("Received data: %s from %s", hex_value, sender)
             self._event_trigger(value)
             self._device_status = hex_value
-
-
-def _alarm_from_bit(index: int) -> MachineAlarm:
-    """Return machine alarm for a bit index."""
-    return ALARM_BIT_MAP.get(index, MachineAlarm.UNKNOWN)
-
-
-def parse_alarms(data: bytes) -> list[MachineAlarm]:
-    """Parse active alarm flags from a monitor mode response.
-
-    The device packs alarm bits into the 5th and 7th bytes of the payload.
-    Some models duplicate the grounds container flag on two bits; we mask
-    duplicates to avoid double-reporting.
-    """
-    if len(data) < 8:
-        return []
-    mask = data[5] | (data[7] << 8)
-    # If 0x08 in high byte is set, clear duplicate grounds bits (2 and 9)
-    if data[7] & 0x08:
-        mask &= ~(1 << 2)
-        mask &= ~(1 << 9)
-    result: list[MachineAlarm] = []
-    for bit in range(16):
-        if mask & (1 << bit):
-            alarm = _alarm_from_bit(bit)
-            if alarm not in (
-                MachineAlarm.IGNORE,
-                MachineAlarm.WATER_SPOUT,
-                MachineAlarm.IFD_CARAFFE,
-                MachineAlarm.CIOCCO_TANK,
-                MachineAlarm.UNKNOWN,
-            ) and alarm not in result:
-                result.append(alarm)
-    return result
 
     def _parse_profile_response(self, data: list[int]) -> dict[int, str]:
         """Parse profile names sent by the machine."""
@@ -240,3 +165,71 @@ def parse_alarms(data: bytes) -> list[MachineAlarm]:
             profile_index += 1
             idx += NAME_SIZE + NAME_OFFSET
         return profiles
+
+    def _parse_alarms(self, data: bytes) -> list[MachineAlarm]:
+        """Parse active alarm flags from a monitor mode response.
+
+        The device packs alarm bits into the 5th and 7th bytes of the payload.
+        Some models duplicate the grounds container flag on two bits; we mask
+        duplicates to avoid double-reporting.
+        """
+        if len(data) < 8:
+            return []
+        mask = data[5] | (data[7] << 8)
+        # If 0x08 in high byte is set, clear duplicate grounds bits (2 and 9)
+        if data[7] & 0x08:
+            mask &= ~(1 << 2)
+            mask &= ~(1 << 9)
+        result: list[MachineAlarm] = []
+        for bit in range(16):
+            if mask & (1 << bit):
+                alarm = ALARM_BIT_MAP.get(bit, MachineAlarm.UNKNOWN)
+                if alarm not in (
+                    MachineAlarm.IGNORE,
+                    MachineAlarm.WATER_SPOUT,
+                    MachineAlarm.IFD_CARAFFE,
+                    MachineAlarm.CIOCCO_TANK,
+                    MachineAlarm.UNKNOWN,
+                ) and alarm not in result:
+                    result.append(alarm)
+        return result
+
+    def _parse_stat_response(self, resp: bytes) -> list[int]:
+        """Extract integer parameters from a statistics response.
+
+        The PrimaDonna encodes statistics as a sequence of ``address``/``value``
+        pairs where each value occupies four bytes.  The response does not carry
+        an explicit count of parameters; instead the length byte determines how
+        many pairs follow.  This parser validates the packet structure, verifies
+        the CRC and returns the list of integer values.
+        """
+
+        if (
+            len(resp) < STAT_HEADER_SIZE + CRC_SIZE + STAT_RECORD_SIZE
+            or resp[0] != START_BYTE
+            or resp[2] != 0xA2
+        ):
+            raise ValueError("Invalid statistics response")
+
+        if resp[1] + 1 != len(resp):
+            raise ValueError("Mismatched statistics length")
+
+        if resp[3] != EXPECTED_PARAM_MASK:
+            raise ValueError("Unexpected statistics parameter mask")
+
+        crc = int.from_bytes(resp[-CRC_SIZE:], "big")
+        calc_crc = crc_hqx(bytearray(resp[:-CRC_SIZE]), 0x1D0F)
+        if crc != calc_crc:
+            raise ValueError("Statistics CRC mismatch")
+
+        data = resp[STAT_HEADER_SIZE:-CRC_SIZE]
+        if len(data) % STAT_RECORD_SIZE != 0:
+            raise ValueError("Unexpected statistics payload size")
+
+        stats: list[int] = []
+        for i in range(0, len(data), STAT_RECORD_SIZE):
+            # Each statistics record is STAT_RECORD_SIZE bytes.
+            # The first two bytes are skipped as they are reserved or unused according to the protocol specification.
+            # If the record format changes, update this logic accordingly.
+            stats.append(int.from_bytes(data[i + 2:i + STAT_RECORD_SIZE], "big"))
+        return stats
