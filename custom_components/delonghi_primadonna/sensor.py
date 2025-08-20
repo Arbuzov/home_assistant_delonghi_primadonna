@@ -151,10 +151,8 @@ class DelongiPrimadonnaStatisticsSensor(
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
-        if self.device.statistics:
-            stats = self.device.statistics
-            self._attr_native_value = str(stats)
-            self._attr_extra_state_attributes = {"statistics": stats}
+        if self.device.statistics is not None:
+            self._update_stats(self.device.statistics)
         elif (last_state := await self.async_get_last_state()) is not None:
             self._attr_native_value = last_state.state
             self._attr_extra_state_attributes = last_state.attributes
@@ -169,8 +167,19 @@ class DelongiPrimadonnaStatisticsSensor(
     @callback
     def _handle_statistics(self, event) -> None:
         stats = event.data.get("statistics")
-        if stats is None:
+        if (
+            stats is None
+            or not isinstance(stats, list)
+            or not all(isinstance(v, int) for v in stats)
+        ):
             return
-        self._attr_native_value = str(stats)
-        self._attr_extra_state_attributes = {"statistics": stats}
+        self._update_stats(stats)
         self.async_write_ha_state()
+
+    def _update_stats(self, stats: list[int]) -> None:
+        """Store stats as raw list and per-index attributes."""
+        self._attr_native_value = len(stats)
+        self._attr_extra_state_attributes = {
+            "statistics": stats,
+            **{f"stat_{idx + 1}": value for idx, value in enumerate(stats)},
+        }
