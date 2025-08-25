@@ -49,6 +49,12 @@ async def test_statistics_sensor_attributes_update(hass, initial_stats):
         "stat_2": 2,
     }
 
+    # Update with an empty list to ensure stats reset
+    hass.bus.async_fire(f"{DOMAIN}_statistics", {"statistics": []})
+    await hass.async_block_till_done()
+
+    assert sensor.native_value == 0
+    assert sensor.extra_state_attributes == {"statistics": []}
 
 @pytest.mark.asyncio
 async def test_statistics_sensor_invalid_statistics(hass):
