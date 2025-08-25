@@ -56,7 +56,6 @@ async def test_statistics_sensor_attributes_update(hass, initial_stats):
     assert sensor.native_value == 0
     assert sensor.extra_state_attributes == {"statistics": []}
 
-
 @pytest.mark.asyncio
 async def test_statistics_sensor_invalid_statistics(hass):
     """Ensure invalid statistics updates are ignored."""
