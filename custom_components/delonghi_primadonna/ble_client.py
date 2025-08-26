@@ -13,6 +13,7 @@ import copy
 import logging
 import uuid
 from binascii import crc_hqx, hexlify
+from datetime import datetime
 
 from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
@@ -23,7 +24,8 @@ from homeassistant.core import HomeAssistant
 from .const import (AVAILABLE_PROFILES, BASE_COMMAND,
                     BYTES_AUTOPOWEROFF_COMMAND, BYTES_LOAD_PROFILES,
                     BYTES_POWER, BYTES_STATISTICS_REQUEST,
-                    BYTES_SWITCH_COMMAND, BYTES_WATER_HARDNESS_COMMAND,
+                    BYTES_SWITCH_COMMAND, BYTES_TIME_COMMAND,
+                    BYTES_WATER_HARDNESS_COMMAND,
                     BYTES_WATER_TEMPERATURE_COMMAND, CONTROLL_CHARACTERISTIC,
                     DEBUG, NAME_CHARACTERISTIC, STATISTICS_BLOCKS)
 from .machine_switch import MachineSwitch
@@ -254,6 +256,13 @@ class DelongiPrimadonna(MessageParser):
         message = copy.deepcopy(BYTES_WATER_TEMPERATURE_COMMAND)
         message[9] = temperature_level
         await self.send_command(message)
+
+    async def set_time(self, dt: datetime) -> None:
+        """Set device clock from provided datetime."""
+        packet = BYTES_TIME_COMMAND.copy()
+        packet[4] = dt.hour & 0xFF
+        packet[5] = dt.minute & 0xFF
+        await self.send_command(packet)
 
     async def common_command(self, command: str) -> None:
         message = [int(x, 16) for x in command.split(" ")]
