@@ -1,8 +1,10 @@
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
+from datetime import datetime
 import pytest
 
 from custom_components.delonghi_primadonna.ble_client import DelongiPrimadonna
+from custom_components.delonghi_primadonna.const import BYTES_TIME_COMMAND
 from custom_components.delonghi_primadonna.models import MachineModel
 
 
@@ -42,4 +44,19 @@ def test_init_fallbacks_to_default_profiles(hass, monkeypatch, machine):
     assert client._n_profiles == 3
     assert client.profiles == ["Profile 1", "Profile 2", "Profile 3"]
     assert list(patched_profiles.keys()) == [1, 2, 3]
+
+
+@pytest.mark.asyncio
+async def test_set_time_builds_packet(hass):
+    dt = datetime(2024, 1, 2, 3, 4)
+    config = {"mac": "aa:bb:cc:dd:ee:ff", "name": "Test", "model": "model"}
+    client = DelongiPrimadonna(config, hass)
+    client.send_command = AsyncMock()
+
+    await client.set_time(dt)
+
+    expected = BYTES_TIME_COMMAND.copy()
+    expected[4] = 3
+    expected[5] = 4
+    client.send_command.assert_awaited_once_with(expected)
 
