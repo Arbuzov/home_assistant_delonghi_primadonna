@@ -9,8 +9,8 @@ except ImportError:  # pragma: no cover - fallback for older Home Assistant
 
 import logging
 import uuid
-import warnings
 from binascii import crc_hqx, hexlify
+from datetime import datetime
 from enum import IntFlag
 
 from bleak import BleakClient
@@ -18,21 +18,21 @@ from bleak.exc import BleakDBusError, BleakError
 from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_MODEL, CONF_NAME
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import device_registry as dr
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     BASE_COMMAND, BYTES_AUTOPOWEROFF_COMMAND,
                     BYTES_LOAD_PROFILES, BYTES_POWER, BYTES_SWITCH_COMMAND,
-                    BYTES_WATER_HARDNESS_COMMAND,
+                    BYTES_TIME_COMMAND, BYTES_WATER_HARDNESS_COMMAND,
                     BYTES_WATER_TEMPERATURE_COMMAND, COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_CLEAN,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
                     COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
-                    DEBUG, DEVICE_READY, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
-                    DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF,
-                    ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
-                    NAME_CHARACTERISTIC, START_COFFEE, STEAM_OFF, STEAM_ON,
-                    WATER_SHORTAGE, WATER_TANK_DETACHED)
+                    DEBUG, DEVICE_READY, DEVICE_STATUS, DEVICE_TURNOFF, DOMAIN,
+                    DOPPIO_OFF, DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON,
+                    ESPRESSO_OFF, ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON,
+                    LONG_OFF, LONG_ON, NAME_CHARACTERISTIC, NOZZLE_STATE,
+                    START_COFFEE, STEAM_OFF, STEAM_ON, WATER_SHORTAGE,
+                    WATER_TANK_DETACHED)
 from .machine_switch import MachineSwitch, parse_switches
 from .model import get_machine_model
 
@@ -61,30 +61,6 @@ class AvailableBeverage(StrEnum):
     ESPRESSO = 'espresso'
     AMERICANO = 'americano'
     ESPRESSO2 = 'espresso2'
-
-
-NOZZLE_STATE = {
-    -1: "unknown",
-    0: "detached",
-    1: "steam",
-    2: "milk_frother",  # May also be Detached
-    # It shows detached, as the water is not flowing out
-    # from the nozzle directly, like the STEAM/HOT WATER nozzle does.
-    4: "milk_frother_cleaning",  # It shows attached, as the state
-    # similar to the STEAM/HOT WATER nozzle, water flows directly out
-    # the nozzle.
-}
-
-# Skipable maintanence states
-SERVICE_STATE = {0: 'OK', 4: 'DESCALING'}
-
-DEVICE_STATUS = {
-    3: 'COOKING',
-    4: 'NOZZLE_DETACHED',
-    5: 'OK',
-    13: 'COFFEE_GROUNDS_CONTAINER_DETACHED',
-    21: 'WATER_TANK_DETACHED',
-}
 
 
 class NotificationType(StrEnum):
@@ -161,62 +137,6 @@ DEVICE_NOTIFICATION = {
 }
 
 
-class DelonghiDeviceEntity:
-    """Entity class for the Delonghi devices"""
-
-    _attr_has_entity_name = True
-
-    def __init__(self, delongh_device, hass: HomeAssistant):
-        """Init entity with the device"""
-        self._attr_unique_id = (
-            f'{delongh_device.mac}_'
-            f'{self.__class__.__name__}'
-        )
-        self.device: DelongiPrimadonna = delongh_device
-        self.hass = hass
-
-    @property
-    def device_info(self):
-        """Shared device info information"""
-        return {
-            'identifiers': {(DOMAIN, self.device.mac)},
-            'connections': {(dr.CONNECTION_NETWORK_MAC, self.device.mac)},
-            'name': self.device.name,
-            'manufacturer': 'Delonghi',
-            'model': self.device.model,
-        }
-
-
-def sign_request(message: list[int]) -> None:
-    """Request signer.
-
-    .. deprecated:: 1.6.4
-       Use ``binascii.crc_hqx`` instead.
-    """
-    warnings.warn(
-        "sign_request is deprecated, use binascii.crc_hqx instead",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    _LOGGER.warning(
-        "sign_request is deprecated and will be removed in a future release. "
-        "Use binascii.crc_hqx instead."
-    )
-    _LOGGER.debug("Signing request: %s", hexlify(bytearray(message), " "))
-    deviser = 0x1D0F
-    for item in message[: len(message) - 2]:
-        i3 = (((deviser << 8) | (deviser >> 8)) & 0x0000FFFF) ^ (item & 0xFFFF)
-        i4 = i3 ^ ((i3 & 0xFF) >> 4)
-        i5 = i4 ^ ((i4 << 12) & 0x0000FFFF)
-        deviser = i5 ^ (((i5 & 0xFF) << 5) & 0x0000FFFF)
-    signature = list((deviser & 0x0000FFFF).to_bytes(2, byteorder='big'))
-    message[len(message) - 2] = signature[0]
-    message[len(message) - 1] = signature[1]
-    _LOGGER.debug(
-        "Request signature bytes: %s %s", hex(signature[0]), hex(signature[1])
-    )
-
-
 class DelongiPrimadonna:
     """Delongi Primadonna class"""
 
@@ -241,6 +161,7 @@ class DelongiPrimadonna:
         self.status = DEVICE_STATUS[5]
         self.switches = DeviceSwitches()
         self.active_switches: list[MachineSwitch] = []
+        self.sync_time = False
         self._lock = asyncio.Lock()
         self._rx_buffer = bytearray()
         self._response_event = None
@@ -584,6 +505,13 @@ class DelongiPrimadonna:
             command[5] = self._n_profiles
             await self.send_command(command)
             self._profiles_loaded = True
+
+    async def set_time(self, dt: datetime) -> None:
+        """Set device clock from provided datetime."""
+        packet = BYTES_TIME_COMMAND.copy()
+        packet[4] = dt.hour & 0xFF
+        packet[5] = dt.minute & 0xFF
+        await self.send_command(packet)
 
     async def select_profile(self, profile_id) -> None:
         """select a profile."""
