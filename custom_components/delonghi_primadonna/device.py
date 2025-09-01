@@ -28,10 +28,13 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     COFFEE_GROUNDS_CONTAINER_CLEAN,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
                     COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
-                    DEBUG, DEVICE_READY, DEVICE_STATUS, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
+                    DEBUG, DEVICE_READY, DEVICE_STATUS,
+                    DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
                     DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF,
-                    ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
-                    NAME_CHARACTERISTIC, NOZZLE_STATE, START_COFFEE, STEAM_OFF, STEAM_ON,
+                    ESPRESSO_ON, HOTWATER_OFF,
+                    HOTWATER_ON, LONG_OFF, LONG_ON,
+                    NAME_CHARACTERISTIC, NOZZLE_STATE,
+                    START_COFFEE, STEAM_OFF, STEAM_ON,
                     WATER_SHORTAGE, WATER_TANK_DETACHED)
 from .machine_switch import MachineSwitch, parse_switches
 from .model import get_machine_model
