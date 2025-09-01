@@ -36,7 +36,7 @@ async def async_setup_entry(
             0,
             DelongiPrimadonnaCupLightSwitch(delongh_device, hass),
         )
-        
+
     if model and model.time_settings:
         switches.insert(
             0,

@@ -9,6 +9,7 @@ except ImportError:  # pragma: no cover - fallback for older Home Assistant
 
 import logging
 import uuid
+from datetime import datetime
 from binascii import crc_hqx, hexlify
 from enum import IntFlag
 
@@ -27,10 +28,10 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     COFFEE_GROUNDS_CONTAINER_CLEAN,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
                     COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
-                    DEBUG, DEVICE_READY, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
+                    DEBUG, DEVICE_READY, DEVICE_STATUS, DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF,
                     DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF,
                     ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
-                    NAME_CHARACTERISTIC, START_COFFEE, STEAM_OFF, STEAM_ON,
+                    NAME_CHARACTERISTIC, NOZZLE_STATE, START_COFFEE, STEAM_OFF, STEAM_ON,
                     WATER_SHORTAGE, WATER_TANK_DETACHED)
 from .machine_switch import MachineSwitch, parse_switches
 from .model import get_machine_model
@@ -60,30 +61,6 @@ class AvailableBeverage(StrEnum):
     ESPRESSO = 'espresso'
     AMERICANO = 'americano'
     ESPRESSO2 = 'espresso2'
-
-
-NOZZLE_STATE = {
-    -1: "unknown",
-    0: "detached",
-    1: "steam",
-    2: "milk_frother",  # May also be Detached
-    # It shows detached, as the water is not flowing out
-    # from the nozzle directly, like the STEAM/HOT WATER nozzle does.
-    4: "milk_frother_cleaning",  # It shows attached, as the state
-    # similar to the STEAM/HOT WATER nozzle, water flows directly out
-    # the nozzle.
-}
-
-# Skipable maintanence states
-SERVICE_STATE = {0: 'OK', 4: 'DESCALING'}
-
-DEVICE_STATUS = {
-    3: 'COOKING',
-    4: 'NOZZLE_DETACHED',
-    5: 'OK',
-    13: 'COFFEE_GROUNDS_CONTAINER_DETACHED',
-    21: 'WATER_TANK_DETACHED',
-}
 
 
 class NotificationType(StrEnum):

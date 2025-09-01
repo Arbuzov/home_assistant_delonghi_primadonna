@@ -40,6 +40,29 @@ ENTITY_CATEGORY = {
     'Diagnostic': EntityCategory.DIAGNOSTIC,
 }
 
+NOZZLE_STATE = {
+    -1: "unknown",
+    0: "detached",
+    1: "steam",
+    2: "milk_frother",  # May also be Detached
+    # It shows detached, as the water is not flowing out
+    # from the nozzle directly, like the STEAM/HOT WATER nozzle does.
+    4: "milk_frother_cleaning",  # It shows attached, as the state
+    # similar to the STEAM/HOT WATER nozzle, water flows directly out
+    # the nozzle.
+}
+
+# Skipable maintanence states
+SERVICE_STATE = {0: 'OK', 4: 'DESCALING'}
+
+DEVICE_STATUS = {
+    3: 'COOKING',
+    4: 'NOZZLE_DETACHED',
+    5: 'OK',
+    13: 'COFFEE_GROUNDS_CONTAINER_DETACHED',
+    21: 'WATER_TANK_DETACHED',
+}
+
 """
 Command bytes
 """
