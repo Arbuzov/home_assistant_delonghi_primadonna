@@ -77,6 +77,11 @@ class DelonghiPrimaDonnaHAClient:
         return self._device_client.name
 
     @property
+    def model(self) -> str:
+        """Get device model."""
+        return self._device_client.model
+
+    @property
     def product_code(self) -> str:
         """Get product code."""
         return self._device_client.product_code

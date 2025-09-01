@@ -81,6 +81,21 @@ class DelonghiPrimaDonnaClient:
         """Get current statistics."""
         return self._device.statistics
 
+    @property
+    def mac(self) -> str:
+        """Get device MAC address."""
+        return self._config.get(CONF_MAC, "")
+
+    @property 
+    def name(self) -> str:
+        """Get device name."""
+        return self._config.get(CONF_NAME, "")
+
+    @property
+    def model(self) -> str:
+        """Get device model."""
+        return self._config.get(CONF_MODEL, "")
+
     # Device operations - just delegate to the device layer
     async def power_on(self) -> None:
         """Turn on the device."""

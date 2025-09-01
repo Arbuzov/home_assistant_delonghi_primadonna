@@ -88,6 +88,7 @@
           "preground_door_opened": "Sportello caffè macinato aperto"
         }
       }
+    }
   },
   "services": {
     "make_beverage": {
