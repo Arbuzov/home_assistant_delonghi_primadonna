@@ -21,6 +21,7 @@ from homeassistant.core import HomeAssistant
 from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     BASE_COMMAND, BYTES_AUTOPOWEROFF_COMMAND,
                     BYTES_LOAD_PROFILES, BYTES_POWER, BYTES_SWITCH_COMMAND,
+                    BYTES_TIME_COMMAND,
                     BYTES_WATER_HARDNESS_COMMAND,
                     BYTES_WATER_TEMPERATURE_COMMAND, COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_CLEAN,
@@ -527,7 +528,7 @@ class DelongiPrimadonna:
             command[5] = self._n_profiles
             await self.send_command(command)
             self._profiles_loaded = True
-            
+
     async def set_time(self, dt: datetime) -> None:
         """Set device clock from provided datetime."""
         packet = BYTES_TIME_COMMAND.copy()

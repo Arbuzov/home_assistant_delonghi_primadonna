@@ -11,6 +11,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import DOMAIN
 from .base_entity import DelonghiDeviceEntity
+from .device import DelongiPrimadonna
 from .model import get_machine_model
 
 
@@ -21,7 +22,7 @@ async def async_setup_entry(
 ):
     """Register switch entities for a config entry."""
 
-    delongh_device = hass.data[DOMAIN][entry.unique_id]
+    delongh_device: DelongiPrimadonna = hass.data[DOMAIN][entry.unique_id]
     model = get_machine_model(delongh_device.product_code)
 
     switches = [
@@ -168,6 +169,7 @@ class DelongiPrimadonnaSoundsSwitch(
         self.hass.async_create_task(self.device.sound_alarm_off())
         self._attr_is_on = False
 
+
 class DelongiPrimadonnaTimeSyncSwitch(
         DelonghiDeviceEntity, ToggleEntity, RestoreEntity
 ):
@@ -184,7 +186,7 @@ class DelongiPrimadonnaTimeSyncSwitch(
     def entity_category(self, **kwargs: Any) -> None:
         """Return the category of the entity."""
         return EntityCategory.CONFIG
-    
+
     def turn_on(self, **kwargs: Any) -> None:
         """Turn the sounds on."""
         self.device.sync_time = True

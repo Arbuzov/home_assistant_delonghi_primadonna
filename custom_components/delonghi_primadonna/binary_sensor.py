@@ -1,7 +1,9 @@
 """Binary sensors for Delonghi Primadonna."""
 
-from homeassistant.components.binary_sensor import (BinarySensorDeviceClass,
-                                                    BinarySensorEntity)
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
@@ -20,7 +22,7 @@ async def async_setup_entry(
 ):
     """Register binary sensor entities for a config entry."""
 
-    delongh_device = hass.data[DOMAIN][entry.unique_id]
+    delongh_device: DelongiPrimadonna = hass.data[DOMAIN][entry.unique_id]
     async_add_entities(
         [
             DelongiPrimadonnaDescaleSensor(delongh_device, hass),

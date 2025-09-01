@@ -1,6 +1,5 @@
 """Text entity for sending raw commands to the device."""
 
-import logging
 from typing import Any
 
 from homeassistant.components.text import TextEntity

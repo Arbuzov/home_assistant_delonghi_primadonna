@@ -3,6 +3,7 @@ from .device import DelongiPrimadonna
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
+
 class DelonghiDeviceEntity:
     """Entity class for the Delonghi devices"""
 
@@ -27,4 +28,3 @@ class DelonghiDeviceEntity:
             'manufacturer': 'Delonghi',
             'model': self.device.model,
         }
-

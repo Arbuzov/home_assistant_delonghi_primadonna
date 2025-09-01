@@ -1,5 +1,4 @@
 """Device tracker entity for Delonghi Primadonna."""
-import logging
 
 from homeassistant.components.device_tracker.config_entry import ScannerEntity
 from homeassistant.config_entries import ConfigEntry
@@ -18,7 +17,7 @@ async def async_setup_entry(
 ):
     """Set up a device tracker for a config entry."""
 
-    delongh_device = hass.data[DOMAIN][entry.unique_id]
+    delongh_device: DelongiPrimadonna = hass.data[DOMAIN][entry.unique_id]
     async_add_entities([DelongiPrimadonnaDeviceTracker(delongh_device, hass)])
     return True
 
