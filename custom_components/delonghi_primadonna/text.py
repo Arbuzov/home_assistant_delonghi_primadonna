@@ -10,7 +10,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
-from .device import DelonghiDeviceEntity, DelongiPrimadonna
+from .entity_base import DelonghiDeviceEntity
+from .delonghi_ha_client import DelonghiPrimaDonnaHAClient
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ async def async_setup_entry(
 ):
     """Set up debug text entity for a config entry."""
 
-    delongh_device: DelongiPrimadonna = hass.data[DOMAIN][entry.unique_id]
+    delongh_device: DelonghiPrimaDonnaHAClient = hass.data[DOMAIN][entry.unique_id]
     async_add_entities([DebugInput(delongh_device, hass)])
     return True
 

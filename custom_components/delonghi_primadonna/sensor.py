@@ -10,7 +10,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import DOMAIN
-from .device import DEVICE_STATUS, NOZZLE_STATE, DelonghiDeviceEntity
+from .entity_base import DEVICE_STATUS, NOZZLE_STATE, DelonghiDeviceEntity
 from .const import MachineAlarm
 
 

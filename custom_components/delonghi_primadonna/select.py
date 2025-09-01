@@ -11,8 +11,9 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import AVAILABLE_PROFILES, DOMAIN, POWER_OFF_OPTIONS
-from .device import (AvailableBeverage, BeverageEntityFeature,
-                     DelonghiDeviceEntity, DelongiPrimadonna)
+from .entity_base import (AvailableBeverage, BeverageEntityFeature,
+                     DelonghiDeviceEntity)
+from .delonghi_ha_client import DelonghiPrimaDonnaHAClient
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ async def async_setup_entry(
 ):
     """Set up select entities for a config entry."""
 
-    delongh_device: DelongiPrimadonna = hass.data[DOMAIN][entry.unique_id]
+    delongh_device: DelonghiPrimaDonnaHAClient = hass.data[DOMAIN][entry.unique_id]
     async_add_entities(
         [
             BeverageSelect(delongh_device, hass),
@@ -44,7 +45,7 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
     _attr_translation_key = 'profile'
     _attr_icon = 'mdi:account'
 
-    def __init__(self, delongh_device: DelongiPrimadonna, hass: HomeAssistant):
+    def __init__(self, delongh_device: DelonghiPrimaDonnaHAClient, hass: HomeAssistant):
         super().__init__(delongh_device, hass)
         self._attr_current_option = delongh_device.profiles[0]
 

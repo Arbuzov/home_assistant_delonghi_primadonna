@@ -6,7 +6,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DEFAULT_IMAGE_URL, DOMAIN
-from .device import DelonghiDeviceEntity, DelongiPrimadonna
+from .entity_base import DelonghiDeviceEntity  
+from .delonghi_ha_client import DelonghiPrimaDonnaHAClient
 from .models import get_machine_model
 
 
@@ -17,7 +18,7 @@ async def async_setup_entry(
 ):
     """Set up image entity for a config entry."""
 
-    delongh_device: DelongiPrimadonna = hass.data[DOMAIN][entry.unique_id]
+    delongh_device: DelonghiPrimaDonnaHAClient = hass.data[DOMAIN][entry.unique_id]
     async_add_entities([DelongiPrimadonnaImage(delongh_device, hass)])
     return True
 
@@ -29,7 +30,7 @@ class DelongiPrimadonnaImage(DelonghiDeviceEntity, ImageEntity):
     _attr_name = "Image"
 
     def __init__(
-        self, delongh_device: DelongiPrimadonna, hass: HomeAssistant
+        self, delongh_device: DelonghiPrimaDonnaHAClient, hass: HomeAssistant
     ) -> None:
         """Initialize the image entity."""
         DelonghiDeviceEntity.__init__(self, delongh_device, hass)

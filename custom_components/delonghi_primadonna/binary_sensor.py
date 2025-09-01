@@ -9,7 +9,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import DOMAIN
-from .device import DelonghiDeviceEntity
+from .entity_base import DelonghiDeviceEntity
 
 
 async def async_setup_entry(

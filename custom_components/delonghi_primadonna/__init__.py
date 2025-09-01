@@ -10,7 +10,8 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 
 from .const import BEVERAGE_SERVICE_NAME, DOMAIN
-from .device import AvailableBeverage, BeverageEntityFeature, DelongiPrimadonna
+from .entity_base import AvailableBeverage, BeverageEntityFeature
+from .delonghi_ha_client import DelonghiPrimaDonnaHAClient as DelongiPrimadonna
 
 PLATFORMS: list[str] = [
     Platform.IMAGE,
