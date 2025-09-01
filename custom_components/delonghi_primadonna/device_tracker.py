@@ -5,8 +5,8 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN
 from .base_entity import DelonghiDeviceEntity
+from .const import DOMAIN
 from .device import DelongiPrimadonna
 
 

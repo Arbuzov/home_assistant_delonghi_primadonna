@@ -1,17 +1,15 @@
 """Binary sensors for Delonghi Primadonna."""
 
-from homeassistant.components.binary_sensor import (
-    BinarySensorDeviceClass,
-    BinarySensorEntity
-)
+from homeassistant.components.binary_sensor import (BinarySensorDeviceClass,
+                                                    BinarySensorEntity)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
-from .const import DOMAIN
 from .base_entity import DelonghiDeviceEntity
+from .const import DOMAIN
 from .device import DelongiPrimadonna
 
 

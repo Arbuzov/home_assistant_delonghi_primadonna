@@ -9,8 +9,8 @@ from homeassistant.helpers.entity import ToggleEntity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
-from .const import DOMAIN
 from .base_entity import DelonghiDeviceEntity
+from .const import DOMAIN
 from .device import DelongiPrimadonna
 from .model import get_machine_model
 
