@@ -7,9 +7,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
-from .device import DelonghiDeviceEntity
-
-_LOGGER = logging.getLogger(__name__)
+from .base_entity import DelonghiDeviceEntity
+from .device import DelongiPrimadonna
 
 
 async def async_setup_entry(

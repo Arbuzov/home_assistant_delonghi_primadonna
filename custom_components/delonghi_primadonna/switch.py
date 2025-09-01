@@ -10,7 +10,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import DOMAIN
-from .device import DelonghiDeviceEntity
+from .base_entity import DelonghiDeviceEntity
 from .model import get_machine_model
 
 
@@ -34,6 +34,12 @@ async def async_setup_entry(
         switches.insert(
             0,
             DelongiPrimadonnaCupLightSwitch(delongh_device, hass),
+        )
+        
+    if model and model.time_settings:
+        switches.insert(
+            0,
+            DelongiPrimadonnaTimeSyncSwitch(delongh_device, hass),
         )
 
     async_add_entities(switches)
@@ -160,4 +166,31 @@ class DelongiPrimadonnaSoundsSwitch(
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the sounds off."""
         self.hass.async_create_task(self.device.sound_alarm_off())
+        self._attr_is_on = False
+
+class DelongiPrimadonnaTimeSyncSwitch(
+        DelonghiDeviceEntity, ToggleEntity, RestoreEntity
+):
+    _attr_is_on = False
+    _attr_icon = 'mdi:clock-time-eight-outline'
+    _attr_translation_key = 'time_sync'
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self._attr_is_on = last_state.state == 'on'
+
+    @property
+    def entity_category(self, **kwargs: Any) -> None:
+        """Return the category of the entity."""
+        return EntityCategory.CONFIG
+    
+    def turn_on(self, **kwargs: Any) -> None:
+        """Turn the sounds on."""
+        self.device.sync_time = True
+        self._attr_is_on = True
+
+    def turn_off(self, **kwargs: Any) -> None:
+        """Turn the sounds off."""
+        self.device.sync_time = False
         self._attr_is_on = False

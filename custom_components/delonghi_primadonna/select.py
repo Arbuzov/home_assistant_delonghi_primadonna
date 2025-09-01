@@ -11,8 +11,12 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import AVAILABLE_PROFILES, DOMAIN, POWER_OFF_OPTIONS
-from .device import (AvailableBeverage, BeverageEntityFeature,
-                     DelonghiDeviceEntity, DelongiPrimadonna)
+from .base_entity import DelonghiDeviceEntity
+from .device import (
+    AvailableBeverage,
+    BeverageEntityFeature,
+    DelongiPrimadonna
+)
 
 _LOGGER = logging.getLogger(__name__)
 
