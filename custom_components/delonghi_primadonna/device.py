@@ -34,6 +34,7 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     NAME_CHARACTERISTIC, START_COFFEE, STEAM_OFF, STEAM_ON,
                     WATER_SHORTAGE, WATER_TANK_DETACHED)
 from .machine_switch import MachineSwitch, parse_switches
+from .model import get_machine_model
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -243,7 +244,18 @@ class DelongiPrimadonna:
         self._lock = asyncio.Lock()
         self._rx_buffer = bytearray()
         self._response_event = None
-        # keep user friendly profile names separately
+        self._last_response: bytes | None = None
+        machine = get_machine_model(self.product_code)
+        self._n_profiles = (
+            machine.nProfiles
+            if machine and machine.nProfiles
+            else len(AVAILABLE_PROFILES)
+        )
+        for pid in range(1, self._n_profiles + 1):
+            AVAILABLE_PROFILES.setdefault(pid, f"Profile {pid}")
+        for pid in list(AVAILABLE_PROFILES):
+            if pid > self._n_profiles:
+                AVAILABLE_PROFILES.pop(pid)
         self.profiles = list(AVAILABLE_PROFILES.values())
         self._profiles_loaded = False
 
@@ -568,7 +580,9 @@ class DelongiPrimadonna:
                 _LOGGER.warning('CancelledError: %s', error)
 
         if self.connected and not self._profiles_loaded:
-            await self.send_command(BYTES_LOAD_PROFILES)
+            command = BYTES_LOAD_PROFILES.copy()
+            command[5] = self._n_profiles
+            await self.send_command(command)
             self._profiles_loaded = True
 
     async def select_profile(self, profile_id) -> None:
