@@ -1,5 +1,6 @@
 """Switch entities for Delonghi Primadonna."""
 
+import datetime
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -189,7 +190,7 @@ class DelongiPrimadonnaTimeSyncSwitch(
 
     def turn_on(self, **kwargs: Any) -> None:
         """Turn the sounds on."""
-        self.device.sync_time = True
+        self.hass.async_create_task(self.device.set_time(datetime.now()))
         self._attr_is_on = True
 
     def turn_off(self, **kwargs: Any) -> None:
