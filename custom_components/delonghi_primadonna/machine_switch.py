@@ -27,10 +27,6 @@ class MachineSwitch(Enum):
 _SWITCH_BIT_MAP: dict[int, MachineSwitch] = {
     0: MachineSwitch.WATER_SPOUT,
     1: MachineSwitch.IGNORE_SWITCH,
-    # Some devices report an additional bit when the grounds container is full
-    # or needs cleaning. Treat that bit the same as the standard
-    # ``COFFEE_WASTE_CONTAINER`` so the ``Switches`` sensor shows the state
-    # correctly.
     2: MachineSwitch.COFFEE_WASTE_CONTAINER,
     3: MachineSwitch.COFFEE_WASTE_CONTAINER,
     4: MachineSwitch.WATER_TANK_ABSENT,
