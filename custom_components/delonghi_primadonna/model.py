@@ -3,13 +3,10 @@
 from __future__ import annotations
 
 import json
-import logging
 from functools import lru_cache
 from importlib import resources
 
 from .machine_entities import BeverageName, MachineModel, MachineModels, Recipe
-
-_LOGGER = logging.getLogger(__name__)
 
 
 @lru_cache

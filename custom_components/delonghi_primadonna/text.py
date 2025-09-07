@@ -1,6 +1,5 @@
 """Text entity for sending raw commands to the device."""
 
-import logging
 from typing import Any
 
 from homeassistant.components.text import TextEntity
@@ -9,10 +8,9 @@ from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .base_entity import DelonghiDeviceEntity
 from .const import DOMAIN
-from .device import DelonghiDeviceEntity, DelongiPrimadonna
-
-_LOGGER = logging.getLogger(__name__)
+from .device import DelongiPrimadonna
 
 
 async def async_setup_entry(

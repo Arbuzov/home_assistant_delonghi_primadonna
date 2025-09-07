@@ -2,6 +2,5 @@
   "name": "DeLonghi BLE",
   "render_readme": true,
   "homeassistant": "2023.1.1",
-  "hide_default_branch": true,
-  "filename": "dist/DelonghiPrimadonna.js"
+  "hide_default_branch": true
 }

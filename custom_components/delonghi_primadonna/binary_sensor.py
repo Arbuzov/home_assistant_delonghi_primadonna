@@ -8,8 +8,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
+from .base_entity import DelonghiDeviceEntity
 from .const import DOMAIN
-from .device import DelonghiDeviceEntity
+from .device import DelongiPrimadonna
 
 
 async def async_setup_entry(
@@ -19,7 +20,7 @@ async def async_setup_entry(
 ):
     """Register binary sensor entities for a config entry."""
 
-    delongh_device = hass.data[DOMAIN][entry.unique_id]
+    delongh_device: DelongiPrimadonna = hass.data[DOMAIN][entry.unique_id]
     async_add_entities(
         [
             DelongiPrimadonnaDescaleSensor(delongh_device, hass),
