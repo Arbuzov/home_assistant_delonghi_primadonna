@@ -1,6 +1,6 @@
 """Switch entities for Delonghi Primadonna."""
 
-import datetime
+from datetime import datetime
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
