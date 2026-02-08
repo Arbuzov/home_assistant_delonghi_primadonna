@@ -84,9 +84,7 @@ class DelongiPrimadonnaNozzleSensor(
     @property
     def icon(self):
         result = 'mdi:coffee'
-        if self.device.steam_nozzle == "detached":
-            result = 'mdi:coffee-off-outline'
-        if self.device.steam_nozzle.startswith("milk"):
+        if self.device.steam_nozzle == "ifd_caraffe":
             result = 'mdi:coffee-outline'
         return result
 
@@ -100,7 +98,7 @@ class DelongiPrimadonnaStatusSensor(
 
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_name = 'Status'
+    _attr_translation_key = 'device_status'
     _attr_options = list(DEVICE_STATUS.values())
 
     async def async_added_to_hass(self) -> None:
