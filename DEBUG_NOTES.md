@@ -56,7 +56,7 @@ The request id is the third byte of the command, the response id must be the sam
 | 0x84     | Power on command                                    |
 | 0x90     | Manage device settings                              |
 | 0x95     |                                                     |
-| 0xa2     |                                                     |
+| 0xa2     | Statistics request/response                         |
 | 0xa3     |                                                     |
 | 0xa4     | Request profile list                                |
 | 0xa5     |                                                     |
@@ -97,3 +97,51 @@ The nine digit (counted from 0) is the command bitmask
 |11      | progress bar inside the stage
 |12 - 16 | always 0 perhaps for the new features
 |17 - 18 | Signature
+|99      | Always 0
+
+### Statistics Protocol (0xA2)
+
+This command is used to request various counters (beverages, maintenance, etc.) from the machine.
+
+#### Request Format
+`[0x0D, 0x08, 0xA2, 0x0F, ID_HI, ID_LO, COUNT, CRC_HI, CRC_LO]`
+- `ID_HI/LO`: Starting parameter ID (e.g., `0x00 0x64` for ID 100).
+- `COUNT`: Number of parameters to return.
+
+#### Response Format
+`[0xD0, LEN, 0xA2, 0x0F, ID_HI, ID_LO, VAL_B3, VAL_B2, VAL_B1, VAL_B0, ...]`
+- **Implicit ID**: The first 4 bytes of value (`VAL_B3..B0`) belong to the ID requested in bytes 4-5.
+- **Explicit ID**: Subsequent values are formatted as `[ID_HI, ID_LO, VAL_B3, VAL_B2, VAL_B1, VAL_B0]`.
+
+**NOTE**: All multi-byte values (IDs and Counters) are **Big Endian**.
+- `ID_HI` is the most significant byte.
+- `VAL_B3` is the most significant byte of the 32-bit integer value.
+
+> [!WARNING]
+> **Decoding Bug**: Ensure you skip the bytes 4-5 when reading the first value. If you read from byte 4 as a 4-byte integer, you will get a value like `196673536` for ID 3000 (which is `0x0B B8 << 16`).
+
+#### Parameter ID Map
+
+| ID | Category | Description | Notes |
+|----|----------|-------------|-------|
+| 105 | Maintenance | Descaling Count | |
+| 106 | Maintenance | Total Water Quantity | Divide by 2000 (or 5000) for Liters |
+| 108 | Maintenance | Filter Replacements | |
+| 115 | Maintenance | Milk Cleaning Count | |
+| 3000 | Beverage | Black Coffee Total (Part 1) | Combine with 3077 |
+| 3001 | Beverage | Coffee with Milk Total (Part 1) | Combine with 3003 |
+| 3003 | Beverage | Coffee with Milk Total (Part 2) | |
+| 3017 | Beverage | Additional Coffee | |
+| 3021 | Beverage | Total Choco | |
+| 3025 | Beverage | Total Tea | |
+| 3047 | Beverage | Total "To Go" (Part 1) | Combine with 3048 |
+| 3048 | Beverage | Total "To Go" (Part 2) | |
+| 3077 | Beverage | Black Coffee Total (Part 2) | |
+| 3078 | Beverage | Total Beverage (Part 2?) | |
+| 3080 | Beverage | Total Beverage (Part 1?) | |
+
+**Combined Calculations:**
+- **Total Black Coffee**: `ID 3000` + `ID 3077`
+- **Total Coffee with Milk**: `ID 3001` + `ID 3003`
+- **Total To-Go**: `ID 3047` + `ID 3048`
+- **Other Beverage**: `ID 3080` + `ID 3078`
