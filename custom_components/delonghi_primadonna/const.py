@@ -96,6 +96,11 @@ BYTES_WATER_TEMPERATURE_COMMAND = [
     0x00, 0x00, 0x00, 0x00, 0x6f, 0x31
 ]
 
+BYTES_STATISTICS_COMMAND = [
+    0x0d, 0x08, 0xa2, 0x0f, 0x00, 0x64,
+    0x0a, 0x00, 0x00
+]
+
 # Commands that load user profiles from the device. They must be
 # executed once after the first successful connection. The CRC
 # bytes are zeros as they are calculated at runtime.
