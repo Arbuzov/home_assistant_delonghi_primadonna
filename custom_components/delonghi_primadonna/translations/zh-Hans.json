@@ -59,11 +59,54 @@
       "nozzle_status": {
         "name": "喷嘴状态",
         "state": {
-          "unknown": "未知",
-          "detached": "已拆卸",
-          "steam": "蒸汽",
-          "milk_frother": "奶泥器",
-          "milk_frother_cleaning": "奶泥器（清洗）"
+          "water_spout": "出水口",
+          "motor_up": "电机上升",
+          "motor_down": "电机下降",
+          "coffee_waste_container": "咖啡泥容器",
+          "water_tank_absent": "缺少水罐",
+          "knob": "旋钮",
+          "water_level_low": "水位低",
+          "coffee_jug": "咖啡壶",
+          "ifd_caraffe": "牛奶壶",
+          "ciocco_tank": "巧克力罐",
+          "clean_knob": "清洗旋钮",
+          "door_opened": "门已打开",
+          "preground_door_opened": "粉仓已打开"
+        }
+      },
+      "device_status": {
+        "name": "设备状态",
+        "state": {
+          "empty_water_tank": "水箱已空",
+          "coffee_waste_container_full": "咖啡渣容器已满",
+          "descale_alarm": "除垢警报",
+          "replace_water_filter": "请更换水过滤器",
+          "coffe_ground_too_fine": "磨粉太细",
+          "coffee_beans_empty": "咖啡豆已空",
+          "machine_to_service": "需要保养",
+          "coffee_heater_probe_failure": "咖啡加热器探头故障",
+          "too_much_coffee": "咖啡量过多",
+          "coffee_infuser_motor_not_working": "萃取器电机故障",
+          "steamer_probe_failure": "蒸汽探头故障",
+          "empty_drip_tray": "请清空滴水盘",
+          "hydraulic_circuit_problem": "水路系统异常",
+          "tank_is_in_position": "水箱已就位",
+          "clean_knob": "清洁旋钮",
+          "coffee_beans_empty_two": "2号咖啡豆仓已空",
+          "tank_too_full": "水箱过满",
+          "bean_hopper_absent": "缺少豆仓",
+          "grid_presence": "格栅就位",
+          "infuser_sense": "萃取器感应",
+          "not_enough_coffee": "咖啡量不足",
+          "expansion_comm_prob": "扩展板通讯异常",
+          "expansion_submodules_prob": "扩展子模块异常",
+          "grinding_unit_1_problem": "1号磨豆机故障",
+          "grinding_unit_2_problem": "2号磨豆机故障",
+          "condense_fan_problem": "冷凝风扇故障",
+          "clock_bt_comm_problem": "时钟/蓝牙通讯异常",
+          "spi_comm_problem": "SPI通讯异常",
+          "unknown_alarm": "未知警报",
+          "ignore_alarm": "忽略警报"
         }
       },
       "switches": {
@@ -84,6 +127,33 @@
           "door_opened": "门已打开",
           "preground_door_opened": "粉仓已打开"
         }
+      },
+      "total_coffee": {
+        "name": "咖啡总数"
+      },
+      "total_coffee_with_milk": {
+        "name": "牛奶咖啡总数"
+      },
+      "total_water": {
+        "name": "总用水量"
+      },
+      "descaling_count": {
+        "name": "除垢次数"
+      },
+      "milk_cleaning_count": {
+        "name": "牛奶系统清洗次数"
+      },
+      "filter_replace_count": {
+        "name": "过滤器更换次数"
+      },
+      "total_tea": {
+        "name": "茶总数"
+      },
+      "total_choco": {
+        "name": "巧克力总数"
+      },
+      "additional_coffee": {
+        "name": "额外咖啡"
       }
     }
   },

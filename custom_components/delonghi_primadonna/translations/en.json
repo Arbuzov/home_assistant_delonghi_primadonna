@@ -59,11 +59,20 @@
       "nozzle_status": {
         "name": "Nozzle Status",
         "state": {
-          "unknown": "Unknown",
-          "detached": "Detached",
-          "steam": "Steam",
-          "milk_frother": "Milk frother",
-          "milk_frother_cleaning": "Milk frother cleaning"
+          "water_spout": "Water spout",
+          "motor_up": "Motor up",
+          "motor_down": "Motor down",
+          "coffee_waste_container": "Coffee waste container",
+          "water_tank_absent": "Water tank absent",
+          "knob": "Knob",
+          "water_level_low": "Water level low",
+          "coffee_jug": "Coffee jug",
+          "ifd_caraffe": "Milk carafe",
+          "ciocco_tank": "Chocolate tank",
+          "clean_knob": "Clean knob",
+          "door_opened": "Door opened",
+          "preground_door_opened": "Preground door opened",
+          "unknown_switch": "Unknown switch"
         }
       },
       "switches": {
@@ -82,8 +91,70 @@
           "ciocco_tank": "Chocolate tank",
           "clean_knob": "Clean knob",
           "door_opened": "Door opened",
-          "preground_door_opened": "Preground door opened"
+          "preground_door_opened": "Preground door opened",
+          "unknown_switch": "Unknown switch"
         }
+      },
+      "device_status": {
+        "name": "Machine Status",
+        "state": {
+          "empty_water_tank": "Empty water tank",
+          "coffee_waste_container_full": "Coffee waste container full",
+          "descale_alarm": "Descale alarm",
+          "replace_water_filter": "Replace water filter",
+          "coffee_ground_too_fine": "Coffee ground too fine",
+          "coffee_beans_empty": "Coffee beans empty",
+          "machine_to_service": "Machine to service",
+          "coffee_heater_probe_failure": "Coffee heater probe failure",
+          "too_much_coffee": "Too much coffee",
+          "coffee_infuser_motor_not_working": "Coffee infuser motor not working",
+          "steamer_probe_failure": "Steamer probe failure",
+          "empty_drip_tray": "Empty drip tray",
+          "hydraulic_circuit_problem": "Hydraulic circuit problem",
+          "tank_is_in_position": "Tank is in position",
+          "clean_knob": "Clean knob",
+          "coffee_beans_empty_two": "Coffee beans empty (secondary)",
+          "tank_too_full": "Tank too full",
+          "bean_hopper_absent": "Bean hopper absent",
+          "grid_presence": "Grid presence",
+          "infuser_sense": "Infuser sense",
+          "not_enough_coffee": "Not enough coffee",
+          "expansion_comm_prob": "Expansion comm problem",
+          "expansion_submodules_prob": "Expansion submodules problem",
+          "grinding_unit_1_problem": "Grinding unit 1 problem",
+          "grinding_unit_2_problem": "Grinding unit 2 problem",
+          "condense_fan_problem": "Condense fan problem",
+          "clock_bt_comm_problem": "Clock BT comm problem",
+          "spi_comm_problem": "SPI comm problem",
+          "unknown_alarm": "Unknown alarm"
+        }
+      },
+      "total_coffee": {
+        "name": "Total Coffee"
+      },
+      "total_coffee_with_milk": {
+        "name": "Total Coffee with Milk"
+      },
+      "total_water": {
+        "name": "Total Water"
+      },
+      "descaling_count": {
+        "name": "Descaling Count"
+      },
+      "milk_cleaning_count": {
+        "name": "Milk Cleaning Count"
+      },
+      "filter_replace_count": {
+        "name": "Filter Replacements"
+      },
+      "total_tea": {
+        "name": "Total Tea"
+      },
+      "total_choco": {
+        "name": "Total Choco"
+      },
+      "additional_coffee": {
+        "name": "Additional Coffee"
       }
     }
   },

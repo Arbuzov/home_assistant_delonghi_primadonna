@@ -59,11 +59,54 @@
       "nozzle_status": {
         "name": "Stan dyszy",
         "state": {
-          "unknown": "Nieznany",
-          "detached": "Odłączona",
-          "steam": "Para",
-          "milk_frother": "Spieniacz mleka",
-          "milk_frother_cleaning": "Spieniacz mleka (czyszczenie)"
+          "water_spout": "Wylewka wodna",
+          "motor_up": "Silnik w górę",
+          "motor_down": "Silnik w dół",
+          "coffee_waste_container": "Pojemnik na fusy",
+          "water_tank_absent": "Brak zbiornika wody",
+          "knob": "Pokrętło",
+          "water_level_low": "Niski poziom wody",
+          "coffee_jug": "Dzbanek do kawy",
+          "ifd_caraffe": "Dzbanek na mleko",
+          "ciocco_tank": "Zbiornik czekolady",
+          "clean_knob": "Pokrętło czyszczenia",
+          "door_opened": "Drzwi otwarte",
+          "preground_door_opened": "Otwarta klapka mielonej kawy"
+        }
+      },
+      "device_status": {
+        "name": "Status urządzenia",
+        "state": {
+          "empty_water_tank": "Zbiornik na wodę jest pusty",
+          "coffee_waste_container_full": "Pojemnik na fusy jest pełny",
+          "descale_alarm": "Alarm odkamieniania",
+          "replace_water_filter": "Wymień filtr wody",
+          "coffe_ground_too_fine": "Zbyt drobne mielenie kawy",
+          "coffee_beans_empty": "Brak kawy ziarnistej",
+          "machine_to_service": "Wymagany serwis",
+          "coffee_heater_probe_failure": "Awaria sondy grzałki kawy",
+          "too_much_coffee": "Zbyt dużo kawy",
+          "coffee_infuser_motor_not_working": "Awaria silnika infuzora",
+          "steamer_probe_failure": "Awaria sondy pary",
+          "empty_drip_tray": "Opróżnij tackę ociekową",
+          "hydraulic_circuit_problem": "Problem z obwodem hydraulicznym",
+          "tank_is_in_position": "Zbiornik jest na miejscu",
+          "clean_knob": "Pokrętło czyszczenia",
+          "coffee_beans_empty_two": "Brak kawy ziarnistej 2",
+          "tank_too_full": "Zbiornik zbyt pełny",
+          "bean_hopper_absent": "Brak pojemnika na ziarna",
+          "grid_presence": "Obecność kratki",
+          "infuser_sense": "Wykrywanie infuzora",
+          "not_enough_coffee": "Niewystarczająca ilość kawy",
+          "expansion_comm_prob": "Problem z komunikacją rozszerzenia",
+          "expansion_submodules_prob": "Problem z podmodułami rozszerzenia",
+          "grinding_unit_1_problem": "Problem z młynkiem 1",
+          "grinding_unit_2_problem": "Problem z młynkiem 2",
+          "condense_fan_problem": "Problem z wentylatorem kondensatora",
+          "clock_bt_comm_problem": "Problem z komunikacją zegara/BT",
+          "spi_comm_problem": "Problem z komunikacją SPI",
+          "unknown_alarm": "Nieznany alarm",
+          "ignore_alarm": "Zignoruj alarm"
         }
       },
       "switches": {
@@ -84,6 +127,33 @@
           "door_opened": "Drzwi otwarte",
           "preground_door_opened": "Otwarta klapka mielonej kawy"
         }
+      },
+      "total_coffee": {
+        "name": "Łączna liczba kaw"
+      },
+      "total_coffee_with_milk": {
+        "name": "Łączna liczba kaw mlecznych"
+      },
+      "total_water": {
+        "name": "Łączna ilość wody"
+      },
+      "descaling_count": {
+        "name": "Liczba odkamieniań"
+      },
+      "milk_cleaning_count": {
+        "name": "Liczba czyszczeń spieniacza"
+      },
+      "filter_replace_count": {
+        "name": "Liczba wymian filtra"
+      },
+      "total_tea": {
+        "name": "Łączna liczba herbat"
+      },
+      "total_choco": {
+        "name": "Łączna liczba czekolad"
+      },
+      "additional_coffee": {
+        "name": "Dodatkowa kawa"
       }
     }
   },

@@ -59,11 +59,54 @@
       "nozzle_status": {
         "name": "Stato dell'ugello",
         "state": {
-          "unknown": "Sconosciuto",
-          "detached": "Rimosso",
-          "steam": "Vapore",
-          "milk_frother": "Montalatte",
-          "milk_frother_cleaning": "Montalatte (pulizia)"
+          "water_spout": "Erogatore d'acqua",
+          "motor_up": "Motore su",
+          "motor_down": "Motore giù",
+          "coffee_waste_container": "Contenitore fondi caffè",
+          "water_tank_absent": "Serbatoio acqua assente",
+          "knob": "Manopola",
+          "water_level_low": "Livello acqua basso",
+          "coffee_jug": "Caraffa del caffè",
+          "ifd_caraffe": "Caraffa del latte",
+          "ciocco_tank": "Serbatoio cioccolata",
+          "clean_knob": "Manopola pulizia",
+          "door_opened": "Sportello aperto",
+          "preground_door_opened": "Sportello caffè macinato aperto"
+        }
+      },
+      "device_status": {
+        "name": "Stato del dispositivo",
+        "state": {
+          "empty_water_tank": "Serbatoio acqua vuoto",
+          "coffee_waste_container_full": "Contenitore fondi pieno",
+          "descale_alarm": "Allarme decalcificazione",
+          "replace_water_filter": "Sostituire filtro acqua",
+          "coffe_ground_too_fine": "Caffè troppo fine",
+          "coffee_beans_empty": "Contenitore chicchi vuoto",
+          "machine_to_service": "Macchina da revisionare",
+          "coffee_heater_probe_failure": "Guasto sonda riscaldatore caffè",
+          "too_much_coffee": "Troppo caffè",
+          "coffee_infuser_motor_not_working": "Motore infusore non funzionante",
+          "steamer_probe_failure": "Guasto sonda vapore",
+          "empty_drip_tray": "Svuotare vaschetta raccogligocce",
+          "hydraulic_circuit_problem": "Problema circuito idraulico",
+          "tank_is_in_position": "Serbatoio in posizione",
+          "clean_knob": "Pulire manopola",
+          "coffee_beans_empty_two": "Contenitore chicchi 2 vuoto",
+          "tank_too_full": "Serbatoio troppo pieno",
+          "bean_hopper_absent": "Contenitore chicchi assente",
+          "grid_presence": "Presenza griglia",
+          "infuser_sense": "Sensore infusore",
+          "not_enough_coffee": "Caffè insufficiente",
+          "expansion_comm_prob": "Problema comunicazione espansione",
+          "expansion_submodules_prob": "Problema sottomoduli espansione",
+          "grinding_unit_1_problem": "Problema macinatore 1",
+          "grinding_unit_2_problem": "Problema macinatore 2",
+          "condense_fan_problem": "Problema ventola condensa",
+          "clock_bt_comm_problem": "Problema comunicazione Orologio/BT",
+          "spi_comm_problem": "Problema comunicazione SPI",
+          "unknown_alarm": "Allarme sconosciuto",
+          "ignore_alarm": "Allarme ignorato"
         }
       },
       "switches": {
@@ -84,6 +127,33 @@
           "door_opened": "Sportello aperto",
           "preground_door_opened": "Sportello caffè macinato aperto"
         }
+      },
+      "total_coffee": {
+        "name": "Caffè totale"
+      },
+      "total_coffee_with_milk": {
+        "name": "Caffè con latte totale"
+      },
+      "total_water": {
+        "name": "Acqua totale"
+      },
+      "descaling_count": {
+        "name": "Conteggio decalcificazioni"
+      },
+      "milk_cleaning_count": {
+        "name": "Conteggio pulizia latte"
+      },
+      "filter_replace_count": {
+        "name": "Sostituzioni filtro"
+      },
+      "total_tea": {
+        "name": "Tè totale"
+      },
+      "total_choco": {
+        "name": "Cioccolata totale"
+      },
+      "additional_coffee": {
+        "name": "Caffè addizionale"
       }
     }
   },

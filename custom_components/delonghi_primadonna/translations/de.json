@@ -46,7 +46,7 @@
         "name": "Tasse Licht"
       },
       "debug_notification": {
-        "name": "Debugg -Benachrichtigung"
+        "name": "Debugg-Benachrichtigung"
       },
       "energy_save_mode": {
         "name": "Energiesparmodus"
@@ -59,11 +59,54 @@
       "nozzle_status": {
         "name": "Düsenzustand",
         "state": {
-          "unknown": "Unbekannt",
-          "detached": "Abgenommen",
-          "steam": "Dampf",
-          "milk_frother": "Milchaufschäumer",
-          "milk_frother_cleaning": "Milchaufschäumer (Reinigung)"
+          "water_spout": "Wasserauslauf",
+          "motor_up": "Motor hoch",
+          "motor_down": "Motor runter",
+          "coffee_waste_container": "Kaffeesatzbehälter",
+          "water_tank_absent": "Wassertank fehlt",
+          "knob": "Knopf",
+          "water_level_low": "Wasserstand niedrig",
+          "coffee_jug": "Kaffeekanne",
+          "ifd_caraffe": "Milchkaraffe",
+          "ciocco_tank": "Schokoladentank",
+          "clean_knob": "Reinigungsknopf",
+          "door_opened": "Tür geöffnet",
+          "preground_door_opened": "Fach für gemahlenen Kaffee geöffnet"
+        }
+      },
+      "device_status": {
+        "name": "Gerätestatus",
+        "state": {
+          "empty_water_tank": "Wassertank leer",
+          "coffee_waste_container_full": "Kaffeesatzbehälter voll",
+          "descale_alarm": "Entkalkungsalarm",
+          "replace_water_filter": "Wasserfilter ersetzen",
+          "coffe_ground_too_fine": "Kaffeemahlung zu fein",
+          "coffee_beans_empty": "Kaffeebohnen leer",
+          "machine_to_service": "Maschine warten",
+          "coffee_heater_probe_failure": "Fehler Kaffeekopfheizungssensor",
+          "too_much_coffee": "Zu viel Kaffee",
+          "coffee_infuser_motor_not_working": "Infusormotor defekt",
+          "steamer_probe_failure": "Fehler Dampfsensor",
+          "empty_drip_tray": "Abtropfschale leeren",
+          "hydraulic_circuit_problem": "Problem Wasserkreislauf",
+          "tank_is_in_position": "Tank ist in Position",
+          "clean_knob": "Knopf reinigen",
+          "coffee_beans_empty_two": "Kaffeebohnen 2 leer",
+          "tank_too_full": "Tank zu voll",
+          "bean_hopper_absent": "Bohnenbehälter fehlt",
+          "grid_presence": "Gitter vorhanden",
+          "infuser_sense": "Infusor-Sensor",
+          "not_enough_coffee": "Nicht genug Kaffee",
+          "expansion_comm_prob": "Expansions-Kommunikationsproblem",
+          "expansion_submodules_prob": "Expansions-Submodul-Problem",
+          "grinding_unit_1_problem": "Problem Mahlwerk 1",
+          "grinding_unit_2_problem": "Problem Mahlwerk 2",
+          "condense_fan_problem": "Problem Kondensatorlüfter",
+          "clock_bt_comm_problem": "Uhr/BT-Kommunikationsproblem",
+          "spi_comm_problem": "SPI-Kommunikationsproblem",
+          "unknown_alarm": "Unbekannter Alarm",
+          "ignore_alarm": "Alarm ignorieren"
         }
       },
       "switches": {
@@ -84,6 +127,33 @@
           "door_opened": "Tür geöffnet",
           "preground_door_opened": "Fach für gemahlenen Kaffee geöffnet"
         }
+      },
+      "total_coffee": {
+        "name": "Kaffee insgesamt"
+      },
+      "total_coffee_with_milk": {
+        "name": "Kaffee mit Milch insgesamt"
+      },
+      "total_water": {
+        "name": "Wasser insgesamt"
+      },
+      "descaling_count": {
+        "name": "Anzahl Entkalkungen"
+      },
+      "milk_cleaning_count": {
+        "name": "Anzahl Milchreinigung"
+      },
+      "filter_replace_count": {
+        "name": "Filterwechsel"
+      },
+      "total_tea": {
+        "name": "Tee insgesamt"
+      },
+      "total_choco": {
+        "name": "Schokolade insgesamt"
+      },
+      "additional_coffee": {
+        "name": "Zusätzlicher Kaffee"
       }
     }
   },
@@ -98,7 +168,7 @@
         },
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entitäts -ID der Kaffeemaschine"
+          "description": "Entitäts-ID der Kaffeemaschine"
         }
       }
     }
