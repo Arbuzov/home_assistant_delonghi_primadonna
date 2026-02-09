@@ -625,10 +625,11 @@ class DelongiPrimadonna:
             self.statistics[-3077] = total
             
         # Convert water quantity to liters (divide by 2000)
+        # Use float division to preserve precision and round to 2 decimal places.
         if 106 in self.statistics:
             water_ml = self.statistics.get(106, 0)
             if water_ml > 0:
-                self.statistics[10106] = water_ml // 2000
+                self.statistics[10106] = round(water_ml / 2000.0, 2)
 
     async def update_statistics(self) -> None:
         """Update statistics with throttling.
