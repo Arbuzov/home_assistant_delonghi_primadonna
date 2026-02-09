@@ -88,8 +88,6 @@ class DelongiPrimadonnaDescaleSensor(
 
     @property
     def is_on(self) -> bool:
-        if (is_on := getattr(self, '_attr_is_on', None)) is not None:
-            return is_on
         return bool((self.device.service >> 2) % 2)
 
     @property
@@ -122,8 +120,6 @@ class DelongiPrimadonnaFilterSensor(
 
     @property
     def is_on(self) -> bool:
-        if (is_on := getattr(self, '_attr_is_on', None)) is not None:
-            return is_on
         return bool((self.device.service >> 3) % 2)
 
     @property
