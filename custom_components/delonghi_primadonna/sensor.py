@@ -96,10 +96,8 @@ class DelongiPrimadonnaStatusSensor(
     Shows the actual device status
     """
 
-    _attr_device_class = SensorDeviceClass.ENUM
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_translation_key = 'device_status'
-    _attr_options = list(DEVICE_STATUS.values())
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
