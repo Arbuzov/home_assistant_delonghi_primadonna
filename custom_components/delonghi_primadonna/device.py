@@ -18,6 +18,7 @@ from bleak.exc import BleakDBusError, BleakError
 from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_MODEL, CONF_NAME
 from homeassistant.core import HomeAssistant
+import time
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     BASE_COMMAND, BYTES_AUTOPOWEROFF_COMMAND,
@@ -169,6 +170,7 @@ class DelongiPrimadonna:
         self._last_response: bytes | None = None
         self.statistics: dict[int, int] = {}
         self._last_stats_request = 0.0
+        self._stats_lock = asyncio.Lock()
         machine = get_machine_model(self.product_code)
         self._n_profiles = (
             machine.nProfiles
@@ -595,7 +597,7 @@ class DelongiPrimadonna:
             return
             
         hex_data = hexlify(data, " ").decode('utf-8')
-        _LOGGER.info("Statistics Parser. Raw: %s", hex_data)
+        _LOGGER.debug("Statistics Parser. Raw: %s", hex_data)
         
         # [0]=D0 [1]=Len [2]=A2 [3]=0F [4-5]=StartAddr
         start_param_id = (data[4] << 8) | data[5]
@@ -608,7 +610,7 @@ class DelongiPrimadonna:
         if current_offset + 4 <= len(data) - 2:
             val = int.from_bytes(data[current_offset:current_offset+4], byteorder='big')
             self.statistics[current_param_id] = val
-            _LOGGER.info("Statistics Parser.Parsed (Implicit): ID %s = %s", current_param_id, val)
+            _LOGGER.debug("Statistics Parser.Parsed (Implicit): ID %s = %s", current_param_id, val)
             current_offset += 4
             
         # 2. Subsequent parameters are [ID 2B] + [Value 4B]
@@ -616,7 +618,7 @@ class DelongiPrimadonna:
             pid = (data[current_offset] << 8) | data[current_offset+1]
             val = int.from_bytes(data[current_offset+2:current_offset+6], byteorder='big')
             self.statistics[pid] = val
-            _LOGGER.info("Statistics Parser.Parsed (Explicit): ID %s = %s", pid, val)
+            _LOGGER.debug("Statistics Parser.Parsed (Explicit): ID %s = %s", pid, val)
             current_offset += 6
         
         # Calculate combined values for total coffee
@@ -640,30 +642,35 @@ class DelongiPrimadonna:
         - 3000-3009: Coffee beverage totals
         - 3077-3080: Additional coffee totals (combined with 3000 for total)
         """
-        import time
-        current_time = time.time()
-        # Update at most once every 60 seconds
-        if current_time - self._last_stats_request < 60:
+        
+        # Use a lock to prevent concurrent statistics updates from multiple sensors
+        if self._stats_lock.locked():
             return
 
-        self._last_stats_request = current_time
-        # Request parameter range for maintenance counters
-        # Covers: 100-109 (includes 106=water, 105=descale, 108=filter, etc.)
-        await self.get_statistics(100, 10)
-        await asyncio.sleep(0.3)
-        
-        # Request coffee statistics range
-        # Covers: 3000-3009 (includes 3000=total black coffee, 3001=with milk, etc.)
-        await self.get_statistics(3000, 10)
-        await asyncio.sleep(0.3)
-        
-        # Request additional coffee totals range
-        # Covers: 3077-3080 (3077 is combined with 3000 for total coffee)
-        await self.get_statistics(3077, 4)
-        await asyncio.sleep(0.3)
-        
-        # Optional: Request tea/other beverages if needed
-        # await self.get_statistics(3025, 1)  # Tea counter
+        async with self._stats_lock:
+            current_time = time.monotonic()
+            # Update at most once every 60 seconds
+            if current_time - self._last_stats_request < 60:
+                return
+
+            self._last_stats_request = current_time
+            # Request parameter range for maintenance counters
+            # Covers: 100-109 (includes 106=water, 105=descale, 108=filter, etc.)
+            await self.get_statistics(100, 10)
+            await asyncio.sleep(0.3)
+            
+            # Request coffee statistics range
+            # Covers: 3000-3009 (includes 3000=total black coffee, 3001=with milk, etc.)
+            await self.get_statistics(3000, 10)
+            await asyncio.sleep(0.3)
+            
+            # Request additional coffee totals range
+            # Covers: 3077-3080 (3077 is combined with 3000 for total coffee)
+            await self.get_statistics(3077, 4)
+            await asyncio.sleep(0.3)
+            
+            # Optional: Request tea/other beverages if needed
+            # await self.get_statistics(3025, 1)  # Tea counter
 
     async def get_statistics(self, start_index: int, count: int) -> None:
         """Get statistics from the machine"""
