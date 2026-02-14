@@ -84,7 +84,7 @@ class DelongiPrimadonnaNozzleSensor(
     @property
     def icon(self):
         result = 'mdi:coffee'
-        if self.device.steam_nozzle == "ifd_caraffe":
+        if self.device.steam_nozzle == "milk_frother":
             result = 'mdi:coffee-outline'
         return result
 
@@ -188,28 +188,8 @@ class DelongiPrimadonnaStatisticsSensor(
 
     @property
     def native_value(self):
-        # Get value from statistics dictionary
-        value = self.device.statistics.get(self._param_id)
-        
-        # Defensive check - ensure we never return a coroutine
-        if value is None:
-            return None
-        
-        # Type safety - ensure it's an integer
-        if isinstance(value, int):
-            return value
-        
-        # If somehow a coroutine got in there, log error and return None
-        import inspect
-        if inspect.iscoroutine(value):
-            _LOGGER.error(
-                "Coroutine found in statistics dict for param %d! This should not happen.",
-                self._param_id
-            )
-            return None
-        
-        # Fallback
-        return value
+        """Return the current value from the statistics dictionary."""
+        return self.device.statistics.get(self._param_id)
 
     @property
     def icon(self):

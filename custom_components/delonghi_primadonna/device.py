@@ -245,7 +245,7 @@ class DelongiPrimadonna:
         self._rx_buffer = bytearray()
         self._response_event = None
         self._last_response: bytes | None = None
-        self.statistics: dict[int, int] = {}
+        self.statistics: dict[int, int | float] = {}
         self._last_stats_request = 0.0
         self._stats_lock = asyncio.Lock()
         machine = get_machine_model(self.product_code)
@@ -437,61 +437,7 @@ class DelongiPrimadonna:
         if answer_id in [0x75, 0x70]:
             monitor_data = parse_monitor_data(value)
             if monitor_data:
-                # Update State
-                # is_on logic: Based on State > 0 (v2 uses byte 9, v1 uses byte 8)
-                self.switches.is_on = monitor_data.status > 0
-                
-                # Nozzle State (Only valid for v2/0x75)
-                if monitor_data.nozzle_state != -1:
-                    self.steam_nozzle = NOZZLE_STATE.get(monitor_data.nozzle_state, monitor_data.nozzle_state)
-                
-                # Service (Alarms)
-                # This feeds the Descale Sensor (checks bit 2)
-                self.service = monitor_data.alarms
-                
-                # Status (Machine State or Active Alarm)
-                # DEVICE_STATUS is an Alarm Map (0=Water Tank Empty, 1=Waste Full...)
-                # If there are alarms, show the first one.
-                # If no alarms, show Machine State.
-                if monitor_data.alarms > 0:
-                    for i in range(32):
-                        if (monitor_data.alarms >> i) & 1:
-                            self.status = DEVICE_STATUS.get(i, f"Alarm {i}")
-                            break
-                else:
-                    # No alarms.
-                    # We don't have a map for Machine State (byte 9) yet.
-                    # Old code: 0=Start, 1=Ready, 5=Ready.
-                    if monitor_data.status == 1 or monitor_data.status == 5:
-                        self.status = "Ready"
-                    elif monitor_data.status == 0:
-                        self.status = "Ready" # Assuming 0 is also Ready/Heating
-                    else:
-                        self.status = f"State {monitor_data.status}"
-                
-                # Active Switches
-                # We need to construct a fake 'value' list to satisfy parse_switches 
-                # or updated parse_switches. 
-                # parse_switches expects the raw packet. 
-                # Converting parsed switches integer back to expected active_switches format?
-                # Actually, parse_switches likely iterates bits. 
-                # Let's see parse_switches implementation in machine_switch.py if possible, 
-                # OR just use the bitmask we parsed.
-                # For now, let's keep using value for parse_switches IF it's v2, 
-                # but for v1 parse_switches might fail if it hardcodes offsets.
-                # Plan: Use the parsed switches integer to set active switches manually if needed,
-                # or rely on parse_switches if it supports the packet.
-                # Given parse_switches is imported, let's look at how it works.
-                # Assuming parse_switches(value) handles v2. For v1, it might break.
-                # Ideally we pass the switches integer to a parser.
-                # But since we don't want to change machine_switch.py yet, let's try to map it.
-                if answer_id == 0x75:
-                    self.active_switches = parse_switches(value)
-                else:
-                    # For v1, parse_switches likely won't work correctly if it uses v2 offsets.
-                    # We'll skip active_switches for v1 for now OR implement a local parser.
-                    # The device.py code originally only supported v2.
-                    pass
+                self._handle_monitor_data(monitor_data, answer_id, value)
         elif answer_id == 0xA4:
             parsed = []
             try:
@@ -530,6 +476,37 @@ class DelongiPrimadonna:
             await self._event_trigger(value)
 
         self._device_status = hex_value
+
+    def _handle_monitor_data(
+        self, monitor_data: MonitorData, answer_id: int, raw_packet: bytes
+    ) -> None:
+        """Apply parsed monitor data to device state."""
+        # Power state
+        self.switches.is_on = monitor_data.status > 0
+
+        # Nozzle state (only present in v2 / 0x75 packets)
+        if monitor_data.nozzle_state != -1:
+            self.steam_nozzle = NOZZLE_STATE.get(
+                monitor_data.nozzle_state, monitor_data.nozzle_state
+            )
+
+        # Alarm bitmask — feeds the Descale binary sensor (bit 2)
+        self.service = monitor_data.alarms
+
+        # Display status: show first active alarm, or machine state
+        if monitor_data.alarms > 0:
+            for i in range(32):
+                if (monitor_data.alarms >> i) & 1:
+                    self.status = DEVICE_STATUS.get(i, f"Alarm {i}")
+                    break
+        elif monitor_data.status in (0, 1, 5):
+            self.status = "Ready"
+        else:
+            self.status = f"State {monitor_data.status}"
+
+        # Active switches (v2 only; v1 uses different byte offsets)
+        if answer_id == 0x75:
+            self.active_switches = parse_switches(raw_packet)
 
     def _parse_profile_response(
         self,
@@ -767,7 +744,8 @@ class DelongiPrimadonna:
         
         Requests statistics from the ECAM machine via BLE.
         Based on APK's parameter address mappings:
-        - 100-109: Maintenance counters (water, descaling, milk cleaning, filters)
+        - 100-109: Maintenance counters (water, descaling, filters)
+        - 110-119: Extended maintenance counters (milk cleaning)
         - 3000-3009: Coffee beverage totals
         - 3077-3080: Additional coffee totals (combined with 3000 for total)
         """
@@ -786,6 +764,11 @@ class DelongiPrimadonna:
             # Request parameter range for maintenance counters
             # Covers: 100-109 (includes 106=water, 105=descale, 108=filter, etc.)
             await self.get_statistics(100, 10)
+            await asyncio.sleep(0.3)
+            
+            # Request extended maintenance counters
+            # Covers: 110-119 (includes 115=milk cleaning)
+            await self.get_statistics(110, 10)
             await asyncio.sleep(0.3)
             
             # Request coffee statistics range
