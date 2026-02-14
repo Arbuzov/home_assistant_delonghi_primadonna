@@ -161,6 +161,28 @@ class DelongiPrimadonnaStatisticsSensor(
     _attr_device_class = None
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
 
+    async def async_added_to_hass(self) -> None:
+        """Handle entity which will be added."""
+        await super().async_added_to_hass()
+
+        # Restore last known state as a numeric value to maintain type consistency
+        last_state = await self.async_get_last_state()
+        if last_state is None:
+            return
+
+        value = last_state.state
+        # Skip non-usable states
+        if value in (None, "", "unknown", "unavailable"):
+            return
+
+        try:
+            numeric_value = float(value)
+        except (TypeError, ValueError):
+            # Skip restoration if the previous value cannot be parsed as a number
+            return
+
+        self._attr_native_value = numeric_value
+
     def __init__(
         self,
         device: DelongiPrimadonna,
