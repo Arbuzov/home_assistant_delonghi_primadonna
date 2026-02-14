@@ -59,19 +59,11 @@
       "nozzle_status": {
         "name": "Düsenzustand",
         "state": {
-          "water_spout": "Wasserauslauf",
-          "motor_up": "Motor hoch",
-          "motor_down": "Motor runter",
-          "coffee_waste_container": "Kaffeesatzbehälter",
-          "water_tank_absent": "Wassertank fehlt",
-          "knob": "Knopf",
-          "water_level_low": "Wasserstand niedrig",
-          "coffee_jug": "Kaffeekanne",
-          "ifd_caraffe": "Milchkaraffe",
-          "ciocco_tank": "Schokoladentank",
-          "clean_knob": "Reinigungsknopf",
-          "door_opened": "Tür geöffnet",
-          "preground_door_opened": "Fach für gemahlenen Kaffee geöffnet"
+          "unknown": "Unbekannt",
+          "detached": "Abgenommen",
+          "steam": "Dampf",
+          "milk_frother": "Milchaufschäumer",
+          "milk_frother_cleaning": "Milchaufschäumer Reinigung"
         }
       },
       "device_status": {

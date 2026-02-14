@@ -1,6 +1,5 @@
 """Constants for the oiot integration."""
 from homeassistant.const import EntityCategory
-from .machine_switch import MachineSwitch
 
 DOMAIN = 'delonghi_primadonna'
 
@@ -42,20 +41,11 @@ ENTITY_CATEGORY = {
 }
 
 NOZZLE_STATE = {
-    0: MachineSwitch.WATER_SPOUT.value,
-    1: MachineSwitch.MOTOR_UP.value,
-    2: MachineSwitch.MOTOR_DOWN.value,
-    3: MachineSwitch.COFFEE_WASTE_CONTAINER.value,
-    4: MachineSwitch.WATER_TANK_ABSENT.value,
-    5: MachineSwitch.KNOB.value,
-    6: MachineSwitch.WATER_LEVEL_LOW.value,
-    7: MachineSwitch.COFFEE_JUG.value,
-    8: MachineSwitch.IFD_CARAFFE.value,
-    9: MachineSwitch.CIOCCO_TANK.value,
-    10: MachineSwitch.CLEAN_KNOB.value,
-    11: MachineSwitch.DOOR_OPENED.value,
-    12: MachineSwitch.PREGROUND_DOOR_OPENED.value,
-    99: MachineSwitch.UNKNOWN_SWITCH.value,
+    -1: "unknown",
+    0: "detached",
+    1: "steam",
+    2: "milk_frother",
+    3: "milk_frother_cleaning",
 }
 
 # Skipable maintanence states

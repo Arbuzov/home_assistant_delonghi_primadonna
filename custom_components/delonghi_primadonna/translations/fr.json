@@ -59,19 +59,11 @@
       "nozzle_status": {
         "name": "État de la buse",
         "state": {
-          "water_spout": "Sortie d'eau",
-          "motor_up": "Moteur vers le haut",
-          "motor_down": "Moteur vers le bas",
-          "coffee_waste_container": "Bac à marc de café",
-          "water_tank_absent": "Réservoir d'eau absent",
-          "knob": "Bouton",
-          "water_level_low": "Niveau d'eau bas",
-          "coffee_jug": "Carafe à café",
-          "ifd_caraffe": "Carafe à lait",
-          "ciocco_tank": "Réservoir de chocolat",
-          "clean_knob": "Bouton de nettoyage",
-          "door_opened": "Porte ouverte",
-          "preground_door_opened": "Trappe à café moulu ouverte"
+          "unknown": "Inconnu",
+          "detached": "Détaché",
+          "steam": "Vapeur",
+          "milk_frother": "Mousseur à lait",
+          "milk_frother_cleaning": "Nettoyage mousseur à lait"
         }
       },
       "device_status": {

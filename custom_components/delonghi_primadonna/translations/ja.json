@@ -59,19 +59,11 @@
       "nozzle_status": {
         "name": "ノズル状態",
         "state": {
-          "water_spout": "給水口",
-          "motor_up": "モーター上",
-          "motor_down": "モーター下",
-          "coffee_waste_container": "コーヒーカス容器",
-          "water_tank_absent": "水タンクなし",
-          "knob": "ノブ",
-          "water_level_low": "水位低下",
-          "coffee_jug": "コーヒージャグ",
-          "ifd_caraffe": "ミルクカラフェ",
-          "ciocco_tank": "チョコレートタンク",
-          "clean_knob": "清掃ノブ",
-          "door_opened": "ドア開",
-          "preground_door_opened": "粉入れ口開"
+          "unknown": "不明",
+          "detached": "取り外し済み",
+          "steam": "スチーム",
+          "milk_frother": "ミルクフォーマー",
+          "milk_frother_cleaning": "ミルクフォーマー洗浄"
         }
       },
       "device_status": {

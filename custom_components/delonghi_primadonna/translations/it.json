@@ -59,19 +59,11 @@
       "nozzle_status": {
         "name": "Stato dell'ugello",
         "state": {
-          "water_spout": "Erogatore d'acqua",
-          "motor_up": "Motore su",
-          "motor_down": "Motore giù",
-          "coffee_waste_container": "Contenitore fondi caffè",
-          "water_tank_absent": "Serbatoio acqua assente",
-          "knob": "Manopola",
-          "water_level_low": "Livello acqua basso",
-          "coffee_jug": "Caraffa del caffè",
-          "ifd_caraffe": "Caraffa del latte",
-          "ciocco_tank": "Serbatoio cioccolata",
-          "clean_knob": "Manopola pulizia",
-          "door_opened": "Sportello aperto",
-          "preground_door_opened": "Sportello caffè macinato aperto"
+          "unknown": "Sconosciuto",
+          "detached": "Scollegato",
+          "steam": "Vapore",
+          "milk_frother": "Montalatte",
+          "milk_frother_cleaning": "Pulizia montalatte"
         }
       },
       "device_status": {

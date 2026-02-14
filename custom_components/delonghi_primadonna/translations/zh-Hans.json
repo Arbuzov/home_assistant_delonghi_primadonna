@@ -59,19 +59,11 @@
       "nozzle_status": {
         "name": "喷嘴状态",
         "state": {
-          "water_spout": "出水口",
-          "motor_up": "电机上升",
-          "motor_down": "电机下降",
-          "coffee_waste_container": "咖啡泥容器",
-          "water_tank_absent": "缺少水罐",
-          "knob": "旋钮",
-          "water_level_low": "水位低",
-          "coffee_jug": "咖啡壶",
-          "ifd_caraffe": "牛奶壶",
-          "ciocco_tank": "巧克力罐",
-          "clean_knob": "清洗旋钮",
-          "door_opened": "门已打开",
-          "preground_door_opened": "粉仓已打开"
+          "unknown": "未知",
+          "detached": "已拆卸",
+          "steam": "蒸汽",
+          "milk_frother": "奶泡器",
+          "milk_frother_cleaning": "奶泡器清洁"
         }
       },
       "device_status": {

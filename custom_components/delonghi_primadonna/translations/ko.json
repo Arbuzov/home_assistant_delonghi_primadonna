@@ -59,19 +59,11 @@
       "nozzle_status": {
         "name": "노즐 상태",
         "state": {
-          "water_spout": "물 노출구",
-          "motor_up": "모터 위",
-          "motor_down": "모터 아래",
-          "coffee_waste_container": "커피 찌꺼기 통",
-          "water_tank_absent": "물탱크 없음",
-          "knob": "노브",
-          "water_level_low": "물 레벨 낮음",
-          "coffee_jug": "커피 저그",
-          "ifd_caraffe": "우유 카라페",
-          "ciocco_tank": "초콜릿 탱크",
-          "clean_knob": "청소 노브",
-          "door_opened": "문 열림",
-          "preground_door_opened": "가루 커피 투입구 열림"
+          "unknown": "알 수 없음",
+          "detached": "분리됨",
+          "steam": "스팀",
+          "milk_frother": "우유 거품기",
+          "milk_frother_cleaning": "우유 거품기 세척"
         }
       },
       "device_status": {

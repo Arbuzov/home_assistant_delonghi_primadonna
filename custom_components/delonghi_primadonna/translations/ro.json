@@ -59,19 +59,11 @@
       "nozzle_status": {
         "name": "Starea duzei",
         "state": {
-          "water_spout": "Gura de apă",
-          "motor_up": "Motor sus",
-          "motor_down": "Motor jos",
-          "coffee_waste_container": "Recipient zaț de cafea",
-          "water_tank_absent": "Lipsă rezervor apă",
-          "knob": "Buton",
-          "water_level_low": "Nivel scăzut de apă",
-          "coffee_jug": "Carafă de cafea",
-          "ifd_caraffe": "Carafă de lapte",
-          "ciocco_tank": "Recipient ciocolată",
-          "clean_knob": "Buton curățare",
-          "door_opened": "Ușă deschisă",
-          "preground_door_opened": "Compartiment cafea măcinată deschis"
+          "unknown": "Necunoscut",
+          "detached": "Detașat",
+          "steam": "Abur",
+          "milk_frother": "Spumant de lapte",
+          "milk_frother_cleaning": "Curățare spumant de lapte"
         }
       },
       "device_status": {
