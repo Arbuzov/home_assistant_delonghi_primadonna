@@ -18,12 +18,15 @@ from bleak.exc import BleakDBusError, BleakError
 from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_MODEL, CONF_NAME
 from homeassistant.core import HomeAssistant
+import time
+from dataclasses import dataclass
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     BASE_COMMAND, BYTES_AUTOPOWEROFF_COMMAND,
                     BYTES_LOAD_PROFILES, BYTES_POWER, BYTES_SWITCH_COMMAND,
                     BYTES_TIME_COMMAND, BYTES_WATER_HARDNESS_COMMAND,
-                    BYTES_WATER_TEMPERATURE_COMMAND, COFFE_OFF, COFFE_ON,
+                    BYTES_WATER_TEMPERATURE_COMMAND, BYTES_STATISTICS_COMMAND,
+                    COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_CLEAN,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
                     COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
@@ -39,6 +42,82 @@ from .model import get_machine_model
 _LOGGER = logging.getLogger(__name__)
 
 START_BYTE = 0xD0
+
+@dataclass
+class MonitorData:
+    """Monitor Data structure"""
+    switches: int
+    alarms: int
+    status: int
+    sub_status: int
+    nozzle_state: int
+
+def parse_monitor_data(data: bytes) -> MonitorData | None:
+    """Parse Monitor Data packet (v1 0x70 or v2 0x75)"""
+    if len(data) < 3:
+        return None
+    
+    answer_id = data[2]
+    
+    # Defaults
+    switches = 0
+    alarms = 0
+    status = 0
+    sub_status = 0
+    nozzle_state = -1
+
+    if answer_id == 0x75: # MonitorDataV2
+        if len(data) < 14:
+            return None
+        # Switches: Bytes 5, 6 (Little Endian)
+        switches = data[5] + (data[6] << 8)
+        
+        # Alarms: Bytes 7, 8, 12, 13 (Little Endian in blocks)
+        # Based on MonitorDataV2.b():
+        # iS = z.S(bArr[7]) + (z.S(bArr[8]) << 8) + (z.S(bArr[12]) << 16) + (z.S(bArr[13]) << 24)
+        alarms = data[7] + (data[8] << 8) + (data[12] << 16) + (data[13] << 24)
+        
+        # Status/State: Byte 9
+        status = data[9]
+        
+        # SubStatus: Byte 10
+        sub_status = data[10]
+        
+        # Nozzle State: Byte 4 (from MonitorDataV2.a())
+        nozzle_state = data[4]
+        
+    elif answer_id == 0x70: # MonitorData (v1)
+        if len(data) < 11:
+            return None
+            
+        # Switches: Bytes 9, 10
+        # Based on MonitorData.g(): bArr[9] + (bArr[10] << 8)
+        switches = data[9] + (data[10] << 8)
+        
+        # Alarms: Bytes 4, 5
+        # Based on MonitorData.b(): bArr[4] + (bArr[5] << 8)
+        alarms = data[4] + (data[5] << 8)
+        
+        # Status/State: Byte 8
+        # Based on MonitorData.f(): bArr[8]
+        status = data[8]
+        
+        # SubStatus: Byte 9 
+        # Based on MonitorData.e(): bArr[9]
+        # Note: Byte 9 is also used for switches low byte? 
+        # MonitorData.g (Switches) uses 9, 10.
+        # MonitorData.e (SubState/Aux) uses 9.
+        # We will extract it as sub_status anyway.
+        sub_status = data[9]
+        
+        # Nozzle State: a() returns -1 for v1.
+        nozzle_state = -1
+        
+    else:
+        return None
+        
+    return MonitorData(switches, alarms, status, sub_status, nozzle_state)
+
 
 
 class BeverageEntityFeature(IntFlag):
@@ -166,6 +245,9 @@ class DelongiPrimadonna:
         self._rx_buffer = bytearray()
         self._response_event = None
         self._last_response: bytes | None = None
+        self.statistics: dict[int, int | float] = {}
+        self._last_stats_request = 0.0
+        self._stats_lock = asyncio.Lock()
         machine = get_machine_model(self.product_code)
         self._n_profiles = (
             machine.nProfiles
@@ -352,12 +434,10 @@ class DelongiPrimadonna:
             self._response_event.set()
         answer_id = value[2] if len(value) > 2 else None
 
-        if answer_id == 0x75:
-            self.switches.is_on = value[9] > 0
-            self.steam_nozzle = NOZZLE_STATE.get(value[4], value[4])
-            self.service = value[7]
-            self.status = DEVICE_STATUS.get(value[5], DEVICE_STATUS[5])
-            self.active_switches = parse_switches(value)
+        if answer_id in [0x75, 0x70]:
+            monitor_data = parse_monitor_data(value)
+            if monitor_data:
+                self._handle_monitor_data(monitor_data, answer_id, value)
         elif answer_id == 0xA4:
             parsed = []
             try:
@@ -382,6 +462,8 @@ class DelongiPrimadonna:
                 status,
                 hexlify(value, " "),
             )
+        elif answer_id == 0xA2:
+            await self._parse_statistics(value)
 
         hex_value = hexlify(value, ' ')
 
@@ -394,6 +476,37 @@ class DelongiPrimadonna:
             await self._event_trigger(value)
 
         self._device_status = hex_value
+
+    def _handle_monitor_data(
+        self, monitor_data: MonitorData, answer_id: int, raw_packet: bytes
+    ) -> None:
+        """Apply parsed monitor data to device state."""
+        # Power state
+        self.switches.is_on = monitor_data.status > 0
+
+        # Nozzle state (only present in v2 / 0x75 packets)
+        if monitor_data.nozzle_state != -1:
+            self.steam_nozzle = NOZZLE_STATE.get(
+                monitor_data.nozzle_state, monitor_data.nozzle_state
+            )
+
+        # Alarm bitmask — feeds the Descale binary sensor (bit 2)
+        self.service = monitor_data.alarms
+
+        # Display status: show first active alarm, or machine state
+        if monitor_data.alarms > 0:
+            for i in range(32):
+                if (monitor_data.alarms >> i) & 1:
+                    self.status = DEVICE_STATUS.get(i, f"Alarm {i}")
+                    break
+        elif monitor_data.status in (0, 1, 5):
+            self.status = "Ready"
+        else:
+            self.status = f"State {monitor_data.status}"
+
+        # Active switches (v2 only; v1 uses different byte offsets)
+        if answer_id == 0x75:
+            self.active_switches = parse_switches(raw_packet)
 
     def _parse_profile_response(
         self,
@@ -583,3 +696,98 @@ class DelongiPrimadonna:
                     )
                     await asyncio.sleep(2)
             _LOGGER.error('Failed to send command after %d attempts', retries)
+
+    async def _parse_statistics(self, data: bytes) -> None:
+        """Parse statistics response"""
+        if len(data) < 8:
+            return
+            
+        hex_data = hexlify(data, " ").decode('utf-8')
+        _LOGGER.debug("Statistics Parser. Raw: %s", hex_data)
+        
+        # [0]=D0 [1]=Len [2]=A2 [3]=0F [4-5]=StartAddr
+        start_param_id = (data[4] << 8) | data[5]
+        
+        # Offset to first value (byte 6)
+        current_offset = 6
+        current_param_id = start_param_id
+        
+        # 1. First value belongs to StartAddr
+        if current_offset + 4 <= len(data) - 2:
+            val = int.from_bytes(data[current_offset:current_offset+4], byteorder='big')
+            self.statistics[current_param_id] = val
+            _LOGGER.debug("Statistics Parser.Parsed (Implicit): ID %s = %s", current_param_id, val)
+            current_offset += 4
+            
+        # 2. Subsequent parameters are [ID 2B] + [Value 4B]
+        while current_offset + 6 <= len(data) - 2:
+            pid = (data[current_offset] << 8) | data[current_offset+1]
+            val = int.from_bytes(data[current_offset+2:current_offset+6], byteorder='big')
+            self.statistics[pid] = val
+            _LOGGER.debug("Statistics Parser.Parsed (Explicit): ID %s = %s", pid, val)
+            current_offset += 6
+        
+        # Calculate combined values for total coffee
+        if 3000 in self.statistics:
+            total = self.statistics[3000] + self.statistics.get(3077, 0)
+            self.statistics[-3077] = total
+            
+        # Convert water quantity to liters (divide by 2000)
+        # Use float division to preserve precision and round to 2 decimal places.
+        if 106 in self.statistics:
+            water_ml = self.statistics.get(106, 0)
+            if water_ml > 0:
+                self.statistics[10106] = round(water_ml / 2000.0, 2)
+
+    async def update_statistics(self) -> None:
+        """Update statistics with throttling.
+        
+        Requests statistics from the ECAM machine via BLE.
+        Based on APK's parameter address mappings:
+        - 100-109: Maintenance counters (water, descaling, filters)
+        - 110-119: Extended maintenance counters (milk cleaning)
+        - 3000-3009: Coffee beverage totals
+        - 3077-3080: Additional coffee totals (combined with 3000 for total)
+        """
+        
+        # Use a lock to prevent concurrent statistics updates from multiple sensors
+        if self._stats_lock.locked():
+            return
+
+        async with self._stats_lock:
+            current_time = time.monotonic()
+            # Update at most once every 60 seconds
+            if current_time - self._last_stats_request < 60:
+                return
+
+            self._last_stats_request = current_time
+            # Request parameter range for maintenance counters
+            # Covers: 100-109 (includes 106=water, 105=descale, 108=filter, etc.)
+            await self.get_statistics(100, 10)
+            await asyncio.sleep(0.3)
+            
+            # Request extended maintenance counters
+            # Covers: 110-119 (includes 115=milk cleaning)
+            await self.get_statistics(110, 10)
+            await asyncio.sleep(0.3)
+            
+            # Request coffee statistics range
+            # Covers: 3000-3009 (includes 3000=total black coffee, 3001=with milk, etc.)
+            await self.get_statistics(3000, 10)
+            await asyncio.sleep(0.3)
+            
+            # Request additional coffee totals range
+            # Covers: 3077-3080 (3077 is combined with 3000 for total coffee)
+            await self.get_statistics(3077, 4)
+            await asyncio.sleep(0.3)
+            
+            # Optional: Request tea/other beverages if needed
+            # await self.get_statistics(3025, 1)  # Tea counter
+
+    async def get_statistics(self, start_index: int, count: int) -> None:
+        """Get statistics from the machine"""
+        message = copy.deepcopy(BYTES_STATISTICS_COMMAND)
+        message[4] = (start_index >> 8) & 0xFF
+        message[5] = start_index & 0xFF
+        message[6] = count
+        await self.send_command(message)

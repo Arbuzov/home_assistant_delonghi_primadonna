@@ -1,7 +1,7 @@
 {
   "config": {
     "abort": {
-      "already_configured": "Устройство уже добалено"
+      "already_configured": "Устройство уже добавлено"
     },
     "error": {
       "cannot_connect": "Не могу подключиться",
@@ -61,9 +61,44 @@
         "state": {
           "unknown": "Неизвестно",
           "detached": "Отсоединена",
-          "steam": "Паровая насадка",
+          "steam": "Пар",
           "milk_frother": "Капучинатор",
-          "milk_frother_cleaning": "Капучинатор (чистка)"
+          "milk_frother_cleaning": "Очистка капучинатора"
+        }
+      },
+      "device_status": {
+        "name": "Статус устройства",
+        "state": {
+          "empty_water_tank": "Резервуар для воды пуст",
+          "coffee_waste_container_full": "Контейнер для отходов полон",
+          "descale_alarm": "Требуется очистка от накипи",
+          "replace_water_filter": "Замените фильтр для воды",
+          "coffe_ground_too_fine": "Слишком мелкий помол",
+          "coffee_beans_empty": "Контейнер для зерен пуст",
+          "machine_to_service": "Требуется обслуживание",
+          "coffee_heater_probe_failure": "Ошибка датчика нагревателя кофе",
+          "too_much_coffee": "Слишком много кофе",
+          "coffee_infuser_motor_not_working": "Ошибка мотора инфузора",
+          "steamer_probe_failure": "Ошибка датчика пара",
+          "empty_drip_tray": "Опорожните поддон для капель",
+          "hydraulic_circuit_problem": "Проблема с гидросистемой",
+          "tank_is_in_position": "Резервуар на месте",
+          "clean_knob": "Ручка очистки",
+          "coffee_beans_empty_two": "Контейнер для зерен 2 пуст",
+          "tank_too_full": "Резервуар переполнен",
+          "bean_hopper_absent": "Контейнер для зерен отсутствует",
+          "grid_presence": "Наличие решетки",
+          "infuser_sense": "Датчик инфузора",
+          "not_enough_coffee": "Недостаточно кофе",
+          "expansion_comm_prob": "Ошибка связи платы расширения",
+          "expansion_submodules_prob": "Ошибка субмодулей расширения",
+          "grinding_unit_1_problem": "Ошибка кофемолки 1",
+          "grinding_unit_2_problem": "Ошибка кофемолки 2",
+          "condense_fan_problem": "Ошибка вентилятора конденсатора",
+          "clock_bt_comm_problem": "Ошибка связи часов/BT",
+          "spi_comm_problem": "Ошибка связи SPI",
+          "unknown_alarm": "Неизвестная ошибка",
+          "ignore_alarm": "Игнорировать ошибку"
         }
       },
       "switches": {
@@ -84,6 +119,33 @@
           "door_opened": "Дверца открыта",
           "preground_door_opened": "Отсек молотого кофе открыт"
         }
+      },
+      "total_coffee": {
+        "name": "Всего кофе"
+      },
+      "total_coffee_with_milk": {
+        "name": "Всего кофе с молоком"
+      },
+      "total_water": {
+        "name": "Всего воды"
+      },
+      "descaling_count": {
+        "name": "Количество очисток от накипи"
+      },
+      "milk_cleaning_count": {
+        "name": "Количество очисток капучинатора"
+      },
+      "filter_replace_count": {
+        "name": "Количество замен фильтра"
+      },
+      "total_tea": {
+        "name": "Всего чая"
+      },
+      "total_choco": {
+        "name": "Всего шоколада"
+      },
+      "additional_coffee": {
+        "name": "Дополнительный кофе"
       }
     }
   },

@@ -60,10 +60,45 @@
         "name": "Starea duzei",
         "state": {
           "unknown": "Necunoscut",
-          "detached": "Detașată",
+          "detached": "Detașat",
           "steam": "Abur",
-          "milk_frother": "Spumator de lapte",
-          "milk_frother_cleaning": "Spumator de lapte (curățare)"
+          "milk_frother": "Spumant de lapte",
+          "milk_frother_cleaning": "Curățare spumant de lapte"
+        }
+      },
+      "device_status": {
+        "name": "Starea aparatului",
+        "state": {
+          "empty_water_tank": "Rezervorul de apă este gol",
+          "coffee_waste_container_full": "Recipientul pentru zaț este plin",
+          "descale_alarm": "Alarmă decalcifiere",
+          "replace_water_filter": "Înlocuiți filtrul de apă",
+          "coffe_ground_too_fine": "Măcinare prea fină",
+          "coffee_beans_empty": "Lipsă boabe de cafea",
+          "machine_to_service": "Service necesar",
+          "coffee_heater_probe_failure": "Defecțiune sondă încălzitor cafea",
+          "too_much_coffee": "Prea multă cafea",
+          "coffee_infuser_motor_not_working": "Defecțiune motor infuzor",
+          "steamer_probe_failure": "Defecțiune sondă abur",
+          "empty_drip_tray": "Goliți tava de picurare",
+          "hydraulic_circuit_problem": "Problemă circuit hidraulic",
+          "tank_is_in_position": "Rezervorul este în poziție",
+          "clean_knob": "Buton curățare",
+          "coffee_beans_empty_two": "Lipsă boabe de cafea 2",
+          "tank_too_full": "Rezervor prea plin",
+          "bean_hopper_absent": "Lipsă recipient boabe",
+          "grid_presence": "Prezență grilă",
+          "infuser_sense": "Detectare infuzor",
+          "not_enough_coffee": "Cafea insuficientă",
+          "expansion_comm_prob": "Problemă comunicare extensie",
+          "expansion_submodules_prob": "Problemă sub-module extensie",
+          "grinding_unit_1_problem": "Problemă râșniță 1",
+          "grinding_unit_2_problem": "Problemă râșniță 2",
+          "condense_fan_problem": "Problemă ventilator condens",
+          "clock_bt_comm_problem": "Problemă comunicare ceas/BT",
+          "spi_comm_problem": "Problemă comunicare SPI",
+          "unknown_alarm": "Alarmă necunoscută",
+          "ignore_alarm": "Ignoră alarma"
         }
       },
       "switches": {
@@ -84,6 +119,33 @@
           "door_opened": "Ușă deschisă",
           "preground_door_opened": "Compartiment cafea măcinată deschis"
         }
+      },
+      "total_coffee": {
+        "name": "Total cafele"
+      },
+      "total_coffee_with_milk": {
+        "name": "Total cafele cu lapte"
+      },
+      "total_water": {
+        "name": "Total apă"
+      },
+      "descaling_count": {
+        "name": "Număr decalcifieri"
+      },
+      "milk_cleaning_count": {
+        "name": "Număr curățări lapte"
+      },
+      "filter_replace_count": {
+        "name": "Înlocuiri filtru"
+      },
+      "total_tea": {
+        "name": "Total ceai"
+      },
+      "total_choco": {
+        "name": "Total ciocolată"
+      },
+      "additional_coffee": {
+        "name": "Cafea adițională"
       }
     }
   },

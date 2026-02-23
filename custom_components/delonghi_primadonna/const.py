@@ -44,23 +44,43 @@ NOZZLE_STATE = {
     -1: "unknown",
     0: "detached",
     1: "steam",
-    2: "milk_frother",  # May also be Detached
-    # It shows detached, as the water is not flowing out
-    # from the nozzle directly, like the STEAM/HOT WATER nozzle does.
-    4: "milk_frother_cleaning",  # It shows attached, as the state
-    # similar to the STEAM/HOT WATER nozzle, water flows directly out
-    # the nozzle.
+    2: "milk_frother",
+    3: "milk_frother_cleaning",
 }
 
 # Skipable maintanence states
 SERVICE_STATE = {0: 'OK', 4: 'DESCALING'}
 
 DEVICE_STATUS = {
-    3: 'COOKING',
-    4: 'NOZZLE_DETACHED',
-    5: 'OK',
-    13: 'COFFEE_GROUNDS_CONTAINER_DETACHED',
-    21: 'WATER_TANK_DETACHED',
+    0: "empty_water_tank",
+    1: "coffee_waste_container_full",
+    2: "descale_alarm",
+    3: "replace_water_filter",
+    4: "coffee_ground_too_fine",
+    5: "coffee_beans_empty",
+    6: "machine_to_service",
+    7: "coffee_heater_probe_failure",
+    8: "too_much_coffee",
+    9: "coffee_infuser_motor_not_working",
+    10: "steamer_probe_failure",
+    11: "empty_drip_tray",
+    12: "hydraulic_circuit_problem",
+    13: "tank_is_in_position",
+    14: "clean_knob",
+    15: "coffee_beans_empty_two",
+    16: "tank_too_full",
+    17: "bean_hopper_absent",
+    18: "grid_presence",
+    19: "infuser_sense",
+    20: "not_enough_coffee",
+    21: "expansion_comm_prob",
+    22: "expansion_submodules_prob",
+    23: "grinding_unit_1_problem",
+    24: "grinding_unit_2_problem",
+    25: "condense_fan_problem",
+    26: "clock_bt_comm_problem",
+    27: "spi_comm_problem",
+    99: "unknown_alarm",
 }
 
 """
@@ -94,6 +114,11 @@ BYTES_WATER_HARDNESS_COMMAND = [
 BYTES_WATER_TEMPERATURE_COMMAND = [
     0x0d, 0x0b, 0x90, 0x0f, 0x00, 0x3d,
     0x00, 0x00, 0x00, 0x00, 0x6f, 0x31
+]
+
+BYTES_STATISTICS_COMMAND = [
+    0x0d, 0x08, 0xa2, 0x0f, 0x00, 0x64,
+    0x0a, 0x00, 0x00
 ]
 
 # Commands that load user profiles from the device. They must be

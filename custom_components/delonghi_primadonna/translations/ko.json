@@ -57,33 +57,95 @@
     },
     "sensor": {
       "nozzle_status": {
-        "name": "노즈 상태",
+        "name": "노즐 상태",
         "state": {
           "unknown": "알 수 없음",
           "detached": "분리됨",
-          "steam": "스티림",
-          "milk_frother": "우육 푸름기",
-          "milk_frother_cleaning": "우육 푸름기 세청"
+          "steam": "스팀",
+          "milk_frother": "우유 거품기",
+          "milk_frother_cleaning": "우유 거품기 세척"
+        }
+      },
+      "device_status": {
+        "name": "기기 상태",
+        "state": {
+          "empty_water_tank": "물탱크가 비어 있습니다",
+          "coffee_waste_container_full": "커피 찌꺼기 컨테이너가 가득 찼습니다",
+          "descale_alarm": "석회질 제거 알람",
+          "replace_water_filter": "정수 필터를 교체하십시오",
+          "coffe_ground_too_fine": "분쇄도가 너무 가늘습니다",
+          "coffee_beans_empty": "커피 원두가 비어 있습니다",
+          "machine_to_service": "서비스가 필요합니다",
+          "coffee_heater_probe_failure": "커피 히터 프로브 고장",
+          "too_much_coffee": "커피가 너무 많습니다",
+          "coffee_infuser_motor_not_working": "인퓨저 모터 고장",
+          "steamer_probe_failure": "스티머 프로브 고장",
+          "empty_drip_tray": "드립 트레이를 비우십시오",
+          "hydraulic_circuit_problem": "유압 회로 문제",
+          "tank_is_in_position": "탱크가 제자리에 있습니다",
+          "clean_knob": "청소 노브",
+          "coffee_beans_empty_two": "보조 커피 원두가 비어 있습니다",
+          "tank_too_full": "탱크가 너무 가득 찼습니다",
+          "bean_hopper_absent": "원두 호퍼가 없습니다",
+          "grid_presence": "그리드 존재",
+          "infuser_sense": "인퓨저 감지",
+          "not_enough_coffee": "커피가 충분하지 않습니다",
+          "expansion_comm_prob": "확장 통신 문제",
+          "expansion_submodules_prob": "확장 하위 모듈 문제",
+          "grinding_unit_1_problem": "그라인더 1 문제",
+          "grinding_unit_2_problem": "그라인더 2 문제",
+          "condense_fan_problem": "응축 팬 문제",
+          "clock_bt_comm_problem": "시계/BT 통신 문제",
+          "spi_comm_problem": "SPI 통신 문제",
+          "unknown_alarm": "알 수 없는 알람",
+          "ignore_alarm": "알람 무시"
         }
       },
       "switches": {
         "name": "스위치",
         "state": {
           "none": "없음",
-          "water_spout": "물 남기",
+          "water_spout": "물 노출구",
           "motor_up": "모터 위",
           "motor_down": "모터 아래",
-          "coffee_waste_container": "커피 지금 통",
+          "coffee_waste_container": "커피 찌꺼기 통",
           "water_tank_absent": "물탱크 없음",
           "knob": "노브",
           "water_level_low": "물 레벨 낮음",
-          "coffee_jug": "커피 주자",
-          "ifd_caraffe": "우육 카라페",
-          "ciocco_tank": "초콜레이트 탱크",
-          "clean_knob": "초경 노브",
-          "door_opened": "문 열랄",
-          "preground_door_opened": "가르다 커피 문 열랄"
+          "coffee_jug": "커피 저그",
+          "ifd_caraffe": "우유 카라페",
+          "ciocco_tank": "초콜릿 탱크",
+          "clean_knob": "청소 노브",
+          "door_opened": "문 열림",
+          "preground_door_opened": "가루 커피 투입구 열림"
         }
+      },
+      "total_coffee": {
+        "name": "총 커피 수"
+      },
+      "total_coffee_with_milk": {
+        "name": "총 우유 커피 수"
+      },
+      "total_water": {
+        "name": "총 수량"
+      },
+      "descaling_count": {
+        "name": "석회질 제거 횟수"
+      },
+      "milk_cleaning_count": {
+        "name": "우유 청소 횟수"
+      },
+      "filter_replace_count": {
+        "name": "필터 교체 횟수"
+      },
+      "total_tea": {
+        "name": "총 차 수"
+      },
+      "total_choco": {
+        "name": "총 초코 수"
+      },
+      "additional_coffee": {
+        "name": "추가 커피"
       }
     }
   },

@@ -60,10 +60,45 @@
         "name": "État de la buse",
         "state": {
           "unknown": "Inconnu",
-          "detached": "Détachée",
+          "detached": "Détaché",
           "steam": "Vapeur",
           "milk_frother": "Mousseur à lait",
-          "milk_frother_cleaning": "Mousseur à lait (nettoyage)"
+          "milk_frother_cleaning": "Nettoyage mousseur à lait"
+        }
+      },
+      "device_status": {
+        "name": "État de l'appareil",
+        "state": {
+          "empty_water_tank": "Réservoir d'eau vide",
+          "coffee_waste_container_full": "Bac à marc plein",
+          "descale_alarm": "Alarme détartrage",
+          "replace_water_filter": "Remplacer le filtre à eau",
+          "coffe_ground_too_fine": "Mouture trop fine",
+          "coffee_beans_empty": "Bac à grains vide",
+          "machine_to_service": "Entretien machine",
+          "coffee_heater_probe_failure": "Panne sonde chauffage café",
+          "too_much_coffee": "Trop de café",
+          "coffee_infuser_motor_not_working": "Moteur infuseur ne fonctionne pas",
+          "steamer_probe_failure": "Panne sonde vapeur",
+          "empty_drip_tray": "Vider le bac d'égouttage",
+          "hydraulic_circuit_problem": "Problème circuit hydraulique",
+          "tank_is_in_position": "Réservoir en position",
+          "clean_knob": "Nettoyer le bouton",
+          "coffee_beans_empty_two": "Bac à grains 2 vide",
+          "tank_too_full": "Réservoir trop plein",
+          "bean_hopper_absent": "Bac à grains absent",
+          "grid_presence": "Grille présente",
+          "infuser_sense": "Capteur infuseur",
+          "not_enough_coffee": "Pas assez de café",
+          "expansion_comm_prob": "Problème communication expansion",
+          "expansion_submodules_prob": "Problème sous-modules expansion",
+          "grinding_unit_1_problem": "Problème broyeur 1",
+          "grinding_unit_2_problem": "Problème broyeur 2",
+          "condense_fan_problem": "Problème ventilateur condensation",
+          "clock_bt_comm_problem": "Problème communication horloge/BT",
+          "spi_comm_problem": "Problème communication SPI",
+          "unknown_alarm": "Alarme inconnue",
+          "ignore_alarm": "Alarme ignorée"
         }
       },
       "switches": {
@@ -84,6 +119,33 @@
           "door_opened": "Porte ouverte",
           "preground_door_opened": "Trappe à café moulu ouverte"
         }
+      },
+      "total_coffee": {
+        "name": "Total café"
+      },
+      "total_coffee_with_milk": {
+        "name": "Total café au lait"
+      },
+      "total_water": {
+        "name": "Total eau"
+      },
+      "descaling_count": {
+        "name": "Nombre de détartrages"
+      },
+      "milk_cleaning_count": {
+        "name": "Nombre de nettoyages lait"
+      },
+      "filter_replace_count": {
+        "name": "Remplacements de filtre"
+      },
+      "total_tea": {
+        "name": "Total thé"
+      },
+      "total_choco": {
+        "name": "Total chocolat"
+      },
+      "additional_coffee": {
+        "name": "Café supplémentaire"
       }
     }
   },

@@ -63,7 +63,42 @@
           "detached": "Leválasztva",
           "steam": "Gőz",
           "milk_frother": "Tejhabosító",
-          "milk_frother_cleaning": "Tejhabosító (tisztítás)"
+          "milk_frother_cleaning": "Tejhabosító tisztítás"
+        }
+      },
+      "device_status": {
+        "name": "Gép állapota",
+        "state": {
+          "empty_water_tank": "Üres víztartály",
+          "coffee_waste_container_full": "Kávézacc tartály tele",
+          "descale_alarm": "Vízkőtelenítés riasztás",
+          "replace_water_filter": "Vízszűrő cseréje",
+          "coffe_ground_too_fine": "Túl finom őrlemény",
+          "coffee_beans_empty": "Kávébab tartály üres",
+          "machine_to_service": "Szerviz szükséges",
+          "coffee_heater_probe_failure": "Kávéfűtő szonda hiba",
+          "too_much_coffee": "Túl sok kávé",
+          "coffee_infuser_motor_not_working": "Infúziós motor hiba",
+          "steamer_probe_failure": "Gőzölő szonda hiba",
+          "empty_drip_tray": "Ürítse ki a csepptálcát",
+          "hydraulic_circuit_problem": "Hidraulikus kör hiba",
+          "tank_is_in_position": "Tartály a helyén",
+          "clean_knob": "Tisztító gomb",
+          "coffee_beans_empty_two": "Másodlagos kávébab tartály üres",
+          "tank_too_full": "Tartály túl tele",
+          "bean_hopper_absent": "Babtartály hiányzik",
+          "grid_presence": "Rács jelenléte",
+          "infuser_sense": "Infúziós érzékelő",
+          "not_enough_coffee": "Nincs elég kávé",
+          "expansion_comm_prob": "Bővítő komm. hiba",
+          "expansion_submodules_prob": "Bővítő almodul hiba",
+          "grinding_unit_1_problem": "1. daráló hiba",
+          "grinding_unit_2_problem": "2. daráló hiba",
+          "condense_fan_problem": "Kondenzátor ventilátor hiba",
+          "clock_bt_comm_problem": "Óra BT komm. hiba",
+          "spi_comm_problem": "SPI komm. hiba",
+          "unknown_alarm": "Ismeretlen riasztás",
+          "ignore_alarm": "Riasztás figyelmen kívül hagyása"
         }
       },
       "switches": {
@@ -84,6 +119,33 @@
           "door_opened": "Ajtó nyitva",
           "preground_door_opened": "Őrölt kávé nyílás nyitva"
         }
+      },
+      "total_coffee": {
+        "name": "Összes kávé"
+      },
+      "total_coffee_with_milk": {
+        "name": "Összes tejes kávé"
+      },
+      "total_water": {
+        "name": "Összes víz"
+      },
+      "descaling_count": {
+        "name": "Vízkőtelenítések száma"
+      },
+      "milk_cleaning_count": {
+        "name": "Tejtisztítások száma"
+      },
+      "filter_replace_count": {
+        "name": "Szűrőcserék száma"
+      },
+      "total_tea": {
+        "name": "Összes tea"
+      },
+      "total_choco": {
+        "name": "Összes csokoládé"
+      },
+      "additional_coffee": {
+        "name": "Kiegészítő kávé"
       }
     }
   },

@@ -60,17 +60,52 @@
         "name": "ノズル状態",
         "state": {
           "unknown": "不明",
-          "detached": "取り外し",
+          "detached": "取り外し済み",
           "steam": "スチーム",
-          "milk_frother": "ミルクフロッサー",
-          "milk_frother_cleaning": "ミルクフロッサー（清掃）"
+          "milk_frother": "ミルクフォーマー",
+          "milk_frother_cleaning": "ミルクフォーマー洗浄"
+        }
+      },
+      "device_status": {
+        "name": "マシン状態",
+        "state": {
+          "empty_water_tank": "水タンクが空です",
+          "coffee_waste_container_full": "コーヒーカス容器がいっぱいです",
+          "descale_alarm": "石灰除去アラーム",
+          "replace_water_filter": "浄水フィルターを交換してください",
+          "coffe_ground_too_fine": "挽き具合が細かすぎます",
+          "coffee_beans_empty": "コーヒー豆が空です",
+          "machine_to_service": "サービスが必要です",
+          "coffee_heater_probe_failure": "コーヒーヒータープローブ故障",
+          "too_much_coffee": "コーヒーが多すぎます",
+          "coffee_infuser_motor_not_working": "インフューザーモーター故障",
+          "steamer_probe_failure": "スチーマープローブ故障",
+          "empty_drip_tray": "ドリップトレイを空にしてください",
+          "hydraulic_circuit_problem": "油圧回路の問題",
+          "tank_is_in_position": "タンクがセットされています",
+          "clean_knob": "クリーニングノブ",
+          "coffee_beans_empty_two": "コーヒー豆 2 が空です",
+          "tank_too_full": "タンクがいっぱいです",
+          "bean_hopper_absent": "豆ホッパーがありません",
+          "grid_presence": "グリッドの存在",
+          "infuser_sense": "インフューザー検知",
+          "not_enough_coffee": "コーヒーが足りません",
+          "expansion_comm_prob": "拡張通信エラー",
+          "expansion_submodules_prob": "拡張サブモジュールエラー",
+          "grinding_unit_1_problem": "グラインダー 1 の問題",
+          "grinding_unit_2_problem": "グラインダー 2 の問題",
+          "condense_fan_problem": "凝縮ファン故障",
+          "clock_bt_comm_problem": "時計/BT通信エラー",
+          "spi_comm_problem": "SPI通信エラー",
+          "unknown_alarm": "未知のアラーム",
+          "ignore_alarm": "アラームを無視"
         }
       },
       "switches": {
         "name": "スイッチ",
         "state": {
           "none": "なし",
-          "water_spout": "緊水口",
+          "water_spout": "給水口",
           "motor_up": "モーター上",
           "motor_down": "モーター下",
           "coffee_waste_container": "コーヒーカス容器",
@@ -84,6 +119,33 @@
           "door_opened": "ドア開",
           "preground_door_opened": "粉入れ口開"
         }
+      },
+      "total_coffee": {
+        "name": "総コーヒー数"
+      },
+      "total_coffee_with_milk": {
+        "name": "総ミルクコーヒー数"
+      },
+      "total_water": {
+        "name": "総水量"
+      },
+      "descaling_count": {
+        "name": "石灰除去回数"
+      },
+      "milk_cleaning_count": {
+        "name": "ミルク洗浄回数"
+      },
+      "filter_replace_count": {
+        "name": "フィルター交換回数"
+      },
+      "total_tea": {
+        "name": "総ティー数"
+      },
+      "total_choco": {
+        "name": "総チョコ数"
+      },
+      "additional_coffee": {
+        "name": "追加コーヒー"
       }
     }
   },
