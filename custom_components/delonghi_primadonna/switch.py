@@ -1,6 +1,7 @@
 """Switch entities for Delonghi Primadonna."""
 
 import datetime
+import time
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -27,6 +28,7 @@ async def async_setup_entry(
     model = get_machine_model(delongh_device.product_code)
 
     switches = [
+        DelongiPrimadonnaPowerSwitch(delongh_device, hass),
         DelongiPrimadonnaNotificationSwitch(delongh_device, hass),
         DelongiPrimadonnaPowerSaveSwitch(delongh_device, hass),
         DelongiPrimadonnaSoundsSwitch(delongh_device, hass),
@@ -46,6 +48,49 @@ async def async_setup_entry(
 
     async_add_entities(switches)
     return True
+
+
+class DelongiPrimadonnaPowerSwitch(DelonghiDeviceEntity, ToggleEntity):
+    """Switch to turn the coffee machine on or off."""
+
+    _attr_icon = 'mdi:power'
+    _attr_translation_key = 'power'
+
+    def __init__(self, device, hass):
+        super().__init__(device, hass)
+        self._booting = False
+        self._boot_until = 0.0
+        self._shutting_down = False
+        self._shutdown_until = 0.0
+
+    @property
+    def is_on(self) -> bool:
+        """Return true if the machine is on."""
+        now = time.monotonic()
+        if self._booting and now < self._boot_until:
+            return True
+        if self._shutting_down and now < self._shutdown_until:
+            return False
+        # Neither window active, clear flags and use real device state
+        self._booting = False
+        self._shutting_down = False
+        return self.device.switches.is_on
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Turn the machine on."""
+        self._shutting_down = False
+        self._booting = True
+        self._boot_until = time.monotonic() + 60  # hold on for 60 seconds during boot
+        self.async_write_ha_state()
+        self.hass.async_create_task(self.device.power_on())
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Turn the machine off."""
+        self._booting = False
+        self._shutting_down = True
+        self._shutdown_until = time.monotonic() + 30  # hold off for 30 seconds during shutdown
+        self.async_write_ha_state()
+        self.hass.async_create_task(self.device.power_off())
 
 
 class DelongiPrimadonnaCupLightSwitch(
