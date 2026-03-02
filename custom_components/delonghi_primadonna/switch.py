@@ -12,7 +12,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base_entity import DelonghiDeviceEntity
-from .const import DOMAIN
+from .const import DOMAIN, POWER_OFF_HOLD_SECONDS, POWER_ON_HOLD_SECONDS
 from .device import DelongiPrimadonna
 from .model import get_machine_model
 
@@ -80,7 +80,7 @@ class DelongiPrimadonnaPowerSwitch(DelonghiDeviceEntity, ToggleEntity):
         """Turn the machine on."""
         self._shutting_down = False
         self._booting = True
-        self._boot_until = time.monotonic() + 60  # hold on for 60 seconds during boot
+        self._boot_until = time.monotonic() + POWER_ON_HOLD_SECONDS
         self.async_write_ha_state()
         self.hass.async_create_task(self.device.power_on())
 
@@ -88,7 +88,7 @@ class DelongiPrimadonnaPowerSwitch(DelonghiDeviceEntity, ToggleEntity):
         """Turn the machine off."""
         self._booting = False
         self._shutting_down = True
-        self._shutdown_until = time.monotonic() + 30  # hold off for 30 seconds during shutdown
+        self._shutdown_until = time.monotonic() + POWER_OFF_HOLD_SECONDS
         self.async_write_ha_state()
         self.hass.async_create_task(self.device.power_off())
 
