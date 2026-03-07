@@ -23,8 +23,9 @@ from dataclasses import dataclass
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     BASE_COMMAND, BYTES_AUTOPOWEROFF_COMMAND,
-                    BYTES_LOAD_PROFILES, BYTES_POWER, BYTES_SWITCH_COMMAND,
-                    BYTES_TIME_COMMAND, BYTES_WATER_HARDNESS_COMMAND,
+                    BYTES_LOAD_PROFILES, BYTES_POWER, BYTES_POWER_OFF,
+                    BYTES_SWITCH_COMMAND, BYTES_TIME_COMMAND,
+                    BYTES_WATER_HARDNESS_COMMAND,
                     BYTES_WATER_TEMPERATURE_COMMAND, BYTES_STATISTICS_COMMAND,
                     COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_CLEAN,
@@ -539,6 +540,10 @@ class DelongiPrimadonna:
     async def power_on(self) -> None:
         """Turn the device on."""
         await self.send_command(BYTES_POWER)
+
+    async def power_off(self) -> None:
+        """Turn the device off."""
+        await self.send_command(BYTES_POWER_OFF)
 
     async def cup_light_on(self) -> None:
         """Turn the cup light on."""
