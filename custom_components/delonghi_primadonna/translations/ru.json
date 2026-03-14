@@ -97,7 +97,17 @@
           "condense_fan_problem": "Ошибка вентилятора конденсатора",
           "clock_bt_comm_problem": "Ошибка связи часов/BT",
           "spi_comm_problem": "Ошибка связи SPI",
-          "unknown_alarm": "Неизвестная ошибка",
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "Выключено",
+          "heating": "Нагрев",
+          "washing": "Мойка",
+          "ready": "Готово",
+          "brewing": "Приготовление",
+          "rinsing": "Ополаскивание",
+          "preparing": "Подготовка",
+          "delivering_hot_water": "Подача горячей воды",
+          "cleaning_milk_spout": "Очистка насадки для молока",
+          "descaling": "Очистка от накипи",
           "ignore_alarm": "Игнорировать ошибку"
         }
       },

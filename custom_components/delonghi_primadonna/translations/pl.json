@@ -97,7 +97,17 @@
           "condense_fan_problem": "Problem z wentylatorem kondensatora",
           "clock_bt_comm_problem": "Problem z komunikacją zegara/BT",
           "spi_comm_problem": "Problem z komunikacją SPI",
-          "unknown_alarm": "Nieznany alarm",
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "Wyłączony",
+          "heating": "Nagrzewanie",
+          "washing": "Mycie",
+          "ready": "Gotowy",
+          "brewing": "Zaparzanie",
+          "rinsing": "Płukanie",
+          "preparing": "Przygotowywanie",
+          "delivering_hot_water": "Wydawanie gorącej wody",
+          "cleaning_milk_spout": "Czyszczenie dyszy mleka",
+          "descaling": "Odkamienianie",
           "ignore_alarm": "Zignoruj alarm"
         }
       },

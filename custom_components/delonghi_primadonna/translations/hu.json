@@ -97,7 +97,17 @@
           "condense_fan_problem": "Kondenzátor ventilátor hiba",
           "clock_bt_comm_problem": "Óra BT komm. hiba",
           "spi_comm_problem": "SPI komm. hiba",
-          "unknown_alarm": "Ismeretlen riasztás",
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "Kikapcsolva",
+          "heating": "Fűtés",
+          "washing": "Mosás",
+          "ready": "Kész",
+          "brewing": "Főzés",
+          "rinsing": "Öblítés",
+          "preparing": "Előkészítés",
+          "delivering_hot_water": "Forró víz adagolása",
+          "cleaning_milk_spout": "Tejkifolyó tisztítása",
+          "descaling": "Vízkőtelenítés",
           "ignore_alarm": "Riasztás figyelmen kívül hagyása"
         }
       },

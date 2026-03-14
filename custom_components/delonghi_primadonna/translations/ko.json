@@ -97,7 +97,17 @@
           "condense_fan_problem": "응축 팬 문제",
           "clock_bt_comm_problem": "시계/BT 통신 문제",
           "spi_comm_problem": "SPI 통신 문제",
-          "unknown_alarm": "알 수 없는 알람",
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "전원 꺼짐",
+          "heating": "가열 중",
+          "washing": "세척 중",
+          "ready": "준비 완료",
+          "brewing": "추출 중",
+          "rinsing": "헹굼 중",
+          "preparing": "준비 중",
+          "delivering_hot_water": "온수 추출 중",
+          "cleaning_milk_spout": "우유 배출구 세척",
+          "descaling": "스케일 제거",
           "ignore_alarm": "알람 무시"
         }
       },

@@ -97,7 +97,17 @@
           "condense_fan_problem": "Problemă ventilator condens",
           "clock_bt_comm_problem": "Problemă comunicare ceas/BT",
           "spi_comm_problem": "Problemă comunicare SPI",
-          "unknown_alarm": "Alarmă necunoscută",
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "Oprit",
+          "heating": "Încălzire",
+          "washing": "Spălare",
+          "ready": "Gata",
+          "brewing": "Preparare",
+          "rinsing": "Clătire",
+          "preparing": "Pregătire",
+          "delivering_hot_water": "Distribuire apă fierbinte",
+          "cleaning_milk_spout": "Curățare duză de lapte",
+          "descaling": "Decalcifiere",
           "ignore_alarm": "Ignoră alarma"
         }
       },

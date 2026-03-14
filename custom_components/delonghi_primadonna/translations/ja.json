@@ -97,7 +97,17 @@
           "condense_fan_problem": "凝縮ファン故障",
           "clock_bt_comm_problem": "時計/BT通信エラー",
           "spi_comm_problem": "SPI通信エラー",
-          "unknown_alarm": "未知のアラーム",
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "電源オフ",
+          "heating": "加熱中",
+          "washing": "洗浄中",
+          "ready": "準備完了",
+          "brewing": "抽出中",
+          "rinsing": "すすぎ中",
+          "preparing": "準備中",
+          "delivering_hot_water": "お湯の吐出中",
+          "cleaning_milk_spout": "ミルク排出口のクリーニング",
+          "descaling": "スケール除去",
           "ignore_alarm": "アラームを無視"
         }
       },

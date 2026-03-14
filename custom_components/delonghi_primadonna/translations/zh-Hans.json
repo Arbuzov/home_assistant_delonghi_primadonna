@@ -97,7 +97,17 @@
           "condense_fan_problem": "冷凝风扇故障",
           "clock_bt_comm_problem": "时钟/蓝牙通讯异常",
           "spi_comm_problem": "SPI通讯异常",
-          "unknown_alarm": "未知警报",
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "已关闭",
+          "heating": "加热中",
+          "washing": "清洗中",
+          "ready": "准备就绪",
+          "brewing": "冲泡中",
+          "rinsing": "冲洗中",
+          "preparing": "准备中",
+          "delivering_hot_water": "出热水中",
+          "cleaning_milk_spout": "清洗牛奶出口",
+          "descaling": "除垢",
           "ignore_alarm": "忽略警报"
         }
       },

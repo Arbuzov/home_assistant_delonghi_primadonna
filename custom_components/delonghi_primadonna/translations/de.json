@@ -97,7 +97,17 @@
           "condense_fan_problem": "Problem Kondensatorlüfter",
           "clock_bt_comm_problem": "Uhr/BT-Kommunikationsproblem",
           "spi_comm_problem": "SPI-Kommunikationsproblem",
-          "unknown_alarm": "Unbekannter Alarm",
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "Ausgeschaltet",
+          "heating": "Aufheizen",
+          "washing": "Waschen",
+          "ready": "Bereit",
+          "brewing": "Zubereitung",
+          "rinsing": "Spülen",
+          "preparing": "Vorbereitung",
+          "delivering_hot_water": "Heißwasserausgabe",
+          "cleaning_milk_spout": "Milchauslauf reinigen",
+          "descaling": "Entkalken",
           "ignore_alarm": "Alarm ignorieren"
         }
       },

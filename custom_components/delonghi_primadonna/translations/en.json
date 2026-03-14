@@ -117,7 +117,17 @@
           "condense_fan_problem": "Condense fan problem",
           "clock_bt_comm_problem": "Clock BT comm problem",
           "spi_comm_problem": "SPI comm problem",
-          "unknown_alarm": "Unknown alarm"
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "Turned Off",
+          "heating": "Heating",
+          "washing": "Washing",
+          "ready": "Ready",
+          "brewing": "Brewing",
+          "rinsing": "Rinsing",
+          "preparing": "Preparing",
+          "delivering_hot_water": "Delivering Hot Water",
+          "cleaning_milk_spout": "Cleaning Milk Spout",
+          "descaling": "Descaling"
         }
       },
       "total_coffee": {

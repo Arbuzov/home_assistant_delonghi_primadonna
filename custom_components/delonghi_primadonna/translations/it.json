@@ -97,7 +97,17 @@
           "condense_fan_problem": "Problema ventola condensa",
           "clock_bt_comm_problem": "Problema comunicazione Orologio/BT",
           "spi_comm_problem": "Problema comunicazione SPI",
-          "unknown_alarm": "Allarme sconosciuto",
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "Spento",
+          "heating": "Riscaldamento",
+          "washing": "Lavaggio",
+          "ready": "Pronto",
+          "brewing": "Erogazione in corso",
+          "rinsing": "Risciacquo",
+          "preparing": "Preparazione",
+          "delivering_hot_water": "Erogazione acqua calda",
+          "cleaning_milk_spout": "Pulizia beccuccio latte",
+          "descaling": "Decalcificazione",
           "ignore_alarm": "Allarme ignorato"
         }
       },

@@ -97,7 +97,17 @@
           "condense_fan_problem": "Problème ventilateur condensation",
           "clock_bt_comm_problem": "Problème communication horloge/BT",
           "spi_comm_problem": "Problème communication SPI",
-          "unknown_alarm": "Alarme inconnue",
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "Éteint",
+          "heating": "Chauffage",
+          "washing": "Lavage",
+          "ready": "Prêt",
+          "brewing": "Préparation du café",
+          "rinsing": "Rinçage",
+          "preparing": "Préparation",
+          "delivering_hot_water": "Distribution d'eau chaude",
+          "cleaning_milk_spout": "Nettoyage de la buse à lait",
+          "descaling": "Détartrage",
           "ignore_alarm": "Alarme ignorée"
         }
       },

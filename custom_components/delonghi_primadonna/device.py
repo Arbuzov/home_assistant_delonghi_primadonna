@@ -35,7 +35,7 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     ESPRESSO_OFF, ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON,
                     LONG_OFF, LONG_ON, NAME_CHARACTERISTIC, NOZZLE_STATE,
                     START_COFFEE, STEAM_OFF, STEAM_ON, WATER_SHORTAGE,
-                    WATER_TANK_DETACHED)
+                    WATER_TANK_DETACHED, MACHINE_STATUS)
 from .machine_switch import MachineSwitch, parse_switches
 from .model import get_machine_model
 
@@ -499,10 +499,11 @@ class DelongiPrimadonna:
                 if (monitor_data.alarms >> i) & 1:
                     self.status = DEVICE_STATUS.get(i, f"Alarm {i}")
                     break
-        elif monitor_data.status in (0, 1, 5):
-            self.status = "Ready"
         else:
-            self.status = f"State {monitor_data.status}"
+            self.status = MACHINE_STATUS.get(
+                monitor_data.status,
+                f"State {monitor_data.status}"
+            )
 
         # Active switches (v2 only; v1 uses different byte offsets)
         if answer_id == 0x75:
