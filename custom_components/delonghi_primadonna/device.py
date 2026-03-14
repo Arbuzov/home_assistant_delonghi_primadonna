@@ -715,31 +715,23 @@ class DelongiPrimadonna:
         
         # Offset to first value (byte 6)
         current_offset = 6
-        current_param_id = start_param_id
         
-        # 1. First value belongs to StartAddr
-        if current_offset + 4 <= len(data) - 2:
-            val = int.from_bytes(data[current_offset:current_offset+4], byteorder='big')
-            self.statistics[current_param_id] = val
-            _LOGGER.debug("Statistics Parser.Parsed (Implicit): ID %s = %s", current_param_id, val)
-            current_offset += 4
-            
-        # 2. Subsequent parameters are [ID 2B] + [Value 4B]
+        # All parameters returned are in the format [ID 2B] + [Value 4B]
         while current_offset + 6 <= len(data) - 2:
             pid = (data[current_offset] << 8) | data[current_offset+1]
             val = int.from_bytes(data[current_offset+2:current_offset+6], byteorder='big')
             self.statistics[pid] = val
-            _LOGGER.debug("Statistics Parser.Parsed (Explicit): ID %s = %s", pid, val)
+            _LOGGER.debug("Statistics Parser.Parsed: ID %s = %s", pid, val)
             current_offset += 6
         
         # Calculate combined values for total coffee
-        if 3000 in self.statistics:
-            total = self.statistics[3000] + self.statistics.get(3077, 0)
+        if 3000 in self.statistics or 3077 in self.statistics:
+            total = self.statistics.get(3000, 0) + self.statistics.get(3077, 0)
             self.statistics[-3077] = total
             
         # Calculate combined values for total coffee with milk
-        if 3001 in self.statistics:
-            total = self.statistics[3001] + self.statistics.get(3003, 0)
+        if 3001 in self.statistics or 3003 in self.statistics:
+            total = self.statistics.get(3001, 0) + self.statistics.get(3003, 0)
             self.statistics[-3003] = total
             
         # Convert water quantity to liters (divide by 2000)
