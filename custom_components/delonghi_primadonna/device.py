@@ -737,6 +737,11 @@ class DelongiPrimadonna:
             total = self.statistics[3000] + self.statistics.get(3077, 0)
             self.statistics[-3077] = total
             
+        # Calculate combined values for total coffee with milk
+        if 3001 in self.statistics:
+            total = self.statistics[3001] + self.statistics.get(3003, 0)
+            self.statistics[-3003] = total
+            
         # Convert water quantity to liters (divide by 2000)
         # Use float division to preserve precision and round to 2 decimal places.
         if 106 in self.statistics:
