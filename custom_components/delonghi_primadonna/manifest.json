@@ -20,5 +20,8 @@
     "documentation": "https://github.com/Arbuzov/home_assistant_delonghi_primadonna",
     "iot_class": "local_polling",
     "issue_tracker": "https://github.com/Arbuzov/home_assistant_delonghi_primadonna/issues",
+    "requirements": [
+        "bleak-retry-connector>=3.5.0"
+    ],
     "version": "1.17.16"
 }
