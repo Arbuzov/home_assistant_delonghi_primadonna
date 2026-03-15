@@ -38,7 +38,7 @@ async def async_setup_entry(
             DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_coffee_with_milk', -3003, 'Total Coffee with Milk', icon='mdi:coffee-outline'),
             DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_water', 10106, 'Total Water', 'L', 'mdi:water'),
             DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'descaling_count', 105, 'Descaling Count', icon='mdi:shimmer'),
-            DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'milk_cleaning_count', 115, 'Milk Cleaning Count', icon='mdi:water-sync'),
+            DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'milk_cleaning_count', 111, 'Milk Cleaning Count', icon='mdi:water-sync'),
             DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'filter_replace_count', 108, 'Filter Replacements', icon='mdi:filter'),
             # Optional additional sensors (uncomment if needed):
             # DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_tea', 3025, 'Total Tea'),
@@ -177,11 +177,10 @@ class DelongiPrimadonnaStatisticsSensor(
 
         try:
             numeric_value = float(value)
+            self._attr_native_value = numeric_value
         except (TypeError, ValueError):
             # Skip restoration if the previous value cannot be parsed as a number
             return
-
-        self._attr_native_value = numeric_value
 
     def __init__(
         self,
@@ -202,16 +201,11 @@ class DelongiPrimadonnaStatisticsSensor(
         self._attr_native_unit_of_measurement = native_unit_of_measurement
         self._attr_icon = icon
 
-    async def async_added_to_hass(self) -> None:
-        """Register callbacks."""
-        await super().async_added_to_hass()
-        if (last_state := await self.async_get_last_state()) is not None:
-            self._attr_native_value = last_state.state
-
     @property
     def native_value(self):
         """Return the current value from the statistics dictionary."""
-        return self.device.statistics.get(self._param_id)
+        # Fallback to restored value if not present in the live device.statistics
+        return self.device.statistics.get(self._param_id, self._attr_native_value)
 
     @property
     def icon(self):

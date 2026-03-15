@@ -710,18 +710,20 @@ class DelongiPrimadonna:
         hex_data = hexlify(data, " ").decode('utf-8')
         _LOGGER.debug("Statistics Parser. Raw: %s", hex_data)
         
-        # [0]=D0 [1]=Len [2]=A2 [3]=0F [4-5]=StartAddr
-        start_param_id = (data[4] << 8) | data[5]
+        # The first parameter ID is implicit from bytes 4-5
+        pid = (data[4] << 8) | data[5]
+        val = int.from_bytes(data[6:10], byteorder='big')
+        self.statistics[pid] = val
+        _LOGGER.warning("Statistics Parser.Parsed (Implicit): ID %s = %s", pid, val)
         
-        # Offset to first value (byte 6)
-        current_offset = 6
-        
-        # All parameters returned are in the format [ID 2B] + [Value 4B]
+        # Subsequent parameters (if any) are in the format [ID 2B] + [Value 4B]
+        current_offset = 10
+        # Check if there is at least one more [ID 2B] + [Val 4B] block before CRC (last 2 bytes)
         while current_offset + 6 <= len(data) - 2:
             pid = (data[current_offset] << 8) | data[current_offset+1]
             val = int.from_bytes(data[current_offset+2:current_offset+6], byteorder='big')
             self.statistics[pid] = val
-            _LOGGER.debug("Statistics Parser.Parsed: ID %s = %s", pid, val)
+            _LOGGER.warning("Statistics Parser.Parsed (Explicit): ID %s = %s", pid, val)
             current_offset += 6
         
         # Calculate combined values for total coffee
@@ -738,8 +740,7 @@ class DelongiPrimadonna:
         # Use float division to preserve precision and round to 2 decimal places.
         if 106 in self.statistics:
             water_ml = self.statistics.get(106, 0)
-            if water_ml > 0:
-                self.statistics[10106] = round(water_ml / 2000.0, 2)
+            self.statistics[10106] = round(water_ml / 2000.0, 2)
 
     async def update_statistics(self) -> None:
         """Update statistics with throttling.
