@@ -1,3 +1,26 @@
+## How to Enable Debug Logs
+To see the debug information in Home Assistant, you need to configure the `logger` component.
+
+1. Permanent Configuration (Recommended)
+Add the following to your `configuration.yaml` file and restart Home Assistant:
+
+```yaml
+logger:
+  default: warning
+  logs:
+    custom_components.delonghi_primadonna: debug
+```
+2. Temporary Configuration (No Restart)
+You can use the `logger.set_level` service to enable debug logs immediately without restarting:
+
+Go to `Developer Tools` > `Services`.
+Select the `logger.set_level` service.
+Use the following YAML:
+```yaml
+custom_components.delonghi_primadonna: debug
+```
+Click **Call Service**.
+
 ## This is a debug notes collected from the device
 
 Please join
@@ -125,9 +148,9 @@ This command is used to request various counters (beverages, maintenance, etc.) 
 | ID | Category | Description | Notes |
 |----|----------|-------------|-------|
 | 105 | Maintenance | Descaling Count | |
-| 106 | Maintenance | Total Water Quantity | Divide by 2000 (or 5000) for Liters |
+| 106 | Maintenance | Total Water Quantity | Divide by 2000 for Liters |
 | 108 | Maintenance | Filter Replacements | |
-| 115 | Maintenance | Milk Cleaning Count | |
+| 111 | Maintenance | Milk Cleaning Count | |
 | 3000 | Beverage | Black Coffee Total (Part 1) | Combine with 3077 |
 | 3001 | Beverage | Coffee with Milk Total (Part 1) | Combine with 3003 |
 | 3003 | Beverage | Coffee with Milk Total (Part 2) | |

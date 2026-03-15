@@ -714,7 +714,7 @@ class DelongiPrimadonna:
         pid = (data[4] << 8) | data[5]
         val = int.from_bytes(data[6:10], byteorder='big')
         self.statistics[pid] = val
-        _LOGGER.warning("Statistics Parser.Parsed (Implicit): ID %s = %s", pid, val)
+        _LOGGER.debug("Statistics Parser.Parsed (Implicit): ID %s = %s", pid, val)
         
         # Subsequent parameters (if any) are in the format [ID 2B] + [Value 4B]
         current_offset = 10
@@ -723,7 +723,7 @@ class DelongiPrimadonna:
             pid = (data[current_offset] << 8) | data[current_offset+1]
             val = int.from_bytes(data[current_offset+2:current_offset+6], byteorder='big')
             self.statistics[pid] = val
-            _LOGGER.warning("Statistics Parser.Parsed (Explicit): ID %s = %s", pid, val)
+            _LOGGER.debug("Statistics Parser.Parsed (Explicit): ID %s = %s", pid, val)
             current_offset += 6
         
         # Calculate combined values for total coffee
