@@ -653,7 +653,7 @@ class DelongiPrimadonna:
         """Start beverage by name (recipe or legacy enum)."""
         if beverage == 'none':
             return
-        # Try recipe map first (dynamic from machine model)
+        # Try recipe map (dynamic from machine model)
         recipe = self._recipe_map.get(beverage)
         if recipe:
             rid = recipe['id']
@@ -670,24 +670,17 @@ class DelongiPrimadonna:
                 await self.send_command(cmd)
             self.cooking = beverage
             return
-        # Fallback to legacy AvailableBeverage enum
-        if beverage in BEVERAGE_COMMANDS:
-            await self.send_command(BEVERAGE_COMMANDS[beverage].on)
-            self.cooking = beverage
+        _LOGGER.warning("Unknown beverage: %s", beverage)
 
     async def beverage_cancel(self) -> None:
         """Cancel beverage"""
         if self.cooking == 'none':
             return
-        # Try recipe map first
         recipe = self._recipe_map.get(self.cooking)
         if recipe:
             await self.send_command(_build_stop_command(recipe['id']))
-            self.cooking = 'none'
-            return
-        # Fallback to legacy
-        if self.cooking in BEVERAGE_COMMANDS:
-            await self.send_command(BEVERAGE_COMMANDS[self.cooking].off)
+        else:
+            _LOGGER.warning("Cannot cancel unknown beverage: %s", self.cooking)
         self.cooking = 'none'
 
     async def debug(self):
