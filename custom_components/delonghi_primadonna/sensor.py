@@ -15,7 +15,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base_entity import DelonghiDeviceEntity
 from .const import DOMAIN
-from .device import DEVICE_STATUS, NOZZLE_STATE, DelongiPrimadonna
+from .device import NOZZLE_STATE, DelongiPrimadonna
 from .machine_switch import MachineSwitch
 
 
@@ -115,8 +115,9 @@ class DelongiPrimadonnaStatusSensor(
 
     @property
     def icon(self):
-        result = 'mdi:thumb-up-outline'
-        return result
+        if self.device.status == "Ready":
+            return 'mdi:thumb-up-outline'
+        return 'mdi:alert-circle-outline'
 
 
 class DelongiPrimadonnaSwitchesSensor(

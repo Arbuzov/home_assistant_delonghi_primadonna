@@ -30,7 +30,8 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     COFFEE_GROUNDS_CONTAINER_CLEAN,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
                     COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
-                    DEBUG, DEVICE_READY, DEVICE_STATUS, DEVICE_TURNOFF, DOMAIN,
+                    DEBUG, DEFAULT_IMAGE_URL, DEVICE_READY, DEVICE_STATUS,
+                    DEVICE_TURNOFF, DOMAIN,
                     DOPPIO_OFF, DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON,
                     ESPRESSO_OFF, ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON,
                     LONG_OFF, LONG_ON, NAME_CHARACTERISTIC, NOZZLE_STATE,
@@ -188,6 +189,50 @@ BEVERAGE_COMMANDS = {
     AvailableBeverage.ESPRESSO2: BeverageCommand(ESPRESSO2_ON, ESPRESSO2_OFF),
 }
 
+# Map recipe IDs from MachinesModels.json to existing hardcoded commands
+RECIPE_ID_TO_BEVERAGE = {
+    1: AvailableBeverage.ESPRESSO,     # Espresso Coffee
+    2: AvailableBeverage.COFFEE,       # Regular Coffee
+    3: AvailableBeverage.LONG,         # Long Coffee
+    4: AvailableBeverage.ESPRESSO2,    # 2X Espresso Coffee
+    5: AvailableBeverage.DOPIO,        # Doppio+
+    6: AvailableBeverage.AMERICANO,    # Americano
+    16: AvailableBeverage.HOTWATER,    # Hot Water
+    17: AvailableBeverage.STEAM,       # Steam
+}
+
+
+def _build_stop_command(recipe_id: int) -> list[int]:
+    """Build a stop command for any recipe ID."""
+    return [0x0D, 0x08, 0x83, 0xF0, recipe_id & 0xFF, 0x02, 0x06, 0x00, 0x00]
+
+
+def _build_start_command(recipe_id: int, coffee_qty: int = 0,
+                         milk_qty: int = 0) -> list[int]:
+    """Build a generic start command for a recipe.
+
+    The command structure varies by recipe type, but this covers the common
+    coffee-only and milk-drink patterns observed from the DeLonghi protocol.
+    """
+    rid = recipe_id & 0xFF
+    if milk_qty > 0:
+        # Milk drink format (observed for cappuccino-like beverages)
+        milk_lo = milk_qty & 0xFF
+        milk_hi = (milk_qty >> 8) & 0xFF
+        return [
+            0x0D, 0x0F, 0x83, 0xF0, rid, 0x01,
+            0x01, 0x00, coffee_qty & 0xFF,
+            0x02, 0x02, milk_hi, milk_lo,
+            0x06, 0x00, 0x00,
+        ]
+    else:
+        # Coffee-only format
+        return [
+            0x0D, 0x0D, 0x83, 0xF0, rid, 0x01,
+            0x01, 0x00, coffee_qty & 0xFF,
+            0x00, 0x00, 0x06, 0x00, 0x00,
+        ]
+
 DEVICE_NOTIFICATION = {
     str(bytearray(DEVICE_READY)): BeverageNotify(
         NotificationType.STATUS, 'DeviceOK'
@@ -230,14 +275,13 @@ class DelongiPrimadonna:
         self.name = config.get(CONF_NAME)
         self.product_code = config.get(CONF_MODEL)
         self.hostname = ''
-        self.model = 'Prima Donna'
         self.friendly_name = ''
-        self.cooking = AvailableBeverage.NONE
+        self.cooking = 'none'
         self.connected = False
         self.notify = False
         self.steam_nozzle = NOZZLE_STATE[-1]
         self.service = 0
-        self.status = DEVICE_STATUS[5]
+        self.status = "Ready"
         self.switches = DeviceSwitches()
         self.active_switches: list[MachineSwitch] = []
         self.sync_time = False
@@ -249,11 +293,19 @@ class DelongiPrimadonna:
         self._last_stats_request = 0.0
         self._stats_lock = asyncio.Lock()
         machine = get_machine_model(self.product_code)
+        self.model = (
+            machine.name if machine and machine.name else 'Prima Donna'
+        )
+        self.image_url = (
+            machine.image_url if machine and machine.image_url
+            else DEFAULT_IMAGE_URL
+        )
         self._n_profiles = (
             machine.nProfiles
             if machine and machine.nProfiles
             else len(AVAILABLE_PROFILES)
         )
+        self.active_profile_id: int | None = None
         for pid in range(1, self._n_profiles + 1):
             AVAILABLE_PROFILES.setdefault(pid, f"Profile {pid}")
         for pid in list(AVAILABLE_PROFILES):
@@ -261,6 +313,31 @@ class DelongiPrimadonna:
                 AVAILABLE_PROFILES.pop(pid)
         self.profiles = list(AVAILABLE_PROFILES.values())
         self._profiles_loaded = False
+
+        # Build dynamic beverage list from machine recipes
+        self._recipe_map: dict[str, dict] = {}  # name -> {id, coffee_qty, milk_qty}
+        self.available_beverages: list[str] = ['none']
+        if machine and machine.recipes:
+            custom_idx = 0
+            for recipe in machine.recipes:
+                rname = recipe.name.value if recipe.name else None
+                if rname and recipe.id is not None:
+                    rid = int(recipe.id)
+                    # Deduplicate: custom recipes get numbered names
+                    if rname == "Custom":
+                        custom_idx += 1
+                        rname = f"Custom {custom_idx}"
+                    elif rname in self._recipe_map:
+                        rname = f"{rname} ({rid})"
+                    self._recipe_map[rname] = {
+                        'id': rid,
+                        'coffee_qty': recipe.coffee_qty or 0,
+                        'milk_qty': recipe.milk_qty or 0,
+                    }
+                    self.available_beverages.append(rname)
+        if len(self.available_beverages) <= 1:
+            # Fallback to legacy enum if no recipes
+            self.available_beverages = [*AvailableBeverage]
 
     async def disconnect(self):
         """Disconnect from the device."""
@@ -462,6 +539,8 @@ class DelongiPrimadonna:
                 status,
                 hexlify(value, " "),
             )
+            if profile_id is not None and status == 0:
+                self.active_profile_id = profile_id
         elif answer_id == 0xA2:
             await self._parse_statistics(value)
 
@@ -570,14 +649,46 @@ class DelongiPrimadonna:
         self.switches.sounds = False
         await self.send_command(self._make_switch_command())
 
-    async def beverage_start(self, beverage: AvailableBeverage) -> None:
-        """Start beverage"""
-        await self.send_command(BEVERAGE_COMMANDS.get(beverage).on)
+    async def beverage_start(self, beverage: str) -> None:
+        """Start beverage by name (recipe or legacy enum)."""
+        if beverage == 'none':
+            return
+        # Try recipe map first (dynamic from machine model)
+        recipe = self._recipe_map.get(beverage)
+        if recipe:
+            rid = recipe['id']
+            # Use hardcoded command if available for this recipe ID
+            legacy = RECIPE_ID_TO_BEVERAGE.get(rid)
+            if legacy and legacy in BEVERAGE_COMMANDS:
+                _LOGGER.info("Starting %s (recipe %d) via legacy command", beverage, rid)
+                await self.send_command(BEVERAGE_COMMANDS[legacy].on)
+            else:
+                _LOGGER.info("Starting %s (recipe %d) via dynamic command", beverage, rid)
+                cmd = _build_start_command(
+                    rid, recipe['coffee_qty'], recipe['milk_qty']
+                )
+                await self.send_command(cmd)
+            self.cooking = beverage
+            return
+        # Fallback to legacy AvailableBeverage enum
+        if beverage in BEVERAGE_COMMANDS:
+            await self.send_command(BEVERAGE_COMMANDS[beverage].on)
+            self.cooking = beverage
 
     async def beverage_cancel(self) -> None:
         """Cancel beverage"""
-        if self.cooking != AvailableBeverage.NONE:
-            await self.send_command(BEVERAGE_COMMANDS.get(self.cooking).off)
+        if self.cooking == 'none':
+            return
+        # Try recipe map first
+        recipe = self._recipe_map.get(self.cooking)
+        if recipe:
+            await self.send_command(_build_stop_command(recipe['id']))
+            self.cooking = 'none'
+            return
+        # Fallback to legacy
+        if self.cooking in BEVERAGE_COMMANDS:
+            await self.send_command(BEVERAGE_COMMANDS[self.cooking].off)
+        self.cooking = 'none'
 
     async def debug(self):
         """Send command which causes status reply"""
@@ -617,7 +728,11 @@ class DelongiPrimadonna:
             command = BYTES_LOAD_PROFILES.copy()
             command[5] = self._n_profiles
             await self.send_command(command)
+            # Default to first profile until the user switches
+            if self.active_profile_id is None:
+                self.active_profile_id = 1
             self._profiles_loaded = True
+
 
     async def set_time(self, dt: datetime) -> None:
         """Set device clock from provided datetime."""
