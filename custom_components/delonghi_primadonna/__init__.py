@@ -49,7 +49,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         make_beverage,
         schema=vol.Schema(
             {
-                vol.Required('beverage'): vol.Coerce(str),
+                vol.Required('beverage'): vol.In(
+                    delonghi_device.available_beverages
+                ),
                 vol.Optional('entity_id'): vol.Coerce(str),
                 vol.Optional('device_id'): vol.Coerce(str),
             }
