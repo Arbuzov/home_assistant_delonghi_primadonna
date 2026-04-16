@@ -10,7 +10,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 
 from .const import BEVERAGE_SERVICE_NAME, DOMAIN
-from .device import AvailableBeverage, BeverageEntityFeature, DelongiPrimadonna
+from .device import BeverageEntityFeature, DelongiPrimadonna
 
 PLATFORMS: list[str] = [
     Platform.IMAGE,
@@ -49,7 +49,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         make_beverage,
         schema=vol.Schema(
             {
-                vol.Required('beverage'): vol.In([*AvailableBeverage]),
+                vol.Required('beverage'): vol.Coerce(str),
                 vol.Optional('entity_id'): vol.Coerce(str),
                 vol.Optional('device_id'): vol.Coerce(str),
             }
