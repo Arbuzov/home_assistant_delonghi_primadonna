@@ -1,0 +1,161 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Zariadenie je uz nastavene"
+    },
+    "error": {
+      "cannot_connect": "Nepodarilo sa pripojit",
+      "invalid_auth": "Nespravna autentifikacia",
+      "unknown": "Neocakavana chyba"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "mac": "MAC adresa",
+          "name": "Nazov",
+          "model": "Model"
+        }
+      }
+    }
+  },
+  "entity": {
+    "select": {
+      "profile": {
+        "name": "Profil"
+      },
+      "make_beverage": {
+        "name": "Napoj"
+      },
+      "energy_save_mode": {
+        "name": "Vypnut po"
+      },
+      "water_hardness": {
+        "name": "Tvrdost vody"
+      },
+      "water_temperature": {
+        "name": "Teplota vody"
+      }
+    },
+    "button": {
+      "power_on": {
+        "name": "Zapnut"
+      }
+    },
+    "switch": {
+      "cup_light": {
+        "name": "Osvetlenie salky"
+      },
+      "debug_notification": {
+        "name": "Ladiace notifikacie"
+      },
+      "energy_save_mode": {
+        "name": "Usporny rezim"
+      },
+      "sounds": {
+        "name": "Zvuky"
+      },
+      "time_sync": {
+        "name": "Synchronizacia casu"
+      }
+    },
+    "binary_sensor": {
+      "descaling": {
+        "name": "Odvapnenie"
+      },
+      "filter": {
+        "name": "Filter"
+      },
+      "enabled": {
+        "name": "Zapnute"
+      }
+    },
+    "text": {
+      "debug_input": {
+        "name": "Ladiaci vstup"
+      }
+    },
+    "sensor": {
+      "nozzle_status": {
+        "name": "Stav trysky",
+        "state": {
+          "unknown": "Neznamy",
+          "detached": "Odpojena",
+          "steam": "Para",
+          "milk_frother": "Spenic mlieka",
+          "milk_frother_cleaning": "Cistenie spenica"
+        }
+      },
+      "switches": {
+        "name": "Spinace",
+        "state": {
+          "none": "Ziadny",
+          "water_spout": "Vyvod vody",
+          "motor_up": "Motor hore",
+          "motor_down": "Motor dole",
+          "coffee_waste_container": "Nadoba na zvysky kavy",
+          "water_tank_absent": "Chybajuca nadrz na vodu",
+          "knob": "Otocny gombik",
+          "water_level_low": "Nizka hladina vody",
+          "coffee_jug": "Kanvica na kavu",
+          "ifd_caraffe": "Karafa na mlieko",
+          "ciocco_tank": "Nadrz na cokoladu",
+          "clean_knob": "Cistenie gombika",
+          "door_opened": "Dvierka otvorene",
+          "preground_door_opened": "Dvierka predmletej kavy otvorene",
+          "unknown_switch": "Neznamy spinac"
+        }
+      },
+      "device_status": {
+        "name": "Stav stroja"
+      },
+      "total_coffee": {
+        "name": "Celkom kav"
+      },
+      "total_coffee_with_milk": {
+        "name": "Celkom kav s mliekom"
+      },
+      "total_water": {
+        "name": "Celkom vody"
+      },
+      "descaling_count": {
+        "name": "Pocet odvapneni"
+      },
+      "milk_cleaning_count": {
+        "name": "Pocet cisteni mlieka"
+      },
+      "filter_replace_count": {
+        "name": "Pocet vymen filtra"
+      },
+      "total_tea": {
+        "name": "Celkom cajov"
+      },
+      "total_choco": {
+        "name": "Celkom cokolad"
+      },
+      "additional_coffee": {
+        "name": "Dalsie kavy"
+      }
+    },
+    "image": {
+      "image": {
+        "name": "Obrazok"
+      }
+    }
+  },
+  "services": {
+    "make_beverage": {
+      "name": "Pripravit napoj",
+      "description": "Pripravit napoj zo zoznamu",
+      "fields": {
+        "beverage": {
+          "name": "Napoj",
+          "description": "Napoj na pripravu"
+        },
+        "entity_id": {
+          "name": "ID entity",
+          "description": "ID entity kavovaru"
+        }
+      }
+    }
+  }
+}
