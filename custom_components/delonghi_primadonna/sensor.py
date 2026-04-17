@@ -223,7 +223,7 @@ class DelongiPrimadonnaStatisticsSensor(
     def icon(self):
         """Return the icon of the sensor."""
         return self._attr_icon
-    
+
     async def async_update(self) -> None:
         """Fetch new state data for the sensor."""
         if self.device.connected:

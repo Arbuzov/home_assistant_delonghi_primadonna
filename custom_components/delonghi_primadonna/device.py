@@ -60,9 +60,9 @@ def parse_monitor_data(data: bytes) -> MonitorData | None:
     """Parse Monitor Data packet (v1 0x70 or v2 0x75)"""
     if len(data) < 3:
         return None
-    
+
     answer_id = data[2]
-    
+
     # Defaults
     switches = 0
     alarms = 0
@@ -75,53 +75,53 @@ def parse_monitor_data(data: bytes) -> MonitorData | None:
             return None
         # Switches: Bytes 5, 6 (Little Endian)
         switches = data[5] + (data[6] << 8)
-        
+
         # Alarms: Bytes 7, 8, 12, 13 (Little Endian in blocks)
         # Based on MonitorDataV2.b():
         # iS = z.S(bArr[7]) + (z.S(bArr[8]) << 8)
         #     + (z.S(bArr[12]) << 16) + (z.S(bArr[13]) << 24)
         alarms = (data[7] + (data[8] << 8)
                   + (data[12] << 16) + (data[13] << 24))
-        
+
         # Status/State: Byte 9
         status = data[9]
-        
+
         # SubStatus: Byte 10
         sub_status = data[10]
-        
+
         # Nozzle State: Byte 4 (from MonitorDataV2.a())
         nozzle_state = data[4]
-        
+
     elif answer_id == 0x70:  # MonitorData (v1)
         if len(data) < 11:
             return None
-            
+
         # Switches: Bytes 9, 10
         # Based on MonitorData.g(): bArr[9] + (bArr[10] << 8)
         switches = data[9] + (data[10] << 8)
-        
+
         # Alarms: Bytes 4, 5
         # Based on MonitorData.b(): bArr[4] + (bArr[5] << 8)
         alarms = data[4] + (data[5] << 8)
-        
+
         # Status/State: Byte 8
         # Based on MonitorData.f(): bArr[8]
         status = data[8]
-        
-        # SubStatus: Byte 9 
+
+        # SubStatus: Byte 9
         # Based on MonitorData.e(): bArr[9]
-        # Note: Byte 9 is also used for switches low byte? 
+        # Note: Byte 9 is also used for switches low byte?
         # MonitorData.g (Switches) uses 9, 10.
         # MonitorData.e (SubState/Aux) uses 9.
         # We will extract it as sub_status anyway.
         sub_status = data[9]
-        
+
         # Nozzle State: a() returns -1 for v1.
         nozzle_state = -1
-        
+
     else:
         return None
-        
+
     return MonitorData(switches, alarms, status, sub_status, nozzle_state)
 
 
@@ -820,10 +820,10 @@ class DelongiPrimadonna:
         """Parse statistics response"""
         if len(data) < 8:
             return
-            
+
         hex_data = hexlify(data, " ").decode('utf-8')
         _LOGGER.debug("Statistics Parser. Raw: %s", hex_data)
-        
+
         # [0]=D0 [1]=Len [2]=A2 [3]=0F [4-5]=StartAddr
         start_param_id = (data[4] << 8) | data[5]
 
@@ -860,12 +860,12 @@ class DelongiPrimadonna:
                 pid, val,
             )
             current_offset += 6
-        
+
         # Calculate combined values for total coffee
         if 3000 in self.statistics:
             total = self.statistics[3000] + self.statistics.get(3077, 0)
             self.statistics[-3077] = total
-            
+
         # Convert water quantity to liters (divide by 2000).
         # Use float division to preserve precision.
         if 106 in self.statistics:
@@ -897,12 +897,12 @@ class DelongiPrimadonna:
             # Coffee beverage totals (3000-3009)
             await self.get_statistics(3000, 10)
             await asyncio.sleep(0.3)
-            
+
             # Request additional coffee totals range
             # Covers: 3077-3080 (3077 is combined with 3000 for total coffee)
             await self.get_statistics(3077, 4)
             await asyncio.sleep(0.3)
-            
+
             # Optional: Request tea/other beverages if needed
             # await self.get_statistics(3025, 1)  # Tea counter
 
