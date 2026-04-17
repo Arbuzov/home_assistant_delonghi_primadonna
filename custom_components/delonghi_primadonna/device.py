@@ -634,36 +634,43 @@ class DelongiPrimadonna:
     async def power_on(self) -> None:
         """Turn the device on."""
         await self.send_command(BYTES_POWER)
+        await self.disconnect()
 
     async def cup_light_on(self) -> None:
         """Turn the cup light on."""
         self.switches.cup_light = True
         await self.send_command(self._make_switch_command())
+        await self.disconnect()
 
     async def cup_light_off(self) -> None:
         """Turn the cup light off."""
         self.switches.cup_light = False
         await self.send_command(self._make_switch_command())
+        await self.disconnect()
 
     async def energy_save_on(self):
         """Enable energy save mode"""
         self.switches.energy_save = True
         await self.send_command(self._make_switch_command())
+        await self.disconnect()
 
     async def energy_save_off(self):
-        """Enable energy save mode"""
+        """Disable energy save mode"""
         self.switches.energy_save = False
         await self.send_command(self._make_switch_command())
+        await self.disconnect()
 
     async def sound_alarm_on(self):
         """Enable sound alarm"""
         self.switches.sounds = True
         await self.send_command(self._make_switch_command())
+        await self.disconnect()
 
     async def sound_alarm_off(self):
         """Disable sound alarm"""
         self.switches.sounds = False
         await self.send_command(self._make_switch_command())
+        await self.disconnect()
 
     async def beverage_start(self, beverage: str) -> None:
         """Start beverage by name (recipe or legacy enum)."""
@@ -691,6 +698,7 @@ class DelongiPrimadonna:
                 )
                 await self.send_command(cmd)
             self.cooking = beverage
+            await self.disconnect()
             return
         _LOGGER.warning("Unknown beverage: %s", beverage)
 
@@ -702,18 +710,20 @@ class DelongiPrimadonna:
         if recipe:
             await self.send_command(_build_stop_command(recipe['id']))
         else:
-            _LOGGER.warning("Cannot cancel unknown beverage: %s", self.cooking)
+            _LOGGER.warning(
+                "Cannot cancel unknown beverage: %s",
+                self.cooking,
+            )
         self.cooking = BEVERAGE_NONE
+        await self.disconnect()
 
     async def debug(self):
         """Send command which causes status reply"""
         await self.send_command(DEBUG)
+        await self.disconnect()
 
     async def get_device_name(self):
-        """
-        Get device name
-        :return: device name
-        """
+        """Get device name and load profiles, then disconnect."""
         async with self._lock:
             try:
                 await self._connect()
@@ -723,7 +733,8 @@ class DelongiPrimadonna:
                     )
                 ).decode('utf-8')
                 await self._client.write_gatt_char(
-                    uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG)
+                    uuid.UUID(CONTROLL_CHARACTERISTIC),
+                    bytearray(DEBUG),
                 )
                 self.connected = True
             except BleakDBusError as error:
@@ -734,7 +745,10 @@ class DelongiPrimadonna:
                 _LOGGER.warning('BleakError: %s', error)
             except asyncio.exceptions.TimeoutError as error:
                 self.connected = False
-                _LOGGER.info('TimeoutError: %s at device connection', error)
+                _LOGGER.info(
+                    'TimeoutError: %s at device connection',
+                    error,
+                )
             except asyncio.exceptions.CancelledError as error:
                 self.connected = False
                 _LOGGER.warning('CancelledError: %s', error)
@@ -743,10 +757,12 @@ class DelongiPrimadonna:
             command = BYTES_LOAD_PROFILES.copy()
             command[5] = self._n_profiles
             await self.send_command(command)
-            # Default to first profile until the user switches
             if self.active_profile_id is None:
                 self.active_profile_id = 1
             self._profiles_loaded = True
+
+        # Release BLE connection for other integrations
+        await self.disconnect()
 
     def _parse_settings_response(self, data: bytes) -> None:
         """Parse settings response (0x90).
@@ -801,35 +817,43 @@ class DelongiPrimadonna:
         packet[4] = dt.hour & 0xFF
         packet[5] = dt.minute & 0xFF
         await self.send_command(packet)
+        await self.disconnect()
 
     async def select_profile(self, profile_id) -> None:
         """select a profile."""
         _LOGGER.debug("Send select profile command id=%s", profile_id)
-        message = [0x0D, 0x06, 0xA9, 0xF0, profile_id, 0xD7, 0xC0]
+        message = [
+            0x0D, 0x06, 0xA9, 0xF0, profile_id, 0xD7, 0xC0,
+        ]
         await self.send_command(message)
+        await self.disconnect()
 
     async def set_auto_power_off(self, power_off_interval) -> None:
         """Set auto power off time."""
         message = copy.deepcopy(BYTES_AUTOPOWEROFF_COMMAND)
         message[9] = power_off_interval
         await self.send_command(message)
+        await self.disconnect()
 
     async def set_water_hardness(self, hardness_level) -> None:
         """Set water hardness"""
         message = copy.deepcopy(BYTES_WATER_HARDNESS_COMMAND)
         message[9] = hardness_level
         await self.send_command(message)
+        await self.disconnect()
 
     async def set_water_temperature(self, temperature_level) -> None:
         """Set water temperature"""
         message = copy.deepcopy(BYTES_WATER_TEMPERATURE_COMMAND)
         message[9] = temperature_level
         await self.send_command(message)
+        await self.disconnect()
 
     async def common_command(self, command: str) -> None:
         """Send custom BLE command"""
         message = [int(x, 16) for x in command.split(' ')]
         await self.send_command(message)
+        await self.disconnect()
 
     async def send_command(self, message, retries=3):
         async with self._lock:
@@ -951,23 +975,26 @@ class DelongiPrimadonna:
                 return
 
             self._last_stats_request = current_time
-            for start, count in [
-                (100, 10), (110, 10), (3000, 10), (3077, 4),
-            ]:
-                try:
-                    await self.get_statistics(start, count)
-                    await asyncio.sleep(0.3)
-                except Exception:  # noqa: BLE001
-                    pass
+            try:
+                for start, count in [
+                    (100, 10), (110, 10), (3000, 10), (3077, 4),
+                ]:
+                    try:
+                        await self.get_statistics(start, count)
+                        await asyncio.sleep(0.3)
+                    except Exception:  # noqa: BLE001
+                        pass
 
-            # Read device settings (active profile + config)
-            if not self._settings_loaded:
-                try:
-                    await self._read_settings()
-                except Exception as err:  # noqa: BLE001
-                    _LOGGER.warning(
-                        "Settings read failed: %s", err,
-                    )
+                # Read device settings (active profile + config)
+                if not self._settings_loaded:
+                    try:
+                        await self._read_settings()
+                    except Exception as err:  # noqa: BLE001
+                        _LOGGER.warning(
+                            "Settings read failed: %s", err,
+                        )
+            finally:
+                await self.disconnect()
 
     async def get_statistics(self, start_index: int, count: int) -> None:
         """Get statistics from the machine"""
