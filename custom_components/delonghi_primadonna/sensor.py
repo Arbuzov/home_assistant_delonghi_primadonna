@@ -37,7 +37,7 @@ async def async_setup_entry(
             ),
             DelongiPrimadonnaStatisticsSensor(
                 delongh_device, hass, 'total_coffee_with_milk',
-                3001, 'Total Coffee with Milk',
+                -3001, 'Total Coffee with Milk',
                 icon='mdi:coffee-outline',
             ),
             DelongiPrimadonnaStatisticsSensor(

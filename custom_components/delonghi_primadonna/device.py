@@ -309,6 +309,10 @@ class DelongiPrimadonna:
             else len(AVAILABLE_PROFILES)
         )
         self.active_profile_id: int | None = None
+        self._settings_loaded = False
+        self.auto_off_index: int | None = None
+        self.water_hardness_index: int | None = None
+        self.water_temperature_index: int | None = None
         for pid in range(1, self._n_profiles + 1):
             AVAILABLE_PROFILES.setdefault(pid, f"Profile {pid}")
         for pid in list(AVAILABLE_PROFILES):
@@ -545,6 +549,14 @@ class DelongiPrimadonna:
             )
             if profile_id is not None and status == 0:
                 self.active_profile_id = profile_id
+        elif answer_id == 0xA5:
+            if len(value) > 4:
+                self.active_profile_id = value[4]
+                _LOGGER.debug(
+                    "Active profile: %s", self.active_profile_id,
+                )
+        elif answer_id == 0x90:
+            self._parse_settings_response(value)
         elif answer_id == 0xA2:
             await self._parse_statistics(value)
 
@@ -736,6 +748,53 @@ class DelongiPrimadonna:
                 self.active_profile_id = 1
             self._profiles_loaded = True
 
+    def _parse_settings_response(self, data: bytes) -> None:
+        """Parse settings response (0x90).
+
+        Response format: D0 08 90 F0 PROFILE GROUP VALUE CRC CRC
+        """
+        if len(data) < 7:
+            return
+        group = data[5]
+        value = data[6]
+        _LOGGER.debug(
+            "Settings response: group=0x%02x value=0x%02x",
+            group, value,
+        )
+        if group == 0x3F:
+            # Switches bitmask: bit0=eco, bit5=sounds
+            self.switches.energy_save = bool(value & 0x01)
+            self.switches.sounds = bool(value & 0x20)
+            self.switches.cup_light = bool(value & 0x10)
+        elif group == 0x3E:
+            self.auto_off_index = value
+        elif group == 0x3D:
+            self.water_temperature_index = value
+        elif group == 0x32:
+            self.water_hardness_index = value
+
+    async def _read_settings(self) -> None:
+        """Read device settings for the active profile."""
+        # Query active profile first
+        await self.send_command(
+            [0x0D, 0x05, 0xA5, 0xF0, 0x00, 0x00]
+        )
+        await asyncio.sleep(0.3)
+
+        pid = self.active_profile_id or 1
+        _LOGGER.info("Reading settings for profile %d", pid)
+
+        # Read each settings group for the active profile
+        groups = [0x3F, 0x3E, 0x3D, 0x32]
+        for grp in groups:
+            await self.send_command([
+                0x0D, 0x0B, 0x90, 0xF0, pid, grp,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            ])
+            await asyncio.sleep(0.3)
+
+        self._settings_loaded = True
+
     async def set_time(self, dt: datetime) -> None:
         """Set device clock from provided datetime."""
         packet = BYTES_TIME_COMMAND.copy()
@@ -864,6 +923,14 @@ class DelongiPrimadonna:
             total = self.statistics[3000] + self.statistics.get(3077, 0)
             self.statistics[-3077] = total
 
+        # Combined coffee with milk (3001 + 3003)
+        if 3001 in self.statistics:
+            total_milk = (
+                self.statistics[3001]
+                + self.statistics.get(3003, 0)
+            )
+            self.statistics[-3001] = total_milk
+
         # Convert water quantity to liters (divide by 2000).
         # Use float division to preserve precision.
         if 106 in self.statistics:
@@ -884,25 +951,23 @@ class DelongiPrimadonna:
                 return
 
             self._last_stats_request = current_time
-            # Maintenance counters (100-109)
-            await self.get_statistics(100, 10)
-            await asyncio.sleep(0.3)
+            for start, count in [
+                (100, 10), (110, 10), (3000, 10), (3077, 4),
+            ]:
+                try:
+                    await self.get_statistics(start, count)
+                    await asyncio.sleep(0.3)
+                except Exception:  # noqa: BLE001
+                    pass
 
-            # Extended maintenance (110-119)
-            await self.get_statistics(110, 10)
-            await asyncio.sleep(0.3)
-
-            # Coffee beverage totals (3000-3009)
-            await self.get_statistics(3000, 10)
-            await asyncio.sleep(0.3)
-
-            # Request additional coffee totals range
-            # Covers: 3077-3080 (3077 is combined with 3000 for total coffee)
-            await self.get_statistics(3077, 4)
-            await asyncio.sleep(0.3)
-
-            # Optional: Request tea/other beverages if needed
-            # await self.get_statistics(3025, 1)  # Tea counter
+            # Read device settings (active profile + config)
+            if not self._settings_loaded:
+                try:
+                    await self._read_settings()
+                except Exception as err:  # noqa: BLE001
+                    _LOGGER.warning(
+                        "Settings read failed: %s", err,
+                    )
 
     async def get_statistics(self, start_index: int, count: int) -> None:
         """Get statistics from the machine"""

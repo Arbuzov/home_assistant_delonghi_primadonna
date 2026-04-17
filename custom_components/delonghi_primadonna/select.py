@@ -120,6 +120,16 @@ class EnergySaveModeSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
     _attr_icon = 'mdi:power-plug-off'
 
     @property
+    def current_option(self) -> str | None:
+        """Return current auto-off from device."""
+        idx = self.device.auto_off_index
+        if idx is not None:
+            opts = list(POWER_OFF_OPTIONS.keys())
+            if 0 <= idx < len(opts):
+                return opts[idx]
+        return self._attr_current_option
+
+    @property
     def entity_category(self, **kwargs: Any) -> None:
         """Return the category of the entity."""
         return EntityCategory.CONFIG
@@ -145,6 +155,14 @@ class WaterHardnessSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
     _attr_current_option = 'Soft'
     _attr_translation_key = 'water_hardness'
     _attr_icon = 'mdi:water'
+
+    @property
+    def current_option(self) -> str | None:
+        """Return current water hardness from device."""
+        idx = self.device.water_hardness_index
+        if idx is not None and 0 <= idx < len(self._attr_options):
+            return self._attr_options[idx]
+        return self._attr_current_option
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
@@ -175,6 +193,14 @@ class WaterTemperatureSelect(
     _attr_translation_key = 'water_temperature'
     _attr_icon = 'mdi:thermometer'
     _attr_supported_features: BeverageEntityFeature = BeverageEntityFeature(1)
+
+    @property
+    def current_option(self) -> str | None:
+        """Return current water temperature from device."""
+        idx = self.device.water_temperature_index
+        if idx is not None and 0 <= idx < len(self._attr_options):
+            return self._attr_options[idx]
+        return self._attr_current_option
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()

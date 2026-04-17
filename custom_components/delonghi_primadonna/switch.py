@@ -127,6 +127,11 @@ class DelongiPrimadonnaPowerSaveSwitch(
             self._attr_is_on = last_state.state == 'on'
 
     @property
+    def is_on(self) -> bool:
+        """Return state from device settings."""
+        return self.device.switches.energy_save
+
+    @property
     def entity_category(self, **kwargs: Any) -> None:
         """Return the category of the entity"""
         return EntityCategory.CONFIG
@@ -154,6 +159,11 @@ class DelongiPrimadonnaSoundsSwitch(
         await super().async_added_to_hass()
         if (last_state := await self.async_get_last_state()) is not None:
             self._attr_is_on = last_state.state == 'on'
+
+    @property
+    def is_on(self) -> bool:
+        """Return state from device settings."""
+        return self.device.switches.sounds
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
