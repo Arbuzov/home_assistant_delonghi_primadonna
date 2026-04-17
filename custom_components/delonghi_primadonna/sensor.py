@@ -1,5 +1,6 @@
 """Sensor entities for Delonghi Primadonna."""
 
+from datetime import timedelta
 from typing import Any
 
 from homeassistant.components.sensor import (SensorDeviceClass, SensorEntity,
@@ -9,6 +10,9 @@ from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
+
+# Poll every 120s instead of default 30s to reduce BLE adapter contention
+SCAN_INTERVAL = timedelta(seconds=120)
 
 from .base_entity import DelonghiDeviceEntity
 from .const import DOMAIN

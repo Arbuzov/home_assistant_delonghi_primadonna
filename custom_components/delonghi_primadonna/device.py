@@ -17,6 +17,7 @@ from enum import IntFlag
 
 from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
+from bleak_retry_connector import establish_connection, BleakClientWithServiceCache
 from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_MODEL, CONF_NAME
 from homeassistant.core import HomeAssistant
@@ -377,7 +378,7 @@ class DelongiPrimadonna:
                 self.connected = False
 
     async def _connect(self, retries=3):
-        """Connect to the device."""
+        """Connect to the device using bleak_retry_connector."""
         self._connecting = True
         last_error = None
         for attempt in range(retries):
@@ -393,21 +394,21 @@ class DelongiPrimadonna:
                                 " could not be found."
                             )
                         )
-                    self._client = BleakClient(self._device)
                     _LOGGER.info(
                         "Connect to %s (attempt %d)",
                         self.mac,
                         attempt + 1,
                     )
-                    await asyncio.wait_for(
-                        self._client.connect(),
-                        timeout=10,
+                    self._client = await asyncio.wait_for(
+                        establish_connection(
+                            client_class=BleakClientWithServiceCache,
+                            device=self._device,
+                            name=self.mac,
+                            max_attempts=1,
+                            use_services_cache=True,
+                        ),
+                        timeout=15,
                     )
-                    # Service discovery is performed during the connection
-                    # process. Accessing ``get_services`` directly raises a
-                    # ``FutureWarning`` in recent versions of Bleak.
-                    # ``self._client.services`` will contain the discovered
-                    # services once the connection succeeds.
                     await asyncio.wait_for(
                         self._client.start_notify(
                             uuid.UUID(CONTROLL_CHARACTERISTIC),
