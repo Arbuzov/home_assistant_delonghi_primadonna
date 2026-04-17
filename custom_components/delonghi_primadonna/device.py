@@ -43,6 +43,11 @@ _LOGGER = logging.getLogger(__name__)
 
 START_BYTE = 0xD0
 
+# Delay between consecutive BLE commands (seconds).
+# The machine needs time to process each request and send
+# the response before accepting the next command.
+BLE_CMD_DELAY = 0.3
+
 
 @dataclass
 class MonitorData:
@@ -795,7 +800,7 @@ class DelongiPrimadonna:
         await self.send_command(
             [0x0D, 0x05, 0xA5, 0xF0, 0x00, 0x00]
         )
-        await asyncio.sleep(0.3)
+        await asyncio.sleep(BLE_CMD_DELAY)
 
         pid = self.active_profile_id or 1
         _LOGGER.info("Reading settings for profile %d", pid)
@@ -807,7 +812,7 @@ class DelongiPrimadonna:
                 0x0D, 0x0B, 0x90, 0xF0, pid, grp,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             ])
-            await asyncio.sleep(0.3)
+            await asyncio.sleep(BLE_CMD_DELAY)
 
         self._settings_loaded = True
 
@@ -981,9 +986,14 @@ class DelongiPrimadonna:
                 ]:
                     try:
                         await self.get_statistics(start, count)
-                        await asyncio.sleep(0.3)
-                    except Exception:  # noqa: BLE001
-                        pass
+                        # Brief delay between BLE requests to
+                        # avoid overwhelming the device
+                        await asyncio.sleep(BLE_CMD_DELAY)
+                    except Exception as err:  # noqa: BLE001
+                        _LOGGER.debug(
+                            "Stats request %d+%d failed: %s",
+                            start, count, err,
+                        )
 
                 # Read device settings (active profile + config)
                 if not self._settings_loaded:
