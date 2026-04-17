@@ -1,5 +1,6 @@
 """Device tracker entity for Delonghi Primadonna."""
 
+from homeassistant.components import bluetooth
 from homeassistant.components.device_tracker.config_entry import ScannerEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -52,9 +53,8 @@ class DelongiPrimadonnaDeviceTracker(DelonghiDeviceEntity, ScannerEntity):
 
     @property
     def is_connected(self) -> bool:
-        """Return true if the device is connected to the network."""
-        return self.device.connected
-
-    async def async_update(self):
-        """Updates the device status"""
-        self.hass.async_create_task(self.device.get_device_name())
+        """Return true if the device is reachable via BLE."""
+        ble_device = bluetooth.async_ble_device_from_address(
+            self.hass, self.device.mac, connectable=False
+        )
+        return ble_device is not None

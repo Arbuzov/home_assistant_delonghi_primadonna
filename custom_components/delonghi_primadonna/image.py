@@ -4,6 +4,7 @@ from homeassistant.components.image import ImageEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import dt as dt_util
 
 from .base_entity import DelonghiDeviceEntity
 from .const import DEFAULT_IMAGE_URL, DOMAIN
@@ -38,3 +39,4 @@ class DelongiPrimadonnaImage(DelonghiDeviceEntity, ImageEntity):
         model = get_machine_model(delongh_device.product_code)
         if model is not None and model.image_url:
             self._attr_image_url = model.image_url
+        self._attr_image_last_updated = dt_util.utcnow()

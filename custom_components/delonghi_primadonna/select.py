@@ -11,8 +11,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base_entity import DelonghiDeviceEntity
-from .const import AVAILABLE_PROFILES, DOMAIN, POWER_OFF_OPTIONS
-from .device import AvailableBeverage, BeverageEntityFeature, DelongiPrimadonna
+from .const import AVAILABLE_PROFILES, BEVERAGE_NONE, DOMAIN, POWER_OFF_OPTIONS
+from .device import BeverageEntityFeature, DelongiPrimadonna
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -59,6 +59,14 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
         return self.device.profiles
 
     @property
+    def current_option(self) -> str | None:
+        """Return the currently active profile from the device."""
+        pid = self.device.active_profile_id
+        if pid is not None and pid in AVAILABLE_PROFILES:
+            return AVAILABLE_PROFILES[pid]
+        return self._attr_current_option
+
+    @property
     def entity_category(self, **kwargs: Any) -> None:
         """Return the category of the entity."""
         return EntityCategory.CONFIG
@@ -81,17 +89,22 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
 class BeverageSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
     """Beverage start implementation by the select"""
 
-    _attr_options = [*AvailableBeverage]
-    _attr_current_option = [*AvailableBeverage][0]
+    _attr_current_option = BEVERAGE_NONE
     _attr_translation_key = 'make_beverage'
     _attr_icon = 'mdi:coffee'
     _attr_supported_features: BeverageEntityFeature \
         = BeverageEntityFeature.MAKE_BEVERAGE
 
+    @property
+    def options(self) -> list[str]:
+        """Return available beverages from machine model."""
+        return self.device.available_beverages
+
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
         if (last_state := await self.async_get_last_state()) is not None:
-            self._attr_current_option = last_state.state
+            if last_state.state in self.device.available_beverages:
+                self._attr_current_option = last_state.state
 
     async def async_select_option(self, option: str) -> None:
         """Select beverage action"""
@@ -105,6 +118,16 @@ class EnergySaveModeSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
     _attr_current_option = list(POWER_OFF_OPTIONS.keys())[3]
     _attr_translation_key = 'energy_save_mode'
     _attr_icon = 'mdi:power-plug-off'
+
+    @property
+    def current_option(self) -> str | None:
+        """Return current auto-off from device."""
+        idx = self.device.auto_off_index
+        if idx is not None:
+            opts = list(POWER_OFF_OPTIONS.keys())
+            if 0 <= idx < len(opts):
+                return opts[idx]
+        return self._attr_current_option
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
@@ -132,6 +155,14 @@ class WaterHardnessSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
     _attr_current_option = 'Soft'
     _attr_translation_key = 'water_hardness'
     _attr_icon = 'mdi:water'
+
+    @property
+    def current_option(self) -> str | None:
+        """Return current water hardness from device."""
+        idx = self.device.water_hardness_index
+        if idx is not None and 0 <= idx < len(self._attr_options):
+            return self._attr_options[idx]
+        return self._attr_current_option
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
@@ -162,6 +193,14 @@ class WaterTemperatureSelect(
     _attr_translation_key = 'water_temperature'
     _attr_icon = 'mdi:thermometer'
     _attr_supported_features: BeverageEntityFeature = BeverageEntityFeature(1)
+
+    @property
+    def current_option(self) -> str | None:
+        """Return current water temperature from device."""
+        idx = self.device.water_temperature_index
+        if idx is not None and 0 <= idx < len(self._attr_options):
+            return self._attr_options[idx]
+        return self._attr_current_option
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()

@@ -3,6 +3,8 @@ from homeassistant.const import EntityCategory
 
 DOMAIN = 'delonghi_primadonna'
 
+BEVERAGE_NONE = 'none'
+
 SERVICE = '00035b03-58e6-07dd-021a-08123a000300'
 
 CONTROLL_CHARACTERISTIC = '00035b03-58e6-07dd-021a-08123a000301'
@@ -52,35 +54,35 @@ NOZZLE_STATE = {
 SERVICE_STATE = {0: 'OK', 4: 'DESCALING'}
 
 DEVICE_STATUS = {
-    0: "empty_water_tank",
-    1: "coffee_waste_container_full",
-    2: "descale_alarm",
-    3: "replace_water_filter",
-    4: "coffee_ground_too_fine",
-    5: "coffee_beans_empty",
-    6: "machine_to_service",
-    7: "coffee_heater_probe_failure",
-    8: "too_much_coffee",
-    9: "coffee_infuser_motor_not_working",
-    10: "steamer_probe_failure",
-    11: "empty_drip_tray",
-    12: "hydraulic_circuit_problem",
-    13: "tank_is_in_position",
-    14: "clean_knob",
-    15: "coffee_beans_empty_two",
-    16: "tank_too_full",
-    17: "bean_hopper_absent",
-    18: "grid_presence",
-    19: "infuser_sense",
-    20: "not_enough_coffee",
-    21: "expansion_comm_prob",
-    22: "expansion_submodules_prob",
-    23: "grinding_unit_1_problem",
-    24: "grinding_unit_2_problem",
-    25: "condense_fan_problem",
-    26: "clock_bt_comm_problem",
-    27: "spi_comm_problem",
-    99: "unknown_alarm",
+    0: "Empty water tank",
+    1: "Coffee waste container full",
+    2: "Descaling needed",
+    3: "Replace water filter",
+    4: "Coffee ground too fine",
+    5: "Coffee beans empty",
+    6: "Service required",
+    7: "Heater probe failure",
+    8: "Too much coffee",
+    9: "Infuser motor failure",
+    10: "Steamer probe failure",
+    11: "Empty drip tray",
+    12: "Hydraulic circuit problem",
+    13: "Tank in position",
+    14: "Clean knob",
+    15: "Coffee beans empty",
+    16: "Tank too full",
+    17: "Bean hopper absent",
+    18: "Grid present",
+    19: "Infuser sense",
+    20: "Not enough coffee",
+    21: "Expansion comm problem",
+    22: "Expansion submodule problem",
+    23: "Grinding unit 1 problem",
+    24: "Grinding unit 2 problem",
+    25: "Condenser fan problem",
+    26: "BT communication problem",
+    27: "SPI communication problem",
+    99: "Unknown alarm",
 }
 
 """
