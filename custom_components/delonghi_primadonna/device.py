@@ -22,7 +22,8 @@ import time
 from dataclasses import dataclass
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
-                    BASE_COMMAND, BYTES_AUTOPOWEROFF_COMMAND,
+                    BASE_COMMAND, BEVERAGE_NONE,
+                    BYTES_AUTOPOWEROFF_COMMAND,
                     BYTES_LOAD_PROFILES, BYTES_POWER, BYTES_SWITCH_COMMAND,
                     BYTES_TIME_COMMAND, BYTES_WATER_HARDNESS_COMMAND,
                     BYTES_WATER_TEMPERATURE_COMMAND, BYTES_STATISTICS_COMMAND,
@@ -132,7 +133,7 @@ class BeverageEntityFeature(IntFlag):
 class AvailableBeverage(StrEnum):
     """Coffee machine available beverages"""
 
-    NONE = 'none'
+    NONE = BEVERAGE_NONE
     STEAM = 'steam'
     LONG = 'long'
     COFFEE = 'coffee'
@@ -276,7 +277,7 @@ class DelongiPrimadonna:
         self.product_code = config.get(CONF_MODEL)
         self.hostname = ''
         self.friendly_name = ''
-        self.cooking = 'none'
+        self.cooking = BEVERAGE_NONE
         self.connected = False
         self.notify = False
         self.steam_nozzle = NOZZLE_STATE[-1]
@@ -316,7 +317,7 @@ class DelongiPrimadonna:
 
         # Build dynamic beverage list from machine recipes
         self._recipe_map: dict[str, dict] = {}  # name -> {id, coffee_qty, milk_qty}
-        self.available_beverages: list[str] = ['none']
+        self.available_beverages: list[str] = [BEVERAGE_NONE]
         if machine and machine.recipes:
             custom_idx = 0
             for recipe in machine.recipes:
@@ -651,7 +652,7 @@ class DelongiPrimadonna:
 
     async def beverage_start(self, beverage: str) -> None:
         """Start beverage by name (recipe or legacy enum)."""
-        if beverage == 'none':
+        if beverage == BEVERAGE_NONE:
             return
         # Try recipe map (dynamic from machine model)
         recipe = self._recipe_map.get(beverage)
@@ -674,14 +675,14 @@ class DelongiPrimadonna:
 
     async def beverage_cancel(self) -> None:
         """Cancel beverage"""
-        if self.cooking == 'none':
+        if self.cooking == BEVERAGE_NONE:
             return
         recipe = self._recipe_map.get(self.cooking)
         if recipe:
             await self.send_command(_build_stop_command(recipe['id']))
         else:
             _LOGGER.warning("Cannot cancel unknown beverage: %s", self.cooking)
-        self.cooking = 'none'
+        self.cooking = BEVERAGE_NONE
 
     async def debug(self):
         """Send command which causes status reply"""
