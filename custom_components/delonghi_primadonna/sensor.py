@@ -213,8 +213,11 @@ class DelongiPrimadonnaStatisticsSensor(
 
     @property
     def native_value(self):
-        """Return the current value from the statistics dictionary."""
-        return self.device.statistics.get(self._param_id)
+        """Return current value, or restored value as fallback."""
+        val = self.device.statistics.get(self._param_id)
+        if val is not None:
+            return val
+        return self._attr_native_value
 
     @property
     def icon(self):
