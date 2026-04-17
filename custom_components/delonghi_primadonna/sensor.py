@@ -226,7 +226,6 @@ class DelongiPrimadonnaStatisticsSensor(
 
     async def async_update(self) -> None:
         """Fetch new state data for the sensor."""
-        if self.device.connected:
-            self.hass.async_create_task(
-                self.device.update_statistics()
-            )
+        self.hass.async_create_task(
+            self.device.update_statistics()
+        )
