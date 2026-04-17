@@ -8,8 +8,10 @@ except ImportError:  # pragma: no cover - fallback for older Home Assistant
     from homeassistant.backports.enum import StrEnum
 
 import logging
+import time
 import uuid
 from binascii import crc_hqx, hexlify
+from dataclasses import dataclass
 from datetime import datetime
 from enum import IntFlag
 
@@ -18,30 +20,29 @@ from bleak.exc import BleakDBusError, BleakError
 from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_MODEL, CONF_NAME
 from homeassistant.core import HomeAssistant
-import time
-from dataclasses import dataclass
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
-                    BASE_COMMAND, BYTES_AUTOPOWEROFF_COMMAND,
-                    BYTES_LOAD_PROFILES, BYTES_POWER, BYTES_SWITCH_COMMAND,
-                    BYTES_TIME_COMMAND, BYTES_WATER_HARDNESS_COMMAND,
-                    BYTES_WATER_TEMPERATURE_COMMAND, BYTES_STATISTICS_COMMAND,
-                    COFFE_OFF, COFFE_ON,
+                    BASE_COMMAND, BEVERAGE_NONE, BYTES_AUTOPOWEROFF_COMMAND,
+                    BYTES_LOAD_PROFILES, BYTES_POWER, BYTES_STATISTICS_COMMAND,
+                    BYTES_SWITCH_COMMAND, BYTES_TIME_COMMAND,
+                    BYTES_WATER_HARDNESS_COMMAND,
+                    BYTES_WATER_TEMPERATURE_COMMAND, COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_CLEAN,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
                     COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
-                    DEBUG, DEVICE_READY, DEVICE_STATUS, DEVICE_TURNOFF, DOMAIN,
-                    DOPPIO_OFF, DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON,
-                    ESPRESSO_OFF, ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON,
-                    LONG_OFF, LONG_ON, NAME_CHARACTERISTIC, NOZZLE_STATE,
-                    START_COFFEE, STEAM_OFF, STEAM_ON, WATER_SHORTAGE,
-                    WATER_TANK_DETACHED)
+                    DEBUG, DEFAULT_IMAGE_URL, DEVICE_READY, DEVICE_STATUS,
+                    DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF, DOPPIO_ON,
+                    ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF, ESPRESSO_ON,
+                    HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
+                    NAME_CHARACTERISTIC, NOZZLE_STATE, START_COFFEE, STEAM_OFF,
+                    STEAM_ON, WATER_SHORTAGE, WATER_TANK_DETACHED)
 from .machine_switch import MachineSwitch, parse_switches
 from .model import get_machine_model
 
 _LOGGER = logging.getLogger(__name__)
 
 START_BYTE = 0xD0
+
 
 @dataclass
 class MonitorData:
@@ -52,13 +53,14 @@ class MonitorData:
     sub_status: int
     nozzle_state: int
 
+
 def parse_monitor_data(data: bytes) -> MonitorData | None:
     """Parse Monitor Data packet (v1 0x70 or v2 0x75)"""
     if len(data) < 3:
         return None
-    
+
     answer_id = data[2]
-    
+
     # Defaults
     switches = 0
     alarms = 0
@@ -66,58 +68,59 @@ def parse_monitor_data(data: bytes) -> MonitorData | None:
     sub_status = 0
     nozzle_state = -1
 
-    if answer_id == 0x75: # MonitorDataV2
+    if answer_id == 0x75:  # MonitorDataV2
         if len(data) < 14:
             return None
         # Switches: Bytes 5, 6 (Little Endian)
         switches = data[5] + (data[6] << 8)
-        
+
         # Alarms: Bytes 7, 8, 12, 13 (Little Endian in blocks)
         # Based on MonitorDataV2.b():
-        # iS = z.S(bArr[7]) + (z.S(bArr[8]) << 8) + (z.S(bArr[12]) << 16) + (z.S(bArr[13]) << 24)
-        alarms = data[7] + (data[8] << 8) + (data[12] << 16) + (data[13] << 24)
-        
+        # iS = z.S(bArr[7]) + (z.S(bArr[8]) << 8)
+        #     + (z.S(bArr[12]) << 16) + (z.S(bArr[13]) << 24)
+        alarms = (data[7] + (data[8] << 8)
+                  + (data[12] << 16) + (data[13] << 24))
+
         # Status/State: Byte 9
         status = data[9]
-        
+
         # SubStatus: Byte 10
         sub_status = data[10]
-        
+
         # Nozzle State: Byte 4 (from MonitorDataV2.a())
         nozzle_state = data[4]
-        
-    elif answer_id == 0x70: # MonitorData (v1)
+
+    elif answer_id == 0x70:  # MonitorData (v1)
         if len(data) < 11:
             return None
-            
+
         # Switches: Bytes 9, 10
         # Based on MonitorData.g(): bArr[9] + (bArr[10] << 8)
         switches = data[9] + (data[10] << 8)
-        
+
         # Alarms: Bytes 4, 5
         # Based on MonitorData.b(): bArr[4] + (bArr[5] << 8)
         alarms = data[4] + (data[5] << 8)
-        
+
         # Status/State: Byte 8
         # Based on MonitorData.f(): bArr[8]
         status = data[8]
-        
-        # SubStatus: Byte 9 
+
+        # SubStatus: Byte 9
         # Based on MonitorData.e(): bArr[9]
-        # Note: Byte 9 is also used for switches low byte? 
+        # Note: Byte 9 is also used for switches low byte?
         # MonitorData.g (Switches) uses 9, 10.
         # MonitorData.e (SubState/Aux) uses 9.
         # We will extract it as sub_status anyway.
         sub_status = data[9]
-        
+
         # Nozzle State: a() returns -1 for v1.
         nozzle_state = -1
-        
+
     else:
         return None
-        
-    return MonitorData(switches, alarms, status, sub_status, nozzle_state)
 
+    return MonitorData(switches, alarms, status, sub_status, nozzle_state)
 
 
 class BeverageEntityFeature(IntFlag):
@@ -131,7 +134,7 @@ class BeverageEntityFeature(IntFlag):
 class AvailableBeverage(StrEnum):
     """Coffee machine available beverages"""
 
-    NONE = 'none'
+    NONE = BEVERAGE_NONE
     STEAM = 'steam'
     LONG = 'long'
     COFFEE = 'coffee'
@@ -188,6 +191,51 @@ BEVERAGE_COMMANDS = {
     AvailableBeverage.ESPRESSO2: BeverageCommand(ESPRESSO2_ON, ESPRESSO2_OFF),
 }
 
+# Map recipe IDs from MachinesModels.json to existing hardcoded commands
+RECIPE_ID_TO_BEVERAGE = {
+    1: AvailableBeverage.ESPRESSO,     # Espresso Coffee
+    2: AvailableBeverage.COFFEE,       # Regular Coffee
+    3: AvailableBeverage.LONG,         # Long Coffee
+    4: AvailableBeverage.ESPRESSO2,    # 2X Espresso Coffee
+    5: AvailableBeverage.DOPIO,        # Doppio+
+    6: AvailableBeverage.AMERICANO,    # Americano
+    16: AvailableBeverage.HOTWATER,    # Hot Water
+    17: AvailableBeverage.STEAM,       # Steam
+}
+
+
+def _build_stop_command(recipe_id: int) -> list[int]:
+    """Build a stop command for any recipe ID."""
+    return [0x0D, 0x08, 0x83, 0xF0, recipe_id & 0xFF, 0x02, 0x06, 0x00, 0x00]
+
+
+def _build_start_command(recipe_id: int, coffee_qty: int = 0,
+                         milk_qty: int = 0) -> list[int]:
+    """Build a generic start command for a recipe.
+
+    The command structure varies by recipe type, but this covers the common
+    coffee-only and milk-drink patterns observed from the DeLonghi protocol.
+    """
+    rid = recipe_id & 0xFF
+    if milk_qty > 0:
+        # Milk drink format (observed for cappuccino-like beverages)
+        milk_lo = milk_qty & 0xFF
+        milk_hi = (milk_qty >> 8) & 0xFF
+        return [
+            0x0D, 0x0F, 0x83, 0xF0, rid, 0x01,
+            0x01, 0x00, coffee_qty & 0xFF,
+            0x02, 0x02, milk_hi, milk_lo,
+            0x06, 0x00, 0x00,
+        ]
+    else:
+        # Coffee-only format
+        return [
+            0x0D, 0x0D, 0x83, 0xF0, rid, 0x01,
+            0x01, 0x00, coffee_qty & 0xFF,
+            0x00, 0x00, 0x06, 0x00, 0x00,
+        ]
+
+
 DEVICE_NOTIFICATION = {
     str(bytearray(DEVICE_READY)): BeverageNotify(
         NotificationType.STATUS, 'DeviceOK'
@@ -230,14 +278,13 @@ class DelongiPrimadonna:
         self.name = config.get(CONF_NAME)
         self.product_code = config.get(CONF_MODEL)
         self.hostname = ''
-        self.model = 'Prima Donna'
         self.friendly_name = ''
-        self.cooking = AvailableBeverage.NONE
+        self.cooking = BEVERAGE_NONE
         self.connected = False
         self.notify = False
         self.steam_nozzle = NOZZLE_STATE[-1]
         self.service = 0
-        self.status = DEVICE_STATUS[5]
+        self.status = "Ready"
         self.switches = DeviceSwitches()
         self.active_switches: list[MachineSwitch] = []
         self.sync_time = False
@@ -249,11 +296,19 @@ class DelongiPrimadonna:
         self._last_stats_request = 0.0
         self._stats_lock = asyncio.Lock()
         machine = get_machine_model(self.product_code)
+        self.model = (
+            machine.name if machine and machine.name else 'Prima Donna'
+        )
+        self.image_url = (
+            machine.image_url if machine and machine.image_url
+            else DEFAULT_IMAGE_URL
+        )
         self._n_profiles = (
             machine.nProfiles
             if machine and machine.nProfiles
             else len(AVAILABLE_PROFILES)
         )
+        self.active_profile_id: int | None = None
         for pid in range(1, self._n_profiles + 1):
             AVAILABLE_PROFILES.setdefault(pid, f"Profile {pid}")
         for pid in list(AVAILABLE_PROFILES):
@@ -261,6 +316,32 @@ class DelongiPrimadonna:
                 AVAILABLE_PROFILES.pop(pid)
         self.profiles = list(AVAILABLE_PROFILES.values())
         self._profiles_loaded = False
+
+        # Build dynamic beverage list from machine recipes
+        # name -> {id, coffee_qty, milk_qty}
+        self._recipe_map: dict[str, dict] = {}
+        self.available_beverages: list[str] = [BEVERAGE_NONE]
+        if machine and machine.recipes:
+            custom_idx = 0
+            for recipe in machine.recipes:
+                rname = recipe.name.value if recipe.name else None
+                if rname and recipe.id is not None:
+                    rid = int(recipe.id)
+                    # Deduplicate: custom recipes get numbered names
+                    if rname == "Custom":
+                        custom_idx += 1
+                        rname = f"Custom {custom_idx}"
+                    elif rname in self._recipe_map:
+                        rname = f"{rname} ({rid})"
+                    self._recipe_map[rname] = {
+                        'id': rid,
+                        'coffee_qty': recipe.coffee_qty or 0,
+                        'milk_qty': recipe.milk_qty or 0,
+                    }
+                    self.available_beverages.append(rname)
+        if len(self.available_beverages) <= 1:
+            # Fallback to legacy enum if no recipes
+            self.available_beverages = [*AvailableBeverage]
 
     async def disconnect(self):
         """Disconnect from the device."""
@@ -462,6 +543,8 @@ class DelongiPrimadonna:
                 status,
                 hexlify(value, " "),
             )
+            if profile_id is not None and status == 0:
+                self.active_profile_id = profile_id
         elif answer_id == 0xA2:
             await self._parse_statistics(value)
 
@@ -570,14 +653,45 @@ class DelongiPrimadonna:
         self.switches.sounds = False
         await self.send_command(self._make_switch_command())
 
-    async def beverage_start(self, beverage: AvailableBeverage) -> None:
-        """Start beverage"""
-        await self.send_command(BEVERAGE_COMMANDS.get(beverage).on)
+    async def beverage_start(self, beverage: str) -> None:
+        """Start beverage by name (recipe or legacy enum)."""
+        if beverage == BEVERAGE_NONE:
+            return
+        # Try recipe map (dynamic from machine model)
+        recipe = self._recipe_map.get(beverage)
+        if recipe:
+            rid = recipe['id']
+            # Use hardcoded command if available for this recipe ID
+            legacy = RECIPE_ID_TO_BEVERAGE.get(rid)
+            if legacy and legacy in BEVERAGE_COMMANDS:
+                _LOGGER.info(
+                    "Starting %s (recipe %d) via legacy",
+                    beverage, rid,
+                )
+                await self.send_command(BEVERAGE_COMMANDS[legacy].on)
+            else:
+                _LOGGER.info(
+                    "Starting %s (recipe %d) via dynamic",
+                    beverage, rid,
+                )
+                cmd = _build_start_command(
+                    rid, recipe['coffee_qty'], recipe['milk_qty']
+                )
+                await self.send_command(cmd)
+            self.cooking = beverage
+            return
+        _LOGGER.warning("Unknown beverage: %s", beverage)
 
     async def beverage_cancel(self) -> None:
         """Cancel beverage"""
-        if self.cooking != AvailableBeverage.NONE:
-            await self.send_command(BEVERAGE_COMMANDS.get(self.cooking).off)
+        if self.cooking == BEVERAGE_NONE:
+            return
+        recipe = self._recipe_map.get(self.cooking)
+        if recipe:
+            await self.send_command(_build_stop_command(recipe['id']))
+        else:
+            _LOGGER.warning("Cannot cancel unknown beverage: %s", self.cooking)
+        self.cooking = BEVERAGE_NONE
 
     async def debug(self):
         """Send command which causes status reply"""
@@ -617,6 +731,9 @@ class DelongiPrimadonna:
             command = BYTES_LOAD_PROFILES.copy()
             command[5] = self._n_profiles
             await self.send_command(command)
+            # Default to first profile until the user switches
+            if self.active_profile_id is None:
+                self.active_profile_id = 1
             self._profiles_loaded = True
 
     async def set_time(self, dt: datetime) -> None:
@@ -701,56 +818,62 @@ class DelongiPrimadonna:
         """Parse statistics response"""
         if len(data) < 8:
             return
-            
+
         hex_data = hexlify(data, " ").decode('utf-8')
         _LOGGER.debug("Statistics Parser. Raw: %s", hex_data)
-        
+
         # [0]=D0 [1]=Len [2]=A2 [3]=0F [4-5]=StartAddr
         start_param_id = (data[4] << 8) | data[5]
-        
+
         # Offset to first value (byte 6)
         current_offset = 6
         current_param_id = start_param_id
-        
+
         # 1. First value belongs to StartAddr
         if current_offset + 4 <= len(data) - 2:
-            val = int.from_bytes(data[current_offset:current_offset+4], byteorder='big')
+            val = int.from_bytes(
+                data[current_offset:current_offset + 4],
+                byteorder='big',
+            )
             self.statistics[current_param_id] = val
-            _LOGGER.debug("Statistics Parser.Parsed (Implicit): ID %s = %s", current_param_id, val)
+            _LOGGER.debug(
+                "Statistics Parser.Parsed (Implicit): ID %s = %s",
+                current_param_id, val,
+            )
             current_offset += 4
-            
+
         # 2. Subsequent parameters are [ID 2B] + [Value 4B]
         while current_offset + 6 <= len(data) - 2:
-            pid = (data[current_offset] << 8) | data[current_offset+1]
-            val = int.from_bytes(data[current_offset+2:current_offset+6], byteorder='big')
+            pid = (
+                (data[current_offset] << 8)
+                | data[current_offset + 1]
+            )
+            val = int.from_bytes(
+                data[current_offset + 2:current_offset + 6],
+                byteorder='big',
+            )
             self.statistics[pid] = val
-            _LOGGER.debug("Statistics Parser.Parsed (Explicit): ID %s = %s", pid, val)
+            _LOGGER.debug(
+                "Statistics Parser.Parsed (Explicit): ID %s = %s",
+                pid, val,
+            )
             current_offset += 6
-        
+
         # Calculate combined values for total coffee
         if 3000 in self.statistics:
             total = self.statistics[3000] + self.statistics.get(3077, 0)
             self.statistics[-3077] = total
-            
-        # Convert water quantity to liters (divide by 2000)
-        # Use float division to preserve precision and round to 2 decimal places.
+
+        # Convert water quantity to liters (divide by 2000).
+        # Use float division to preserve precision.
         if 106 in self.statistics:
             water_ml = self.statistics.get(106, 0)
             if water_ml > 0:
                 self.statistics[10106] = round(water_ml / 2000.0, 2)
 
     async def update_statistics(self) -> None:
-        """Update statistics with throttling.
-        
-        Requests statistics from the ECAM machine via BLE.
-        Based on APK's parameter address mappings:
-        - 100-109: Maintenance counters (water, descaling, filters)
-        - 110-119: Extended maintenance counters (milk cleaning)
-        - 3000-3009: Coffee beverage totals
-        - 3077-3080: Additional coffee totals (combined with 3000 for total)
-        """
-        
-        # Use a lock to prevent concurrent statistics updates from multiple sensors
+        """Update statistics with throttling."""
+        # Prevent concurrent updates from multiple sensors
         if self._stats_lock.locked():
             return
 
@@ -761,26 +884,23 @@ class DelongiPrimadonna:
                 return
 
             self._last_stats_request = current_time
-            # Request parameter range for maintenance counters
-            # Covers: 100-109 (includes 106=water, 105=descale, 108=filter, etc.)
+            # Maintenance counters (100-109)
             await self.get_statistics(100, 10)
             await asyncio.sleep(0.3)
-            
-            # Request extended maintenance counters
-            # Covers: 110-119 (includes 115=milk cleaning)
+
+            # Extended maintenance (110-119)
             await self.get_statistics(110, 10)
             await asyncio.sleep(0.3)
-            
-            # Request coffee statistics range
-            # Covers: 3000-3009 (includes 3000=total black coffee, 3001=with milk, etc.)
+
+            # Coffee beverage totals (3000-3009)
             await self.get_statistics(3000, 10)
             await asyncio.sleep(0.3)
-            
+
             # Request additional coffee totals range
             # Covers: 3077-3080 (3077 is combined with 3000 for total coffee)
             await self.get_statistics(3077, 4)
             await asyncio.sleep(0.3)
-            
+
             # Optional: Request tea/other beverages if needed
             # await self.get_statistics(3025, 1)  # Tea counter
 
