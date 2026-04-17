@@ -11,7 +11,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base_entity import DelonghiDeviceEntity
-from .const import AVAILABLE_PROFILES, DOMAIN, POWER_OFF_OPTIONS
+from .const import AVAILABLE_PROFILES, BEVERAGE_NONE, DOMAIN, POWER_OFF_OPTIONS
 from .device import BeverageEntityFeature, DelongiPrimadonna
 
 _LOGGER = logging.getLogger(__name__)
@@ -89,7 +89,7 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
 class BeverageSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
     """Beverage start implementation by the select"""
 
-    _attr_current_option = 'none'
+    _attr_current_option = BEVERAGE_NONE
     _attr_translation_key = 'make_beverage'
     _attr_icon = 'mdi:coffee'
     _attr_supported_features: BeverageEntityFeature \
