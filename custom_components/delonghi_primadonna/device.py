@@ -45,6 +45,7 @@ _LOGGER = logging.getLogger(__name__)
 
 START_BYTE = 0xD0
 
+
 @dataclass
 class MonitorData:
     """Monitor Data structure"""
@@ -53,6 +54,7 @@ class MonitorData:
     status: int
     sub_status: int
     nozzle_state: int
+
 
 def parse_monitor_data(data: bytes) -> MonitorData | None:
     """Parse Monitor Data packet (v1 0x70 or v2 0x75)"""
@@ -68,7 +70,7 @@ def parse_monitor_data(data: bytes) -> MonitorData | None:
     sub_status = 0
     nozzle_state = -1
 
-    if answer_id == 0x75: # MonitorDataV2
+    if answer_id == 0x75:  # MonitorDataV2
         if len(data) < 14:
             return None
         # Switches: Bytes 5, 6 (Little Endian)
@@ -76,8 +78,10 @@ def parse_monitor_data(data: bytes) -> MonitorData | None:
         
         # Alarms: Bytes 7, 8, 12, 13 (Little Endian in blocks)
         # Based on MonitorDataV2.b():
-        # iS = z.S(bArr[7]) + (z.S(bArr[8]) << 8) + (z.S(bArr[12]) << 16) + (z.S(bArr[13]) << 24)
-        alarms = data[7] + (data[8] << 8) + (data[12] << 16) + (data[13] << 24)
+        # iS = z.S(bArr[7]) + (z.S(bArr[8]) << 8)
+        #     + (z.S(bArr[12]) << 16) + (z.S(bArr[13]) << 24)
+        alarms = (data[7] + (data[8] << 8)
+                  + (data[12] << 16) + (data[13] << 24))
         
         # Status/State: Byte 9
         status = data[9]
@@ -88,7 +92,7 @@ def parse_monitor_data(data: bytes) -> MonitorData | None:
         # Nozzle State: Byte 4 (from MonitorDataV2.a())
         nozzle_state = data[4]
         
-    elif answer_id == 0x70: # MonitorData (v1)
+    elif answer_id == 0x70:  # MonitorData (v1)
         if len(data) < 11:
             return None
             
@@ -119,7 +123,6 @@ def parse_monitor_data(data: bytes) -> MonitorData | None:
         return None
         
     return MonitorData(switches, alarms, status, sub_status, nozzle_state)
-
 
 
 class BeverageEntityFeature(IntFlag):
@@ -234,6 +237,7 @@ def _build_start_command(recipe_id: int, coffee_qty: int = 0,
             0x00, 0x00, 0x06, 0x00, 0x00,
         ]
 
+
 DEVICE_NOTIFICATION = {
     str(bytearray(DEVICE_READY)): BeverageNotify(
         NotificationType.STATUS, 'DeviceOK'
@@ -316,7 +320,8 @@ class DelongiPrimadonna:
         self._profiles_loaded = False
 
         # Build dynamic beverage list from machine recipes
-        self._recipe_map: dict[str, dict] = {}  # name -> {id, coffee_qty, milk_qty}
+        # name -> {id, coffee_qty, milk_qty}
+        self._recipe_map: dict[str, dict] = {}
         self.available_beverages: list[str] = [BEVERAGE_NONE]
         if machine and machine.recipes:
             custom_idx = 0
@@ -661,10 +666,16 @@ class DelongiPrimadonna:
             # Use hardcoded command if available for this recipe ID
             legacy = RECIPE_ID_TO_BEVERAGE.get(rid)
             if legacy and legacy in BEVERAGE_COMMANDS:
-                _LOGGER.info("Starting %s (recipe %d) via legacy command", beverage, rid)
+                _LOGGER.info(
+                    "Starting %s (recipe %d) via legacy",
+                    beverage, rid,
+                )
                 await self.send_command(BEVERAGE_COMMANDS[legacy].on)
             else:
-                _LOGGER.info("Starting %s (recipe %d) via dynamic command", beverage, rid)
+                _LOGGER.info(
+                    "Starting %s (recipe %d) via dynamic",
+                    beverage, rid,
+                )
                 cmd = _build_start_command(
                     rid, recipe['coffee_qty'], recipe['milk_qty']
                 )
@@ -726,7 +737,6 @@ class DelongiPrimadonna:
             if self.active_profile_id is None:
                 self.active_profile_id = 1
             self._profiles_loaded = True
-
 
     async def set_time(self, dt: datetime) -> None:
         """Set device clock from provided datetime."""
@@ -816,24 +826,39 @@ class DelongiPrimadonna:
         
         # [0]=D0 [1]=Len [2]=A2 [3]=0F [4-5]=StartAddr
         start_param_id = (data[4] << 8) | data[5]
-        
+
         # Offset to first value (byte 6)
         current_offset = 6
         current_param_id = start_param_id
-        
+
         # 1. First value belongs to StartAddr
         if current_offset + 4 <= len(data) - 2:
-            val = int.from_bytes(data[current_offset:current_offset+4], byteorder='big')
+            val = int.from_bytes(
+                data[current_offset:current_offset + 4],
+                byteorder='big',
+            )
             self.statistics[current_param_id] = val
-            _LOGGER.debug("Statistics Parser.Parsed (Implicit): ID %s = %s", current_param_id, val)
+            _LOGGER.debug(
+                "Statistics Parser.Parsed (Implicit): ID %s = %s",
+                current_param_id, val,
+            )
             current_offset += 4
-            
+
         # 2. Subsequent parameters are [ID 2B] + [Value 4B]
         while current_offset + 6 <= len(data) - 2:
-            pid = (data[current_offset] << 8) | data[current_offset+1]
-            val = int.from_bytes(data[current_offset+2:current_offset+6], byteorder='big')
+            pid = (
+                (data[current_offset] << 8)
+                | data[current_offset + 1]
+            )
+            val = int.from_bytes(
+                data[current_offset + 2:current_offset + 6],
+                byteorder='big',
+            )
             self.statistics[pid] = val
-            _LOGGER.debug("Statistics Parser.Parsed (Explicit): ID %s = %s", pid, val)
+            _LOGGER.debug(
+                "Statistics Parser.Parsed (Explicit): ID %s = %s",
+                pid, val,
+            )
             current_offset += 6
         
         # Calculate combined values for total coffee
@@ -841,25 +866,16 @@ class DelongiPrimadonna:
             total = self.statistics[3000] + self.statistics.get(3077, 0)
             self.statistics[-3077] = total
             
-        # Convert water quantity to liters (divide by 2000)
-        # Use float division to preserve precision and round to 2 decimal places.
+        # Convert water quantity to liters (divide by 2000).
+        # Use float division to preserve precision.
         if 106 in self.statistics:
             water_ml = self.statistics.get(106, 0)
             if water_ml > 0:
                 self.statistics[10106] = round(water_ml / 2000.0, 2)
 
     async def update_statistics(self) -> None:
-        """Update statistics with throttling.
-        
-        Requests statistics from the ECAM machine via BLE.
-        Based on APK's parameter address mappings:
-        - 100-109: Maintenance counters (water, descaling, filters)
-        - 110-119: Extended maintenance counters (milk cleaning)
-        - 3000-3009: Coffee beverage totals
-        - 3077-3080: Additional coffee totals (combined with 3000 for total)
-        """
-        
-        # Use a lock to prevent concurrent statistics updates from multiple sensors
+        """Update statistics with throttling."""
+        # Prevent concurrent updates from multiple sensors
         if self._stats_lock.locked():
             return
 
@@ -870,18 +886,15 @@ class DelongiPrimadonna:
                 return
 
             self._last_stats_request = current_time
-            # Request parameter range for maintenance counters
-            # Covers: 100-109 (includes 106=water, 105=descale, 108=filter, etc.)
+            # Maintenance counters (100-109)
             await self.get_statistics(100, 10)
             await asyncio.sleep(0.3)
-            
-            # Request extended maintenance counters
-            # Covers: 110-119 (includes 115=milk cleaning)
+
+            # Extended maintenance (110-119)
             await self.get_statistics(110, 10)
             await asyncio.sleep(0.3)
-            
-            # Request coffee statistics range
-            # Covers: 3000-3009 (includes 3000=total black coffee, 3001=with milk, etc.)
+
+            # Coffee beverage totals (3000-3009)
             await self.get_statistics(3000, 10)
             await asyncio.sleep(0.3)
             
