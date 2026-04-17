@@ -11,13 +11,13 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
-# Poll every 120s instead of default 30s to reduce BLE adapter contention
-SCAN_INTERVAL = timedelta(seconds=120)
-
 from .base_entity import DelonghiDeviceEntity
 from .const import DOMAIN
 from .device import NOZZLE_STATE, DelongiPrimadonna
 from .machine_switch import MachineSwitch
+
+# Poll every 120s instead of default 30s to reduce BLE adapter contention
+SCAN_INTERVAL = timedelta(seconds=120)
 
 
 async def async_setup_entry(

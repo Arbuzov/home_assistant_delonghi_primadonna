@@ -15,9 +15,9 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import IntFlag
 
-from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
-from bleak_retry_connector import establish_connection, BleakClientWithServiceCache
+from bleak_retry_connector import (BleakClientWithServiceCache,
+                                   establish_connection)
 from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_MODEL, CONF_NAME
 from homeassistant.core import HomeAssistant
