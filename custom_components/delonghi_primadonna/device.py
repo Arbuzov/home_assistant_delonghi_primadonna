@@ -770,7 +770,7 @@ class DelongiPrimadonna:
             await asyncio.sleep(0.3)
             
             # Request extended maintenance counters
-            # Covers: 110-119 (includes 115=milk cleaning)
+            # Covers: 110-119 (includes 111=milk cleaning)
             await self.get_statistics(110, 10)
             await asyncio.sleep(0.3)
             

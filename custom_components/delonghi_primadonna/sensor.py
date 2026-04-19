@@ -151,6 +151,7 @@ class DelongiPrimadonnaSwitchesSensor(
         """Return the category of the entity."""
         return EntityCategory.DIAGNOSTIC
 
+
 class DelongiPrimadonnaStatisticsSensor(
     DelonghiDeviceEntity, SensorEntity, RestoreEntity
 ):
