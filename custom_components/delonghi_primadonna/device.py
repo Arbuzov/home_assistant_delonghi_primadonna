@@ -1,17 +1,18 @@
 """Delongi primadonna device description"""
 import asyncio
 import copy
+import logging
+import time
+import uuid
+from binascii import crc_hqx, hexlify
+from dataclasses import dataclass
+from datetime import datetime
+from enum import IntFlag
 
 try:
     from enum import StrEnum
 except ImportError:  # pragma: no cover - fallback for older Home Assistant
     from homeassistant.backports.enum import StrEnum
-
-import logging
-import uuid
-from binascii import crc_hqx, hexlify
-from datetime import datetime
-from enum import IntFlag
 
 from bleak import BleakClient
 from bleak.exc import BleakDBusError, BleakError
@@ -19,24 +20,50 @@ from bleak_retry_connector import establish_connection
 from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_MODEL, CONF_NAME
 from homeassistant.core import HomeAssistant
-import time
-from dataclasses import dataclass
 
-from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
-                    BASE_COMMAND, BYTES_AUTOPOWEROFF_COMMAND,
-                    BYTES_LOAD_PROFILES, BYTES_POWER, BYTES_SWITCH_COMMAND,
-                    BYTES_TIME_COMMAND, BYTES_WATER_HARDNESS_COMMAND,
-                    BYTES_WATER_TEMPERATURE_COMMAND, BYTES_STATISTICS_COMMAND,
-                    COFFE_OFF, COFFE_ON,
-                    COFFEE_GROUNDS_CONTAINER_CLEAN,
-                    COFFEE_GROUNDS_CONTAINER_DETACHED,
-                    COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
-                    DEBUG, DEVICE_READY, DEVICE_STATUS, DEVICE_TURNOFF, DOMAIN,
-                    DOPPIO_OFF, DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON,
-                    ESPRESSO_OFF, ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON,
-                    LONG_OFF, LONG_ON, NAME_CHARACTERISTIC, NOZZLE_STATE,
-                    START_COFFEE, STEAM_OFF, STEAM_ON, WATER_SHORTAGE,
-                    WATER_TANK_DETACHED, MACHINE_STATUS)
+from .const import (
+    AMERICANO_OFF,
+    AMERICANO_ON,
+    AVAILABLE_PROFILES,
+    BASE_COMMAND,
+    BYTES_AUTOPOWEROFF_COMMAND,
+    BYTES_LOAD_PROFILES,
+    BYTES_POWER,
+    BYTES_STATISTICS_COMMAND,
+    BYTES_SWITCH_COMMAND,
+    BYTES_TIME_COMMAND,
+    BYTES_WATER_HARDNESS_COMMAND,
+    BYTES_WATER_TEMPERATURE_COMMAND,
+    COFFE_OFF,
+    COFFE_ON,
+    COFFEE_GROUNDS_CONTAINER_CLEAN,
+    COFFEE_GROUNDS_CONTAINER_DETACHED,
+    COFFEE_GROUNDS_CONTAINER_FULL,
+    CONTROLL_CHARACTERISTIC,
+    DEBUG,
+    DEVICE_READY,
+    DEVICE_STATUS,
+    DEVICE_TURNOFF,
+    DOMAIN,
+    DOPPIO_OFF,
+    DOPPIO_ON,
+    ESPRESSO_OFF,
+    ESPRESSO_ON,
+    ESPRESSO2_OFF,
+    ESPRESSO2_ON,
+    HOTWATER_OFF,
+    HOTWATER_ON,
+    LONG_OFF,
+    LONG_ON,
+    MACHINE_STATUS,
+    NAME_CHARACTERISTIC,
+    NOZZLE_STATE,
+    START_COFFEE,
+    STEAM_OFF,
+    STEAM_ON,
+    WATER_SHORTAGE,
+    WATER_TANK_DETACHED,
+)
 from .machine_switch import MachineSwitch, parse_switches
 from .model import get_machine_model
 
