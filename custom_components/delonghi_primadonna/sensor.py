@@ -15,7 +15,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base_entity import DelonghiDeviceEntity
 from .const import DOMAIN
-from .device import DEVICE_STATUS, NOZZLE_STATE, DelongiPrimadonna
+from .device import NOZZLE_STATE, DelongiPrimadonna
 from .machine_switch import MachineSwitch
 
 
@@ -34,26 +34,52 @@ async def async_setup_entry(
             DelongiPrimadonnaSwitchesSensor(delongh_device, hass),
 
             # Statistics sensors
-            DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_coffee', -3077, 'Total Coffee', icon='mdi:coffee'),
-            DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_coffee_with_milk', -3003, 'Total Coffee with Milk', icon='mdi:coffee-outline'),
-            DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_water', 10106, 'Total Water', 'L', 'mdi:water'),
-            DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'descaling_count', 105, 'Descaling Count', icon='mdi:shimmer'),
-            DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'milk_cleaning_count', 111, 'Milk Cleaning Count', icon='mdi:water-sync'),
-            DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'filter_replace_count', 108, 'Filter Replacements', icon='mdi:filter'),
-            
-            DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_tea', 3025, 'Total Tea', icon='mdi:tea'),
-            DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_choco', 3021, 'Total Choco', icon='mdi:cup-water'),
-            DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_cold_milk', 3017, 'Total Cold Milk', icon='mdi:snowflake'),
-            
+            DelongiPrimadonnaStatisticsSensor(
+                delongh_device, hass, 'total_coffee', -3077, 'Total Coffee',
+                icon='mdi:coffee'),
+            DelongiPrimadonnaStatisticsSensor(
+                delongh_device, hass, 'total_coffee_with_milk', -3003,
+                'Total Coffee with Milk', icon='mdi:coffee-outline'),
+            DelongiPrimadonnaStatisticsSensor(
+                delongh_device, hass, 'total_water', 10106, 'Total Water',
+                'L', 'mdi:water'),
+            DelongiPrimadonnaStatisticsSensor(
+                delongh_device, hass, 'descaling_count', 105,
+                'Descaling Count', icon='mdi:shimmer'),
+            DelongiPrimadonnaStatisticsSensor(
+                delongh_device, hass, 'milk_cleaning_count', 111,
+                'Milk Cleaning Count', icon='mdi:water-sync'),
+            DelongiPrimadonnaStatisticsSensor(
+                delongh_device, hass, 'filter_replace_count', 108,
+                'Filter Replacements', icon='mdi:filter'),
+
+            DelongiPrimadonnaStatisticsSensor(
+                delongh_device, hass, 'total_tea', 3025, 'Total Tea',
+                icon='mdi:tea'),
+            DelongiPrimadonnaStatisticsSensor(
+                delongh_device, hass, 'total_choco', 3021, 'Total Choco',
+                icon='mdi:cup-water'),
+            DelongiPrimadonnaStatisticsSensor(
+                delongh_device, hass, 'total_cold_milk', 3017,
+                'Total Cold Milk', icon='mdi:snowflake'),
+
             # Utility sensors (Disabled by default)
-            DelongiPrimadonnaUtilitySensor(delongh_device, hass, 'daily_coffee', -3077, 'Daily Coffee', period='daily', icon='mdi:coffee-to-go'),
-            DelongiPrimadonnaUtilitySensor(delongh_device, hass, 'weekly_coffee', -3077, 'Weekly Coffee', period='weekly', icon='mdi:coffee-to-go'),
-            DelongiPrimadonnaUtilitySensor(delongh_device, hass, 'daily_water', 10106, 'Daily Water', 'L', period='daily', icon='mdi:water'),
-            DelongiPrimadonnaUtilitySensor(delongh_device, hass, 'weekly_water', 10106, 'Weekly Water', 'L', period='weekly', icon='mdi:water'),
+            DelongiPrimadonnaUtilitySensor(
+                delongh_device, hass, 'daily_coffee', -3077, 'Daily Coffee',
+                period='daily', icon='mdi:coffee-to-go'),
+            DelongiPrimadonnaUtilitySensor(
+                delongh_device, hass, 'weekly_coffee', -3077, 'Weekly Coffee',
+                period='weekly', icon='mdi:coffee-to-go'),
+            DelongiPrimadonnaUtilitySensor(
+                delongh_device, hass, 'daily_water', 10106, 'Daily Water',
+                'L', period='daily', icon='mdi:water'),
+            DelongiPrimadonnaUtilitySensor(
+                delongh_device, hass, 'weekly_water', 10106, 'Weekly Water',
+                'L', period='weekly', icon='mdi:water'),
         ]
     )
 
-    # Trigger initial statistics read (Chunk 1 and Chunk 2) using async_create_task
+    # Trigger initial statistics read (Chunk 1 and Chunk 2)
     # We use update_statistics to throttle and manage chunks
     hass.async_create_task(delongh_device.update_statistics())
     return True
@@ -172,7 +198,8 @@ class DelongiPrimadonnaStatisticsSensor(
         """Handle entity which will be added."""
         await super().async_added_to_hass()
 
-        # Restore last known state as a numeric value to maintain type consistency
+        # Restore last known state as a numeric value to maintain
+        # type consistency
         last_state = await self.async_get_last_state()
         if last_state is None:
             return
@@ -186,7 +213,8 @@ class DelongiPrimadonnaStatisticsSensor(
             numeric_value = float(value)
             self._attr_native_value = numeric_value
         except (TypeError, ValueError):
-            # Skip restoration if the previous value cannot be parsed as a number
+            # Skip restoration if the previous value cannot be parsed
+            # as a number
             return
 
     def __init__(
@@ -211,14 +239,17 @@ class DelongiPrimadonnaStatisticsSensor(
     @property
     def native_value(self):
         """Return the current value from the statistics dictionary."""
-        # Fallback to restored value if not present in the live device.statistics
-        return self.device.statistics.get(self._param_id, self._attr_native_value)
+        # Fallback to restored value if not present in the live
+        # device.statistics
+        return self.device.statistics.get(
+            self._param_id, self._attr_native_value
+        )
 
     @property
     def icon(self):
         """Return the icon of the sensor."""
         return self._attr_icon
-    
+
     async def async_update(self) -> None:
         """Fetch new state data for the sensor."""
         # Simple update logic: request stats every update cycle
@@ -253,7 +284,10 @@ class DelongiPrimadonnaUtilitySensor(DelongiPrimadonnaStatisticsSensor):
         icon: str = 'mdi:counter'
     ) -> None:
         """Initialize the utility sensor."""
-        super().__init__(device, hass, sensor_type, param_id, name, native_unit_of_measurement, icon)
+        super().__init__(
+            device, hass, sensor_type, param_id, name,
+            native_unit_of_measurement, icon
+        )
         self._period = period
         self._start_value = None
         self._last_period_id = None
@@ -291,7 +325,7 @@ class DelongiPrimadonnaUtilitySensor(DelongiPrimadonnaStatisticsSensor):
             return None
 
         current_period = self._current_period_id
-        
+
         # Initialize or reset if period changed
         if self._last_period_id != current_period:
             self._start_value = total_value
