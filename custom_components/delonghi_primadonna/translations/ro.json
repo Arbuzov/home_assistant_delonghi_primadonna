@@ -55,23 +55,23 @@
         "name": "Sunete"
       },
       "time_sync": {
-        "name": "Time sync"
+        "name": "Sincronizare oră"
       }
     },
     "binary_sensor": {
       "descaling": {
-        "name": "Descaling"
+        "name": "Decalcifiere"
       },
       "filter": {
-        "name": "Filter"
+        "name": "Filtru"
       },
       "enabled": {
-        "name": "Enabled"
+        "name": "Activat"
       }
     },
     "text": {
       "debug_input": {
-        "name": "Debug Input"
+        "name": "Intrare depanare"
       }
     },
     "sensor": {
@@ -176,6 +176,18 @@
       "total_cold_milk": {
         "name": "Total lapte rece"
       },
+      "daily_coffee": {
+        "name": "Cafea zilnică"
+      },
+      "weekly_coffee": {
+        "name": "Cafea săptămânală"
+      },
+      "daily_water": {
+        "name": "Apa zilnică"
+      },
+      "weekly_water": {
+        "name": "Apa săptămânală"
+      },
       "additional_coffee": {
         "name": "Cafea adițională"
       }
@@ -200,12 +212,12 @@
   "selector": {
     "beverage": {
       "options": {
-        "none": "Nici unul",
-        "steam": "Aburi",
+        "none": "Niciunul",
+        "steam": "Abur",
         "long": "Lung",
         "coffee": "Cafea",
-        "dopio": "DUBLA",
-        "hot_water": "Apă caldă",
+        "dopio": "Doppio",
+        "hot_water": "Apă fierbinte",
         "espresso": "Espresso",
         "americano": "Americano",
         "espresso2": "Espresso 2"

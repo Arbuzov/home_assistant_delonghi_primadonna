@@ -55,23 +55,23 @@
         "name": "Sons"
       },
       "time_sync": {
-        "name": "Time sync"
+        "name": "Synchro heure"
       }
     },
     "binary_sensor": {
       "descaling": {
-        "name": "Descaling"
+        "name": "Détartrage"
       },
       "filter": {
-        "name": "Filter"
+        "name": "Filtre"
       },
       "enabled": {
-        "name": "Enabled"
+        "name": "Activé"
       }
     },
     "text": {
       "debug_input": {
-        "name": "Debug Input"
+        "name": "Entrée débogage"
       }
     },
     "sensor": {
@@ -174,7 +174,19 @@
         "name": "Total chocolat"
       },
       "total_cold_milk": {
-        "name": "Total lait froid"
+        "name": "Lait froid total"
+      },
+      "daily_coffee": {
+        "name": "Café quotidien"
+      },
+      "weekly_coffee": {
+        "name": "Café hebdomadaire"
+      },
+      "daily_water": {
+        "name": "Eau quotidienne"
+      },
+      "weekly_water": {
+        "name": "Eau hebdomadaire"
       },
       "additional_coffee": {
         "name": "Café supplémentaire"
@@ -204,10 +216,10 @@
         "steam": "Vapeur",
         "long": "Long",
         "coffee": "Café",
-        "dopio": "DOUBLE",
+        "dopio": "Double",
         "hot_water": "Eau chaude",
         "espresso": "Espresso",
-        "americano": "Américain",
+        "americano": "Americano",
         "espresso2": "Expresso 2"
       }
     }

@@ -55,23 +55,23 @@
         "name": "Звук кнопок"
       },
       "time_sync": {
-        "name": "Time sync"
+        "name": "Синхронизация времени"
       }
     },
     "binary_sensor": {
       "descaling": {
-        "name": "Descaling"
+        "name": "Удаление накипи"
       },
       "filter": {
-        "name": "Filter"
+        "name": "Фильтр"
       },
       "enabled": {
-        "name": "Enabled"
+        "name": "Включено"
       }
     },
     "text": {
       "debug_input": {
-        "name": "Debug Input"
+        "name": "Отладочный ввод"
       }
     },
     "sensor": {
@@ -176,6 +176,18 @@
       "total_cold_milk": {
         "name": "Всего холодного молока"
       },
+      "daily_coffee": {
+        "name": "Кофе за день"
+      },
+      "weekly_coffee": {
+        "name": "Кофе за неделю"
+      },
+      "daily_water": {
+        "name": "Вода за день"
+      },
+      "weekly_water": {
+        "name": "Вода за неделю"
+      },
       "additional_coffee": {
         "name": "Дополнительный кофе"
       }
@@ -204,7 +216,7 @@
         "steam": "Пар",
         "long": "Лунго",
         "coffee": "Кофе",
-        "dopio": "Допио",
+        "dopio": "Доппио",
         "hot_water": "Горячая вода",
         "espresso": "Эспрессо",
         "americano": "Американо",

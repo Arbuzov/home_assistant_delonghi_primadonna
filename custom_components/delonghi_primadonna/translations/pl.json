@@ -55,23 +55,23 @@
         "name": "Dźwięk"
       },
       "time_sync": {
-        "name": "Time sync"
+        "name": "Synchronizacja czasu"
       }
     },
     "binary_sensor": {
       "descaling": {
-        "name": "Descaling"
+        "name": "Odkamienianie"
       },
       "filter": {
-        "name": "Filter"
+        "name": "Filtr"
       },
       "enabled": {
-        "name": "Enabled"
+        "name": "Włączone"
       }
     },
     "text": {
       "debug_input": {
-        "name": "Debug Input"
+        "name": "Wejście debugowania"
       }
     },
     "sensor": {
@@ -176,6 +176,18 @@
       "total_cold_milk": {
         "name": "Suma zimnego mleka"
       },
+      "daily_coffee": {
+        "name": "Codzienna kawa"
+      },
+      "weekly_coffee": {
+        "name": "Tygodniowa kawa"
+      },
+      "daily_water": {
+        "name": "Codzienna woda"
+      },
+      "weekly_water": {
+        "name": "Tygodniowa woda"
+      },
       "additional_coffee": {
         "name": "Dodatkowa kawa"
       }
@@ -203,7 +215,7 @@
         "none": "Brak",
         "steam": "Para",
         "long": "Long",
-        "coffee": "Coffee",
+        "coffee": "Kawa",
         "dopio": "Doppio",
         "hot_water": "Gorąca woda",
         "espresso": "Espresso",

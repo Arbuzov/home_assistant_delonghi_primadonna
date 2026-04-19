@@ -55,23 +55,23 @@
         "name": "Geräusche"
       },
       "time_sync": {
-        "name": "Time sync"
+        "name": "Zeitsynchronisation"
       }
     },
     "binary_sensor": {
       "descaling": {
-        "name": "Descaling"
+        "name": "Entkalkung"
       },
       "filter": {
         "name": "Filter"
       },
       "enabled": {
-        "name": "Enabled"
+        "name": "Aktiviert"
       }
     },
     "text": {
       "debug_input": {
-        "name": "Debug Input"
+        "name": "Debug-Eingabe"
       }
     },
     "sensor": {
@@ -176,6 +176,18 @@
       "total_cold_milk": {
         "name": "Kaltmilch insgesamt"
       },
+      "daily_coffee": {
+        "name": "Täglicher Kaffee"
+      },
+      "weekly_coffee": {
+        "name": "Wöchentlicher Kaffee"
+      },
+      "daily_water": {
+        "name": "Tägliches Wasser"
+      },
+      "weekly_water": {
+        "name": "Wöchentliches Wasser"
+      },
       "additional_coffee": {
         "name": "Zusätzlicher Kaffee"
       }
@@ -204,8 +216,8 @@
         "steam": "Dampf",
         "long": "Lang",
         "coffee": "Kaffee",
-        "dopio": "DOPPELT",
-        "hot_water": "Heißes Wasser",
+        "dopio": "Doppelt",
+        "hot_water": "Heißwasser",
         "espresso": "Espresso",
         "americano": "Americano",
         "espresso2": "Espresso 2"

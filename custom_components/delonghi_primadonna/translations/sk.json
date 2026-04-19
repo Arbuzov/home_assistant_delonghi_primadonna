@@ -55,18 +55,18 @@
         "name": "Zvuky"
       },
       "time_sync": {
-        "name": "Synchronizacia casu"
+        "name": "Synchronizácia času"
       }
     },
     "binary_sensor": {
       "descaling": {
-        "name": "Odvapnenie"
+        "name": "Odvápnenie"
       },
       "filter": {
         "name": "Filter"
       },
       "enabled": {
-        "name": "Zapnute"
+        "name": "Zapnuté"
       }
     },
     "text": {
@@ -176,6 +176,18 @@
       "total_cold_milk": {
         "name": "Celkom nápojov so studeným mliekom"
       },
+      "daily_coffee": {
+        "name": "Denná káva"
+      },
+      "weekly_coffee": {
+        "name": "Týždenná káva"
+      },
+      "daily_water": {
+        "name": "Denná voda"
+      },
+      "weekly_water": {
+        "name": "Týždenná voda"
+      },
       "additional_coffee": {
         "name": "Ďalšie kávy"
       }
@@ -200,12 +212,12 @@
   "selector": {
     "beverage": {
       "options": {
-        "none": "None",
-        "steam": "Steam",
+        "none": "Žiadny",
+        "steam": "Para",
         "long": "Long",
-        "coffee": "Coffee",
+        "coffee": "Káva",
         "dopio": "Dopio",
-        "hot_water": "Hot water",
+        "hot_water": "Horúca voda",
         "espresso": "Espresso",
         "americano": "Americano",
         "espresso2": "Espresso 2"

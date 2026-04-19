@@ -176,6 +176,18 @@
             "total_cold_milk": {
                 "name": "Total Cold Milk"
             },
+            "daily_coffee": {
+                "name": "Daily Coffee"
+            },
+            "weekly_coffee": {
+                "name": "Weekly Coffee"
+            },
+            "daily_water": {
+                "name": "Daily Water"
+            },
+            "weekly_water": {
+                "name": "Weekly Water"
+            },
             "additional_coffee": {
                 "name": "Additional Coffee"
             }

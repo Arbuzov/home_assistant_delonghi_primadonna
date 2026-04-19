@@ -55,23 +55,23 @@
         "name": "Suoni"
       },
       "time_sync": {
-        "name": "Time sync"
+        "name": "Sincro ora"
       }
     },
     "binary_sensor": {
       "descaling": {
-        "name": "Descaling"
+        "name": "Decalcificazione"
       },
       "filter": {
-        "name": "Filter"
+        "name": "Filtro"
       },
       "enabled": {
-        "name": "Enabled"
+        "name": "Abilitato"
       }
     },
     "text": {
       "debug_input": {
-        "name": "Debug Input"
+        "name": "Input debug"
       }
     },
     "sensor": {
@@ -174,7 +174,19 @@
         "name": "Cioccolata totale"
       },
       "total_cold_milk": {
-        "name": "Totale latte freddo"
+        "name": "Latte freddo totale"
+      },
+      "daily_coffee": {
+        "name": "Caffè giornaliero"
+      },
+      "weekly_coffee": {
+        "name": "Caffè settimanale"
+      },
+      "daily_water": {
+        "name": "Acqua giornaliera"
+      },
+      "weekly_water": {
+        "name": "Acqua settimanale"
       },
       "additional_coffee": {
         "name": "Caffè addizionale"

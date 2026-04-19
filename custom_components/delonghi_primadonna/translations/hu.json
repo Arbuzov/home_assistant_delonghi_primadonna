@@ -55,23 +55,23 @@
         "name": "Hangok"
       },
       "time_sync": {
-        "name": "Time sync"
+        "name": "Idő szinkronizálása"
       }
     },
     "binary_sensor": {
       "descaling": {
-        "name": "Descaling"
+        "name": "Vízkőmentesítés"
       },
       "filter": {
-        "name": "Filter"
+        "name": "Szűrő"
       },
       "enabled": {
-        "name": "Enabled"
+        "name": "Engedélyezve"
       }
     },
     "text": {
       "debug_input": {
-        "name": "Debug Input"
+        "name": "Hibakeresési bemenet"
       }
     },
     "sensor": {
@@ -176,6 +176,18 @@
       "total_cold_milk": {
         "name": "Összes hideg tej"
       },
+      "daily_coffee": {
+        "name": "Napi kávé"
+      },
+      "weekly_coffee": {
+        "name": "Heti kávé"
+      },
+      "daily_water": {
+        "name": "Napi víz"
+      },
+      "weekly_water": {
+        "name": "Heti víz"
+      },
       "additional_coffee": {
         "name": "Kiegészítő kávé"
       }
@@ -200,14 +212,14 @@
   "selector": {
     "beverage": {
       "options": {
-        "none": "Egyik sem",
+        "none": "Nincs",
         "steam": "Gőz",
         "long": "Hosszú",
         "coffee": "Kávé",
-        "dopio": "KETTŐS",
-        "hot_water": "Melegvíz",
+        "dopio": "Dupla",
+        "hot_water": "Forró víz",
         "espresso": "Eszpresszó",
-        "americano": "Amerikai",
+        "americano": "Americano",
         "espresso2": "Espresso 2"
       }
     }

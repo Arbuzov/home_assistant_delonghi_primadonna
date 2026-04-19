@@ -55,23 +55,23 @@
         "name": "听起来"
       },
       "time_sync": {
-        "name": "Time sync"
+        "name": "时间同步"
       }
     },
     "binary_sensor": {
       "descaling": {
-        "name": "Descaling"
+        "name": "除垢"
       },
       "filter": {
-        "name": "Filter"
+        "name": "过滤器"
       },
       "enabled": {
-        "name": "Enabled"
+        "name": "已启用"
       }
     },
     "text": {
       "debug_input": {
-        "name": "Debug Input"
+        "name": "调试输入"
       }
     },
     "sensor": {
@@ -176,6 +176,18 @@
       "total_cold_milk": {
         "name": "冷牛奶总量"
       },
+      "daily_coffee": {
+        "name": "每日咖啡"
+      },
+      "weekly_coffee": {
+        "name": "每周咖啡"
+      },
+      "daily_water": {
+        "name": "每日水"
+      },
+      "weekly_water": {
+        "name": "每周水"
+      },
       "additional_coffee": {
         "name": "额外咖啡"
       }
@@ -200,14 +212,14 @@
   "selector": {
     "beverage": {
       "options": {
-        "none": "没有任何",
+        "none": "无",
         "steam": "蒸汽",
         "long": "长的",
         "coffee": "咖啡",
-        "dopio": "双倍的",
+        "dopio": "双份",
         "hot_water": "热水",
         "espresso": "浓缩咖啡",
-        "americano": "美国",
+        "americano": "美式",
         "espresso2": "浓缩咖啡2"
       }
     }

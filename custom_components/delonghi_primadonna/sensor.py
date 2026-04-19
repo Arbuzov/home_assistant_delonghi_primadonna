@@ -44,6 +44,12 @@ async def async_setup_entry(
             DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_tea', 3025, 'Total Tea', icon='mdi:tea'),
             DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_choco', 3021, 'Total Choco', icon='mdi:cup-water'),
             DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_cold_milk', 3017, 'Total Cold Milk', icon='mdi:snowflake'),
+            
+            # Utility sensors (Disabled by default)
+            DelongiPrimadonnaUtilitySensor(delongh_device, hass, 'daily_coffee', -3077, 'Daily Coffee', period='daily', icon='mdi:coffee-to-go'),
+            DelongiPrimadonnaUtilitySensor(delongh_device, hass, 'weekly_coffee', -3077, 'Weekly Coffee', period='weekly', icon='mdi:coffee-to-go'),
+            DelongiPrimadonnaUtilitySensor(delongh_device, hass, 'daily_water', 10106, 'Daily Water', 'L', period='daily', icon='mdi:water'),
+            DelongiPrimadonnaUtilitySensor(delongh_device, hass, 'weekly_water', 10106, 'Weekly Water', 'L', period='weekly', icon='mdi:water'),
         ]
     )
 
@@ -225,3 +231,72 @@ class DelongiPrimadonnaStatisticsSensor(
             # async_update here is to trigger the REQUEST via HA loop
             # Use centralized throttled update
             self.hass.async_create_task(self.device.update_statistics())
+
+
+class DelongiPrimadonnaUtilitySensor(DelongiPrimadonnaStatisticsSensor):
+    """
+    Sensor that tracks usage over a period (daily/weekly).
+    Disabled by default.
+    """
+
+    _attr_entity_registry_enabled_default = False
+
+    def __init__(
+        self,
+        device: DelongiPrimadonna,
+        hass: HomeAssistant,
+        sensor_type: str,
+        param_id: int,
+        name: str,
+        native_unit_of_measurement: str = None,
+        period: str = "daily",
+        icon: str = 'mdi:counter'
+    ) -> None:
+        """Initialize the utility sensor."""
+        super().__init__(device, hass, sensor_type, param_id, name, native_unit_of_measurement, icon)
+        self._period = period
+        self._start_value = None
+        self._last_period_id = None
+
+    @property
+    def _current_period_id(self) -> str:
+        """Get the current period identifier."""
+        from datetime import datetime
+        now = datetime.now()
+        if self._period == "daily":
+            return now.strftime("%Y-%m-%d")
+        return now.strftime("%Y-%W")
+
+    async def async_added_to_hass(self) -> None:
+        """Handle entity which will be added."""
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self._start_value = last_state.attributes.get("start_value")
+            self._last_period_id = last_state.attributes.get("last_period_id")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return entity specific state attributes."""
+        return {
+            "start_value": self._start_value,
+            "last_period_id": self._last_period_id,
+            "period": self._period
+        }
+
+    @property
+    def native_value(self):
+        """Return the current period usage."""
+        total_value = super().native_value
+        if total_value is None:
+            return None
+
+        current_period = self._current_period_id
+        
+        # Initialize or reset if period changed
+        if self._last_period_id != current_period:
+            self._start_value = total_value
+            self._last_period_id = current_period
+            # Trigger state save
+            self.async_write_ha_state()
+
+        return round(total_value - self._start_value, 2)

@@ -55,23 +55,23 @@
         "name": "音"
       },
       "time_sync": {
-        "name": "Time sync"
+        "name": "時刻同期"
       }
     },
     "binary_sensor": {
       "descaling": {
-        "name": "Descaling"
+        "name": "石灰除去"
       },
       "filter": {
-        "name": "Filter"
+        "name": "フィルター"
       },
       "enabled": {
-        "name": "Enabled"
+        "name": "有効"
       }
     },
     "text": {
       "debug_input": {
-        "name": "Debug Input"
+        "name": "デバッグ入力"
       }
     },
     "sensor": {
@@ -176,6 +176,18 @@
       "total_cold_milk": {
         "name": "冷たいミルク 合計"
       },
+      "daily_coffee": {
+        "name": "今日のコーヒー"
+      },
+      "weekly_coffee": {
+        "name": "今週のコーヒー"
+      },
+      "daily_water": {
+        "name": "今日の水"
+      },
+      "weekly_water": {
+        "name": "今週の水"
+      },
       "additional_coffee": {
         "name": "追加コーヒー"
       }
@@ -204,7 +216,7 @@
         "steam": "スチーム",
         "long": "長さ",
         "coffee": "コーヒー",
-        "dopio": "ダブル",
+        "dopio": "ドッピオ",
         "hot_water": "お湯",
         "espresso": "エスプレッソ",
         "americano": "アメリカーノ",
