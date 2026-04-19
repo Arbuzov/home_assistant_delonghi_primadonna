@@ -153,18 +153,22 @@ This command is used to request various counters (beverages, maintenance, etc.) 
 | 111 | Maintenance | Milk Cleaning Count | |
 | 3000 | Beverage | Black Coffee Total (Part 1) | Combine with 3077 |
 | 3001 | Beverage | Coffee with Milk Total (Part 1) | Combine with 3003 |
-| 3003 | Beverage | Coffee with Milk Total (Part 2) | |
-| 3017 | Beverage | Additional Coffee | |
-| 3021 | Beverage | Total Choco | |
-| 3025 | Beverage | Total Tea | |
+| 3003 | Beverage | Coffee with Milk Total (Part 2) | Combined as ID -3003 |
+| 3017 | Beverage | Total with Cold Milk | `TOTAL_BEVERAGE_WITH_COLD_MILK` in APK |
+| 3021 | Beverage | Total Choco | `TOTAL_CHOCO` in APK |
+| 3025 | Beverage | Total Tea | `TOTAL_TEA` in APK |
 | 3047 | Beverage | Total "To Go" (Part 1) | Combine with 3048 |
 | 3048 | Beverage | Total "To Go" (Part 2) | |
-| 3077 | Beverage | Black Coffee Total (Part 2) | |
+| 3077 | Beverage | Black Coffee Total (Part 2) | Combined as ID -3077 |
 | 3078 | Beverage | Total Beverage (Part 2?) | |
 | 3080 | Beverage | Total Beverage (Part 1?) | |
 
 **Combined Calculations:**
-- **Total Black Coffee**: `ID 3000` + `ID 3077`
-- **Total Coffee with Milk**: `ID 3001` + `ID 3003`
+- **Total Black Coffee**: `ID 3000` + `ID 3077` (Result stored as `-3077`)
+- **Total Coffee with Milk**: `ID 3001` + `ID 3003` (Result stored as `-3003`)
 - **Total To-Go**: `ID 3047` + `ID 3048`
 - **Other Beverage**: `ID 3080` + `ID 3078`
+
+> [!NOTE]
+> **The Milk Cleaning ID Discrepancy**
+> Analysis of the decompiled APK (`b7.e.java` line 508) shows that the official app requests **ID 115** for the milk cleaning counter. However, some integration users have reported that their machines provide this value on **ID 111**. The current implementation uses 111, but 115 is worth investigating if 111 returns 0.
