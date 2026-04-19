@@ -19,6 +19,22 @@
         }
     },
     "entity": {
+        "binary_sensor": {
+            "descaling": {
+                "name": "Descaling"
+            },
+            "filter": {
+                "name": "Filter"
+            },
+            "enabled": {
+                "name": "Enabled"
+            }
+        },
+        "text": {
+            "debug_input": {
+                "name": "Debug Input"
+            }
+        },
         "sensor": {
             "nozzle_status": {
                 "name": "Nozzle Status",
