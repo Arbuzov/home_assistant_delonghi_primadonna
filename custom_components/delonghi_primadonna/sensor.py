@@ -40,10 +40,10 @@ async def async_setup_entry(
             DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'descaling_count', 105, 'Descaling Count', icon='mdi:shimmer'),
             DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'milk_cleaning_count', 111, 'Milk Cleaning Count', icon='mdi:water-sync'),
             DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'filter_replace_count', 108, 'Filter Replacements', icon='mdi:filter'),
-            # Optional additional sensors (uncomment if needed):
-            # DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_tea', 3025, 'Total Tea'),
-            # DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_choco', 3021, 'Total Choco'),
-            # DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'additional_coffee', 3017, 'Additional Coffee'),
+            
+            DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_tea', 3025, 'Total Tea', icon='mdi:tea'),
+            DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_choco', 3021, 'Total Choco', icon='mdi:cup-water'),
+            DelongiPrimadonnaStatisticsSensor(delongh_device, hass, 'total_cold_milk', 3017, 'Total Cold Milk', icon='mdi:snowflake'),
         ]
     )
 

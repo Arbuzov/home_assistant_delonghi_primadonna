@@ -784,6 +784,11 @@ class DelongiPrimadonna:
             await self.get_statistics(3077, 4)
             await asyncio.sleep(0.3)
             
+            # Request cold milk, choco and tea statistics
+            # Covers: 3017-3026 (3017=cold milk, 3021=choco, 3025=tea)
+            await self.get_statistics(3017, 10)
+            await asyncio.sleep(0.3)
+            
             # Optional: Request tea/other beverages if needed
             # await self.get_statistics(3025, 1)  # Tea counter
 

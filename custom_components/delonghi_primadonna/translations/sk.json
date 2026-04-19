@@ -168,18 +168,16 @@
         "name": "Pocet vymen filtra"
       },
       "total_tea": {
-        "name": "Celkom cajov"
+        "name": "Celkom čajov"
       },
       "total_choco": {
-        "name": "Celkom cokolad"
+        "name": "Celkom čokolád"
+      },
+      "total_cold_milk": {
+        "name": "Celkom nápojov so studeným mliekom"
       },
       "additional_coffee": {
-        "name": "Dalsie kavy"
-      }
-    },
-    "image": {
-      "image": {
-        "name": "Obrazok"
+        "name": "Ďalšie kávy"
       }
     }
   },
@@ -196,6 +194,21 @@
           "name": "ID entity",
           "description": "ID entity kavovaru"
         }
+      }
+    }
+  },
+  "selector": {
+    "beverage": {
+      "options": {
+        "none": "None",
+        "steam": "Steam",
+        "long": "Long",
+        "coffee": "Coffee",
+        "dopio": "Dopio",
+        "hot_water": "Hot water",
+        "espresso": "Espresso",
+        "americano": "Americano",
+        "espresso2": "Espresso 2"
       }
     }
   }

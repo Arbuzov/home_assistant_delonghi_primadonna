@@ -53,6 +53,25 @@
       },
       "sounds": {
         "name": "소리"
+      },
+      "time_sync": {
+        "name": "Time sync"
+      }
+    },
+    "binary_sensor": {
+      "descaling": {
+        "name": "Descaling"
+      },
+      "filter": {
+        "name": "Filter"
+      },
+      "enabled": {
+        "name": "Enabled"
+      }
+    },
+    "text": {
+      "debug_input": {
+        "name": "Debug Input"
       }
     },
     "sensor": {
@@ -66,6 +85,26 @@
           "milk_frother_cleaning": "우유 거품기 세척"
         }
       },
+      "switches": {
+        "name": "스위치",
+        "state": {
+          "none": "없음",
+          "water_spout": "물 노출구",
+          "motor_up": "모터 위",
+          "motor_down": "모터 아래",
+          "coffee_waste_container": "커피 찌꺼기 통",
+          "water_tank_absent": "물탱크 없음",
+          "knob": "노브",
+          "water_level_low": "물 레벨 낮음",
+          "coffee_jug": "커피 저그",
+          "ifd_caraffe": "우유 카라페",
+          "ciocco_tank": "초콜릿 탱크",
+          "clean_knob": "청소 노브",
+          "door_opened": "문 열림",
+          "preground_door_opened": "가루 커피 투입구 열림",
+          "unknown_switch": "Unknown switch"
+        }
+      },
       "device_status": {
         "name": "기기 상태",
         "state": {
@@ -73,7 +112,7 @@
           "coffee_waste_container_full": "커피 찌꺼기 컨테이너가 가득 찼습니다",
           "descale_alarm": "석회질 제거 알람",
           "replace_water_filter": "정수 필터를 교체하십시오",
-          "coffe_ground_too_fine": "분쇄도가 너무 가늘습니다",
+          "coffee_ground_too_fine": "분쇄도가 너무 가늘습니다",
           "coffee_beans_empty": "커피 원두가 비어 있습니다",
           "machine_to_service": "서비스가 필요합니다",
           "coffee_heater_probe_failure": "커피 히터 프로브 고장",
@@ -107,27 +146,7 @@
           "preparing": "준비 중",
           "delivering_hot_water": "온수 추출 중",
           "cleaning_milk_spout": "우유 배출구 세척",
-          "descaling": "스케일 제거",
-          "ignore_alarm": "알람 무시"
-        }
-      },
-      "switches": {
-        "name": "스위치",
-        "state": {
-          "none": "없음",
-          "water_spout": "물 노출구",
-          "motor_up": "모터 위",
-          "motor_down": "모터 아래",
-          "coffee_waste_container": "커피 찌꺼기 통",
-          "water_tank_absent": "물탱크 없음",
-          "knob": "노브",
-          "water_level_low": "물 레벨 낮음",
-          "coffee_jug": "커피 저그",
-          "ifd_caraffe": "우유 카라페",
-          "ciocco_tank": "초콜릿 탱크",
-          "clean_knob": "청소 노브",
-          "door_opened": "문 열림",
-          "preground_door_opened": "가루 커피 투입구 열림"
+          "descaling": "스케일 제거"
         }
       },
       "total_coffee": {
@@ -153,6 +172,9 @@
       },
       "total_choco": {
         "name": "총 초코 수"
+      },
+      "total_cold_milk": {
+        "name": "냉우유 합계"
       },
       "additional_coffee": {
         "name": "추가 커피"

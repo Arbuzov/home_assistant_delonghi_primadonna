@@ -37,14 +37,25 @@ def test_parsing():
     print(f"ID 111 (Explicit/Milk Cleaning): {stats.get(111)}") 
     print(f"ID 116 (Explicit/Water?): {stats.get(116)}") 
     
-    # Expected values for this specific packet:
-    # ID 100: [00 13 a8 9e] -> 1288350
-    # ID 101: [00 00 00 0a] -> 10
-    # ID 105: [00 00 00 0f] -> 15
-    # ID 106: [00 23 65 e8] -> 2319848
-    # ID 111: [00 00 00 12] -> 18
-    # ID 116: [00 00 02 84] -> 644
+    # Let's mock a packet with Tea and Choco as well to verify the loop
+    # d0 41 a2 0f 00 64 00 13 a8 9e (ID 100)
+    # 0b c9 (ID 3017/Cold Milk) 00 00 00 0a (Val 10)
+    # 0b cd (ID 3021/Choco) 00 00 00 05 (Val 5)
+    # 0b d1 (ID 3025/Tea) 00 00 00 0f (Val 15)
+    # 39 7e (CRC)
     
+    mock_packet = unhexlify("d00fa20f0bc90000000a0bcd000000050bd10000000f397e")
+    mock_stats = parse_statistics(mock_packet)
+    
+    print(f"Mock ID 3017: {mock_stats.get(3017)}")
+    print(f"Mock ID 3021: {mock_stats.get(3021)}")
+    print(f"Mock ID 3025: {mock_stats.get(3025)}")
+    
+    assert mock_stats[3017] == 10
+    assert mock_stats[3021] == 5
+    assert mock_stats[3025] == 15
+    
+    # Also verify the original packet assertions
     assert stats[100] == 1288350
     assert stats[101] == 10
     assert stats[105] == 15
@@ -52,7 +63,7 @@ def test_parsing():
     assert stats[111] == 18
     assert stats[116] == 644
     
-    print("\n[SUCCESS] Standalone parsing logic verified.")
+    print("\n[SUCCESS] Standalone parsing logic verified for all IDs.")
 
 if __name__ == "__main__":
     test_parsing()

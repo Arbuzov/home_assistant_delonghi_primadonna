@@ -53,6 +53,25 @@
       },
       "sounds": {
         "name": "Sons"
+      },
+      "time_sync": {
+        "name": "Time sync"
+      }
+    },
+    "binary_sensor": {
+      "descaling": {
+        "name": "Descaling"
+      },
+      "filter": {
+        "name": "Filter"
+      },
+      "enabled": {
+        "name": "Enabled"
+      }
+    },
+    "text": {
+      "debug_input": {
+        "name": "Debug Input"
       }
     },
     "sensor": {
@@ -66,6 +85,26 @@
           "milk_frother_cleaning": "Nettoyage mousseur à lait"
         }
       },
+      "switches": {
+        "name": "Interrupteurs",
+        "state": {
+          "none": "Aucun",
+          "water_spout": "Sortie d'eau",
+          "motor_up": "Moteur vers le haut",
+          "motor_down": "Moteur vers le bas",
+          "coffee_waste_container": "Bac à marc de café",
+          "water_tank_absent": "Réservoir d'eau absent",
+          "knob": "Bouton",
+          "water_level_low": "Niveau d'eau bas",
+          "coffee_jug": "Carafe à café",
+          "ifd_caraffe": "Carafe à lait",
+          "ciocco_tank": "Réservoir de chocolat",
+          "clean_knob": "Bouton de nettoyage",
+          "door_opened": "Porte ouverte",
+          "preground_door_opened": "Trappe à café moulu ouverte",
+          "unknown_switch": "Interrupteur inconnu"
+        }
+      },
       "device_status": {
         "name": "État de l'appareil",
         "state": {
@@ -73,7 +112,7 @@
           "coffee_waste_container_full": "Bac à marc plein",
           "descale_alarm": "Alarme détartrage",
           "replace_water_filter": "Remplacer le filtre à eau",
-          "coffe_ground_too_fine": "Mouture trop fine",
+          "coffee_ground_too_fine": "Mouture trop fine",
           "coffee_beans_empty": "Bac à grains vide",
           "machine_to_service": "Entretien machine",
           "coffee_heater_probe_failure": "Panne sonde chauffage café",
@@ -107,27 +146,7 @@
           "preparing": "Préparation",
           "delivering_hot_water": "Distribution d'eau chaude",
           "cleaning_milk_spout": "Nettoyage de la buse à lait",
-          "descaling": "Détartrage",
-          "ignore_alarm": "Alarme ignorée"
-        }
-      },
-      "switches": {
-        "name": "Interrupteurs",
-        "state": {
-          "none": "Aucun",
-          "water_spout": "Sortie d'eau",
-          "motor_up": "Moteur vers le haut",
-          "motor_down": "Moteur vers le bas",
-          "coffee_waste_container": "Bac à marc de café",
-          "water_tank_absent": "Réservoir d'eau absent",
-          "knob": "Bouton",
-          "water_level_low": "Niveau d'eau bas",
-          "coffee_jug": "Carafe à café",
-          "ifd_caraffe": "Carafe à lait",
-          "ciocco_tank": "Réservoir de chocolat",
-          "clean_knob": "Bouton de nettoyage",
-          "door_opened": "Porte ouverte",
-          "preground_door_opened": "Trappe à café moulu ouverte"
+          "descaling": "Détartrage"
         }
       },
       "total_coffee": {
@@ -153,6 +172,9 @@
       },
       "total_choco": {
         "name": "Total chocolat"
+      },
+      "total_cold_milk": {
+        "name": "Total lait froid"
       },
       "additional_coffee": {
         "name": "Café supplémentaire"

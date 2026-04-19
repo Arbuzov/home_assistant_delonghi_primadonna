@@ -53,6 +53,25 @@
       },
       "sounds": {
         "name": "Suoni"
+      },
+      "time_sync": {
+        "name": "Time sync"
+      }
+    },
+    "binary_sensor": {
+      "descaling": {
+        "name": "Descaling"
+      },
+      "filter": {
+        "name": "Filter"
+      },
+      "enabled": {
+        "name": "Enabled"
+      }
+    },
+    "text": {
+      "debug_input": {
+        "name": "Debug Input"
       }
     },
     "sensor": {
@@ -66,6 +85,26 @@
           "milk_frother_cleaning": "Pulizia montalatte"
         }
       },
+      "switches": {
+        "name": "Interruttori",
+        "state": {
+          "none": "Nessuno",
+          "water_spout": "Erogatore d'acqua",
+          "motor_up": "Motore su",
+          "motor_down": "Motore giù",
+          "coffee_waste_container": "Contenitore fondi caffè",
+          "water_tank_absent": "Serbatoio acqua assente",
+          "knob": "Manopola",
+          "water_level_low": "Livello acqua basso",
+          "coffee_jug": "Caraffa del caffè",
+          "ifd_caraffe": "Caraffa del latte",
+          "ciocco_tank": "Serbatoio cioccolata",
+          "clean_knob": "Manopola pulizia",
+          "door_opened": "Sportello aperto",
+          "preground_door_opened": "Sportello caffè macinato aperto",
+          "unknown_switch": "Interruttore sconosciuto"
+        }
+      },
       "device_status": {
         "name": "Stato del dispositivo",
         "state": {
@@ -73,7 +112,7 @@
           "coffee_waste_container_full": "Contenitore fondi pieno",
           "descale_alarm": "Allarme decalcificazione",
           "replace_water_filter": "Sostituire filtro acqua",
-          "coffe_ground_too_fine": "Caffè troppo fine",
+          "coffee_ground_too_fine": "Caffè troppo fine",
           "coffee_beans_empty": "Contenitore chicchi vuoto",
           "machine_to_service": "Macchina da revisionare",
           "coffee_heater_probe_failure": "Guasto sonda riscaldatore caffè",
@@ -107,27 +146,7 @@
           "preparing": "Preparazione",
           "delivering_hot_water": "Erogazione acqua calda",
           "cleaning_milk_spout": "Pulizia beccuccio latte",
-          "descaling": "Decalcificazione",
-          "ignore_alarm": "Allarme ignorato"
-        }
-      },
-      "switches": {
-        "name": "Interruttori",
-        "state": {
-          "none": "Nessuno",
-          "water_spout": "Erogatore d'acqua",
-          "motor_up": "Motore su",
-          "motor_down": "Motore giù",
-          "coffee_waste_container": "Contenitore fondi caffè",
-          "water_tank_absent": "Serbatoio acqua assente",
-          "knob": "Manopola",
-          "water_level_low": "Livello acqua basso",
-          "coffee_jug": "Caraffa del caffè",
-          "ifd_caraffe": "Caraffa del latte",
-          "ciocco_tank": "Serbatoio cioccolata",
-          "clean_knob": "Manopola pulizia",
-          "door_opened": "Sportello aperto",
-          "preground_door_opened": "Sportello caffè macinato aperto"
+          "descaling": "Decalcificazione"
         }
       },
       "total_coffee": {
@@ -153,6 +172,9 @@
       },
       "total_choco": {
         "name": "Cioccolata totale"
+      },
+      "total_cold_milk": {
+        "name": "Totale latte freddo"
       },
       "additional_coffee": {
         "name": "Caffè addizionale"

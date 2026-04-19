@@ -53,6 +53,25 @@
       },
       "sounds": {
         "name": "Hangok"
+      },
+      "time_sync": {
+        "name": "Time sync"
+      }
+    },
+    "binary_sensor": {
+      "descaling": {
+        "name": "Descaling"
+      },
+      "filter": {
+        "name": "Filter"
+      },
+      "enabled": {
+        "name": "Enabled"
+      }
+    },
+    "text": {
+      "debug_input": {
+        "name": "Debug Input"
       }
     },
     "sensor": {
@@ -66,6 +85,26 @@
           "milk_frother_cleaning": "Tejhabosító tisztítás"
         }
       },
+      "switches": {
+        "name": "Kapcsolók",
+        "state": {
+          "none": "Nincs",
+          "water_spout": "Vízkifolyó",
+          "motor_up": "Motor fel",
+          "motor_down": "Motor le",
+          "coffee_waste_container": "Kávézacc tartály",
+          "water_tank_absent": "Víztartály hiányzik",
+          "knob": "Gomb",
+          "water_level_low": "Alacsony vízszint",
+          "coffee_jug": "Kávés kancsó",
+          "ifd_caraffe": "Tejes kancsó",
+          "ciocco_tank": "Csokoládétartály",
+          "clean_knob": "Tisztító gomb",
+          "door_opened": "Ajtó nyitva",
+          "preground_door_opened": "Őrölt kávé nyílás nyitva",
+          "unknown_switch": "Unknown switch"
+        }
+      },
       "device_status": {
         "name": "Gép állapota",
         "state": {
@@ -73,7 +112,7 @@
           "coffee_waste_container_full": "Kávézacc tartály tele",
           "descale_alarm": "Vízkőtelenítés riasztás",
           "replace_water_filter": "Vízszűrő cseréje",
-          "coffe_ground_too_fine": "Túl finom őrlemény",
+          "coffee_ground_too_fine": "Túl finom őrlemény",
           "coffee_beans_empty": "Kávébab tartály üres",
           "machine_to_service": "Szerviz szükséges",
           "coffee_heater_probe_failure": "Kávéfűtő szonda hiba",
@@ -107,27 +146,7 @@
           "preparing": "Előkészítés",
           "delivering_hot_water": "Forró víz adagolása",
           "cleaning_milk_spout": "Tejkifolyó tisztítása",
-          "descaling": "Vízkőtelenítés",
-          "ignore_alarm": "Riasztás figyelmen kívül hagyása"
-        }
-      },
-      "switches": {
-        "name": "Kapcsolók",
-        "state": {
-          "none": "Nincs",
-          "water_spout": "Vízkifolyó",
-          "motor_up": "Motor fel",
-          "motor_down": "Motor le",
-          "coffee_waste_container": "Kávézacc tartály",
-          "water_tank_absent": "Víztartály hiányzik",
-          "knob": "Gomb",
-          "water_level_low": "Alacsony vízszint",
-          "coffee_jug": "Kávés kancsó",
-          "ifd_caraffe": "Tejes kancsó",
-          "ciocco_tank": "Csokoládétartály",
-          "clean_knob": "Tisztító gomb",
-          "door_opened": "Ajtó nyitva",
-          "preground_door_opened": "Őrölt kávé nyílás nyitva"
+          "descaling": "Vízkőtelenítés"
         }
       },
       "total_coffee": {
@@ -153,6 +172,9 @@
       },
       "total_choco": {
         "name": "Összes csokoládé"
+      },
+      "total_cold_milk": {
+        "name": "Összes hideg tej"
       },
       "additional_coffee": {
         "name": "Kiegészítő kávé"

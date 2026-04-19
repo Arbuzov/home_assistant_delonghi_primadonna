@@ -53,6 +53,25 @@
       },
       "sounds": {
         "name": "Sunete"
+      },
+      "time_sync": {
+        "name": "Time sync"
+      }
+    },
+    "binary_sensor": {
+      "descaling": {
+        "name": "Descaling"
+      },
+      "filter": {
+        "name": "Filter"
+      },
+      "enabled": {
+        "name": "Enabled"
+      }
+    },
+    "text": {
+      "debug_input": {
+        "name": "Debug Input"
       }
     },
     "sensor": {
@@ -66,6 +85,26 @@
           "milk_frother_cleaning": "Curățare spumant de lapte"
         }
       },
+      "switches": {
+        "name": "Comutatoare",
+        "state": {
+          "none": "Niciuna",
+          "water_spout": "Gura de apă",
+          "motor_up": "Motor sus",
+          "motor_down": "Motor jos",
+          "coffee_waste_container": "Recipient zaț de cafea",
+          "water_tank_absent": "Lipsă rezervor apă",
+          "knob": "Buton",
+          "water_level_low": "Nivel scăzut de apă",
+          "coffee_jug": "Carafă de cafea",
+          "ifd_caraffe": "Carafă de lapte",
+          "ciocco_tank": "Recipient ciocolată",
+          "clean_knob": "Buton curățare",
+          "door_opened": "Ușă deschisă",
+          "preground_door_opened": "Compartiment cafea măcinată deschis",
+          "unknown_switch": "Unknown switch"
+        }
+      },
       "device_status": {
         "name": "Starea aparatului",
         "state": {
@@ -73,7 +112,7 @@
           "coffee_waste_container_full": "Recipientul pentru zaț este plin",
           "descale_alarm": "Alarmă decalcifiere",
           "replace_water_filter": "Înlocuiți filtrul de apă",
-          "coffe_ground_too_fine": "Măcinare prea fină",
+          "coffee_ground_too_fine": "Măcinare prea fină",
           "coffee_beans_empty": "Lipsă boabe de cafea",
           "machine_to_service": "Service necesar",
           "coffee_heater_probe_failure": "Defecțiune sondă încălzitor cafea",
@@ -107,27 +146,7 @@
           "preparing": "Pregătire",
           "delivering_hot_water": "Distribuire apă fierbinte",
           "cleaning_milk_spout": "Curățare duză de lapte",
-          "descaling": "Decalcifiere",
-          "ignore_alarm": "Ignoră alarma"
-        }
-      },
-      "switches": {
-        "name": "Comutatoare",
-        "state": {
-          "none": "Niciuna",
-          "water_spout": "Gura de apă",
-          "motor_up": "Motor sus",
-          "motor_down": "Motor jos",
-          "coffee_waste_container": "Recipient zaț de cafea",
-          "water_tank_absent": "Lipsă rezervor apă",
-          "knob": "Buton",
-          "water_level_low": "Nivel scăzut de apă",
-          "coffee_jug": "Carafă de cafea",
-          "ifd_caraffe": "Carafă de lapte",
-          "ciocco_tank": "Recipient ciocolată",
-          "clean_knob": "Buton curățare",
-          "door_opened": "Ușă deschisă",
-          "preground_door_opened": "Compartiment cafea măcinată deschis"
+          "descaling": "Decalcifiere"
         }
       },
       "total_coffee": {
@@ -153,6 +172,9 @@
       },
       "total_choco": {
         "name": "Total ciocolată"
+      },
+      "total_cold_milk": {
+        "name": "Total lapte rece"
       },
       "additional_coffee": {
         "name": "Cafea adițională"

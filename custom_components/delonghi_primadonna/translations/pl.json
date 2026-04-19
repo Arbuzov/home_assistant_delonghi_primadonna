@@ -53,6 +53,25 @@
       },
       "sounds": {
         "name": "Dźwięk"
+      },
+      "time_sync": {
+        "name": "Time sync"
+      }
+    },
+    "binary_sensor": {
+      "descaling": {
+        "name": "Descaling"
+      },
+      "filter": {
+        "name": "Filter"
+      },
+      "enabled": {
+        "name": "Enabled"
+      }
+    },
+    "text": {
+      "debug_input": {
+        "name": "Debug Input"
       }
     },
     "sensor": {
@@ -66,6 +85,26 @@
           "milk_frother_cleaning": "Czyszczenie spieniacza mleka"
         }
       },
+      "switches": {
+        "name": "Przełączniki",
+        "state": {
+          "none": "Brak",
+          "water_spout": "Wylewka wodna",
+          "motor_up": "Silnik w górę",
+          "motor_down": "Silnik w dół",
+          "coffee_waste_container": "Pojemnik na fusy",
+          "water_tank_absent": "Brak zbiornika wody",
+          "knob": "Pokrętło",
+          "water_level_low": "Niski poziom wody",
+          "coffee_jug": "Dzbanek do kawy",
+          "ifd_caraffe": "Dzbanek na mleko",
+          "ciocco_tank": "Zbiornik czekolady",
+          "clean_knob": "Pokrętło czyszczenia",
+          "door_opened": "Drzwi otwarte",
+          "preground_door_opened": "Otwarta klapka mielonej kawy",
+          "unknown_switch": "Unknown switch"
+        }
+      },
       "device_status": {
         "name": "Status urządzenia",
         "state": {
@@ -73,7 +112,7 @@
           "coffee_waste_container_full": "Pojemnik na fusy jest pełny",
           "descale_alarm": "Alarm odkamieniania",
           "replace_water_filter": "Wymień filtr wody",
-          "coffe_ground_too_fine": "Zbyt drobne mielenie kawy",
+          "coffee_ground_too_fine": "Zbyt drobne mielenie kawy",
           "coffee_beans_empty": "Brak kawy ziarnistej",
           "machine_to_service": "Wymagany serwis",
           "coffee_heater_probe_failure": "Awaria sondy grzałki kawy",
@@ -107,27 +146,7 @@
           "preparing": "Przygotowywanie",
           "delivering_hot_water": "Wydawanie gorącej wody",
           "cleaning_milk_spout": "Czyszczenie dyszy mleka",
-          "descaling": "Odkamienianie",
-          "ignore_alarm": "Zignoruj alarm"
-        }
-      },
-      "switches": {
-        "name": "Przełączniki",
-        "state": {
-          "none": "Brak",
-          "water_spout": "Wylewka wodna",
-          "motor_up": "Silnik w górę",
-          "motor_down": "Silnik w dół",
-          "coffee_waste_container": "Pojemnik na fusy",
-          "water_tank_absent": "Brak zbiornika wody",
-          "knob": "Pokrętło",
-          "water_level_low": "Niski poziom wody",
-          "coffee_jug": "Dzbanek do kawy",
-          "ifd_caraffe": "Dzbanek na mleko",
-          "ciocco_tank": "Zbiornik czekolady",
-          "clean_knob": "Pokrętło czyszczenia",
-          "door_opened": "Drzwi otwarte",
-          "preground_door_opened": "Otwarta klapka mielonej kawy"
+          "descaling": "Odkamienianie"
         }
       },
       "total_coffee": {
@@ -153,6 +172,9 @@
       },
       "total_choco": {
         "name": "Łączna liczba czekolad"
+      },
+      "total_cold_milk": {
+        "name": "Suma zimnego mleka"
       },
       "additional_coffee": {
         "name": "Dodatkowa kawa"
