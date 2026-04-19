@@ -61,7 +61,7 @@ def parse_monitor_data(data: bytes) -> MonitorData | None:
         return None
 
     answer_id = data[2]
-    
+
     # Defaults
     switches = 0
     alarms = 0
@@ -74,7 +74,7 @@ def parse_monitor_data(data: bytes) -> MonitorData | None:
             return None
         # Switches: Bytes 5, 6 (Little Endian)
         switches = data[5] + (data[6] << 8)
-        
+
         # Alarms: Bytes 7, 8, 12, 13 (Little Endian in blocks)
         # Based on MonitorDataV2.b():
         # iS = z.S(bArr[7]) + (z.S(bArr[8]) << 8) + (z.S(bArr[12]) << 16) + \
@@ -93,7 +93,7 @@ def parse_monitor_data(data: bytes) -> MonitorData | None:
     elif answer_id == 0x70:  # MonitorData (v1)
         if len(data) < 11:
             return None
-            
+
         # Switches: Bytes 9, 10
         # Based on MonitorData.g(): bArr[9] + (bArr[10] << 8)
         switches = data[9] + (data[10] << 8)
@@ -701,7 +701,7 @@ class DelongiPrimadonna:
         """Parse statistics response"""
         if len(data) < 8:
             return
-            
+
         hex_data = hexlify(data, " ").decode('utf-8')
         _LOGGER.debug("Statistics Parser. Raw: %s", hex_data)
 
@@ -792,7 +792,7 @@ class DelongiPrimadonna:
             # Covers: 3017-3026 (3017=cold milk, 3021=choco, 3025=tea)
             await self.get_statistics(3017, 10)
             await asyncio.sleep(0.3)
-            
+
             # Optional: Request tea/other beverages if needed
             # await self.get_statistics(3025, 1)  # Tea counter
 
@@ -803,4 +803,4 @@ class DelongiPrimadonna:
         message[5] = start_index & 0xFF
         message[6] = count
 
-        await self.send_command(message)
+        await self.send_command(message)

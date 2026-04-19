@@ -258,7 +258,8 @@ class DelongiPrimadonnaStatisticsSensor(
             # Refresh stats around our parameter ID
             # Requesting chunk of 10 starting from base 100 for now
             # as that covers most counters
-            # We trigger it, but device.py handles the async notification response
+            # We trigger it, but device.py handles the async notification
+            # response
             # async_update here is to trigger the REQUEST via HA loop
             # Use centralized throttled update
             self.hass.async_create_task(self.device.update_statistics())
