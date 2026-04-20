@@ -820,7 +820,6 @@ class DelongiPrimadonna:
             await self.get_statistics(3017, 10)
             await asyncio.sleep(0.3)
 
-
     async def get_statistics(self, start_index: int, count: int) -> None:
         """Get statistics from the machine"""
         message = copy.deepcopy(BYTES_STATISTICS_COMMAND)
