@@ -53,6 +53,25 @@
       },
       "sounds": {
         "name": "Suoni"
+      },
+      "time_sync": {
+        "name": "Sincro ora"
+      }
+    },
+    "binary_sensor": {
+      "descaling": {
+        "name": "Decalcificazione"
+      },
+      "filter": {
+        "name": "Filtro"
+      },
+      "enabled": {
+        "name": "Abilitato"
+      }
+    },
+    "text": {
+      "debug_input": {
+        "name": "Input debug"
       }
     },
     "sensor": {
@@ -66,6 +85,26 @@
           "milk_frother_cleaning": "Pulizia montalatte"
         }
       },
+      "switches": {
+        "name": "Interruttori",
+        "state": {
+          "none": "Nessuno",
+          "water_spout": "Erogatore d'acqua",
+          "motor_up": "Motore su",
+          "motor_down": "Motore giù",
+          "coffee_waste_container": "Contenitore fondi caffè",
+          "water_tank_absent": "Serbatoio acqua assente",
+          "knob": "Manopola",
+          "water_level_low": "Livello acqua basso",
+          "coffee_jug": "Caraffa del caffè",
+          "ifd_caraffe": "Caraffa del latte",
+          "ciocco_tank": "Serbatoio cioccolata",
+          "clean_knob": "Manopola pulizia",
+          "door_opened": "Sportello aperto",
+          "preground_door_opened": "Sportello caffè macinato aperto",
+          "unknown_switch": "Interruttore sconosciuto"
+        }
+      },
       "device_status": {
         "name": "Stato del dispositivo",
         "state": {
@@ -73,7 +112,7 @@
           "coffee_waste_container_full": "Contenitore fondi pieno",
           "descale_alarm": "Allarme decalcificazione",
           "replace_water_filter": "Sostituire filtro acqua",
-          "coffe_ground_too_fine": "Caffè troppo fine",
+          "coffee_ground_too_fine": "Caffè troppo fine",
           "coffee_beans_empty": "Contenitore chicchi vuoto",
           "machine_to_service": "Macchina da revisionare",
           "coffee_heater_probe_failure": "Guasto sonda riscaldatore caffè",
@@ -97,27 +136,17 @@
           "condense_fan_problem": "Problema ventola condensa",
           "clock_bt_comm_problem": "Problema comunicazione Orologio/BT",
           "spi_comm_problem": "Problema comunicazione SPI",
-          "unknown_alarm": "Allarme sconosciuto",
-          "ignore_alarm": "Allarme ignorato"
-        }
-      },
-      "switches": {
-        "name": "Interruttori",
-        "state": {
-          "none": "Nessuno",
-          "water_spout": "Erogatore d'acqua",
-          "motor_up": "Motore su",
-          "motor_down": "Motore giù",
-          "coffee_waste_container": "Contenitore fondi caffè",
-          "water_tank_absent": "Serbatoio acqua assente",
-          "knob": "Manopola",
-          "water_level_low": "Livello acqua basso",
-          "coffee_jug": "Caraffa del caffè",
-          "ifd_caraffe": "Caraffa del latte",
-          "ciocco_tank": "Serbatoio cioccolata",
-          "clean_knob": "Manopola pulizia",
-          "door_opened": "Sportello aperto",
-          "preground_door_opened": "Sportello caffè macinato aperto"
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "Spento",
+          "heating": "Riscaldamento",
+          "washing": "Lavaggio",
+          "ready": "Pronto",
+          "brewing": "Erogazione in corso",
+          "rinsing": "Risciacquo",
+          "preparing": "Preparazione",
+          "delivering_hot_water": "Erogazione acqua calda",
+          "cleaning_milk_spout": "Pulizia beccuccio latte",
+          "descaling": "Decalcificazione"
         }
       },
       "total_coffee": {
@@ -143,6 +172,21 @@
       },
       "total_choco": {
         "name": "Cioccolata totale"
+      },
+      "total_cold_milk": {
+        "name": "Latte freddo totale"
+      },
+      "daily_coffee": {
+        "name": "Caffè giornaliero"
+      },
+      "weekly_coffee": {
+        "name": "Caffè settimanale"
+      },
+      "daily_water": {
+        "name": "Acqua giornaliera"
+      },
+      "weekly_water": {
+        "name": "Acqua settimanale"
       },
       "additional_coffee": {
         "name": "Caffè addizionale"

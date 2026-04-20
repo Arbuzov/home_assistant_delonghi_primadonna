@@ -53,6 +53,25 @@
       },
       "sounds": {
         "name": "Geräusche"
+      },
+      "time_sync": {
+        "name": "Zeitsynchronisation"
+      }
+    },
+    "binary_sensor": {
+      "descaling": {
+        "name": "Entkalkung"
+      },
+      "filter": {
+        "name": "Filter"
+      },
+      "enabled": {
+        "name": "Aktiviert"
+      }
+    },
+    "text": {
+      "debug_input": {
+        "name": "Debug-Eingabe"
       }
     },
     "sensor": {
@@ -66,6 +85,26 @@
           "milk_frother_cleaning": "Milchaufschäumer Reinigung"
         }
       },
+      "switches": {
+        "name": "Schalter",
+        "state": {
+          "none": "Keine",
+          "water_spout": "Wasserauslauf",
+          "motor_up": "Motor hoch",
+          "motor_down": "Motor runter",
+          "coffee_waste_container": "Kaffeesatzbehälter",
+          "water_tank_absent": "Wassertank fehlt",
+          "knob": "Knopf",
+          "water_level_low": "Wasserstand niedrig",
+          "coffee_jug": "Kaffeekanne",
+          "ifd_caraffe": "Milchkaraffe",
+          "ciocco_tank": "Schokoladentank",
+          "clean_knob": "Reinigungsknopf",
+          "door_opened": "Tür geöffnet",
+          "preground_door_opened": "Fach für gemahlenen Kaffee geöffnet",
+          "unknown_switch": "Unbekannter Schalter"
+        }
+      },
       "device_status": {
         "name": "Gerätestatus",
         "state": {
@@ -73,7 +112,7 @@
           "coffee_waste_container_full": "Kaffeesatzbehälter voll",
           "descale_alarm": "Entkalkungsalarm",
           "replace_water_filter": "Wasserfilter ersetzen",
-          "coffe_ground_too_fine": "Kaffeemahlung zu fein",
+          "coffee_ground_too_fine": "Kaffeemahlung zu fein",
           "coffee_beans_empty": "Kaffeebohnen leer",
           "machine_to_service": "Maschine warten",
           "coffee_heater_probe_failure": "Fehler Kaffeekopfheizungssensor",
@@ -97,27 +136,17 @@
           "condense_fan_problem": "Problem Kondensatorlüfter",
           "clock_bt_comm_problem": "Uhr/BT-Kommunikationsproblem",
           "spi_comm_problem": "SPI-Kommunikationsproblem",
-          "unknown_alarm": "Unbekannter Alarm",
-          "ignore_alarm": "Alarm ignorieren"
-        }
-      },
-      "switches": {
-        "name": "Schalter",
-        "state": {
-          "none": "Keine",
-          "water_spout": "Wasserauslauf",
-          "motor_up": "Motor hoch",
-          "motor_down": "Motor runter",
-          "coffee_waste_container": "Kaffeesatzbehälter",
-          "water_tank_absent": "Wassertank fehlt",
-          "knob": "Knopf",
-          "water_level_low": "Wasserstand niedrig",
-          "coffee_jug": "Kaffeekanne",
-          "ifd_caraffe": "Milchkaraffe",
-          "ciocco_tank": "Schokoladentank",
-          "clean_knob": "Reinigungsknopf",
-          "door_opened": "Tür geöffnet",
-          "preground_door_opened": "Fach für gemahlenen Kaffee geöffnet"
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "Ausgeschaltet",
+          "heating": "Aufheizen",
+          "washing": "Waschen",
+          "ready": "Bereit",
+          "brewing": "Zubereitung",
+          "rinsing": "Spülen",
+          "preparing": "Vorbereitung",
+          "delivering_hot_water": "Heißwasserausgabe",
+          "cleaning_milk_spout": "Milchauslauf reinigen",
+          "descaling": "Entkalken"
         }
       },
       "total_coffee": {
@@ -143,6 +172,21 @@
       },
       "total_choco": {
         "name": "Schokolade insgesamt"
+      },
+      "total_cold_milk": {
+        "name": "Kaltmilch insgesamt"
+      },
+      "daily_coffee": {
+        "name": "Täglicher Kaffee"
+      },
+      "weekly_coffee": {
+        "name": "Wöchentlicher Kaffee"
+      },
+      "daily_water": {
+        "name": "Tägliches Wasser"
+      },
+      "weekly_water": {
+        "name": "Wöchentliches Wasser"
       },
       "additional_coffee": {
         "name": "Zusätzlicher Kaffee"
@@ -172,8 +216,8 @@
         "steam": "Dampf",
         "long": "Lang",
         "coffee": "Kaffee",
-        "dopio": "DOPPELT",
-        "hot_water": "Heißes Wasser",
+        "dopio": "Doppelt",
+        "hot_water": "Heißwasser",
         "espresso": "Espresso",
         "americano": "Americano",
         "espresso2": "Espresso 2"

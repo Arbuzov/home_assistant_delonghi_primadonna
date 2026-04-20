@@ -53,6 +53,25 @@
       },
       "sounds": {
         "name": "音"
+      },
+      "time_sync": {
+        "name": "時刻同期"
+      }
+    },
+    "binary_sensor": {
+      "descaling": {
+        "name": "石灰除去"
+      },
+      "filter": {
+        "name": "フィルター"
+      },
+      "enabled": {
+        "name": "有効"
+      }
+    },
+    "text": {
+      "debug_input": {
+        "name": "デバッグ入力"
       }
     },
     "sensor": {
@@ -66,6 +85,26 @@
           "milk_frother_cleaning": "ミルクフォーマー洗浄"
         }
       },
+      "switches": {
+        "name": "スイッチ",
+        "state": {
+          "none": "なし",
+          "water_spout": "給水口",
+          "motor_up": "モーター上",
+          "motor_down": "モーター下",
+          "coffee_waste_container": "コーヒーカス容器",
+          "water_tank_absent": "水タンクなし",
+          "knob": "ノブ",
+          "water_level_low": "水位低下",
+          "coffee_jug": "コーヒージャグ",
+          "ifd_caraffe": "ミルクカラフェ",
+          "ciocco_tank": "チョコレートタンク",
+          "clean_knob": "清掃ノブ",
+          "door_opened": "ドア開",
+          "preground_door_opened": "粉入れ口開",
+          "unknown_switch": "Unknown switch"
+        }
+      },
       "device_status": {
         "name": "マシン状態",
         "state": {
@@ -73,7 +112,7 @@
           "coffee_waste_container_full": "コーヒーカス容器がいっぱいです",
           "descale_alarm": "石灰除去アラーム",
           "replace_water_filter": "浄水フィルターを交換してください",
-          "coffe_ground_too_fine": "挽き具合が細かすぎます",
+          "coffee_ground_too_fine": "挽き具合が細かすぎます",
           "coffee_beans_empty": "コーヒー豆が空です",
           "machine_to_service": "サービスが必要です",
           "coffee_heater_probe_failure": "コーヒーヒータープローブ故障",
@@ -97,27 +136,17 @@
           "condense_fan_problem": "凝縮ファン故障",
           "clock_bt_comm_problem": "時計/BT通信エラー",
           "spi_comm_problem": "SPI通信エラー",
-          "unknown_alarm": "未知のアラーム",
-          "ignore_alarm": "アラームを無視"
-        }
-      },
-      "switches": {
-        "name": "スイッチ",
-        "state": {
-          "none": "なし",
-          "water_spout": "給水口",
-          "motor_up": "モーター上",
-          "motor_down": "モーター下",
-          "coffee_waste_container": "コーヒーカス容器",
-          "water_tank_absent": "水タンクなし",
-          "knob": "ノブ",
-          "water_level_low": "水位低下",
-          "coffee_jug": "コーヒージャグ",
-          "ifd_caraffe": "ミルクカラフェ",
-          "ciocco_tank": "チョコレートタンク",
-          "clean_knob": "清掃ノブ",
-          "door_opened": "ドア開",
-          "preground_door_opened": "粉入れ口開"
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "電源オフ",
+          "heating": "加熱中",
+          "washing": "洗浄中",
+          "ready": "準備完了",
+          "brewing": "抽出中",
+          "rinsing": "すすぎ中",
+          "preparing": "準備中",
+          "delivering_hot_water": "お湯の吐出中",
+          "cleaning_milk_spout": "ミルク排出口のクリーニング",
+          "descaling": "スケール除去"
         }
       },
       "total_coffee": {
@@ -143,6 +172,21 @@
       },
       "total_choco": {
         "name": "総チョコ数"
+      },
+      "total_cold_milk": {
+        "name": "冷たいミルク 合計"
+      },
+      "daily_coffee": {
+        "name": "今日のコーヒー"
+      },
+      "weekly_coffee": {
+        "name": "今週のコーヒー"
+      },
+      "daily_water": {
+        "name": "今日の水"
+      },
+      "weekly_water": {
+        "name": "今週の水"
       },
       "additional_coffee": {
         "name": "追加コーヒー"
@@ -172,7 +216,7 @@
         "steam": "スチーム",
         "long": "長さ",
         "coffee": "コーヒー",
-        "dopio": "ダブル",
+        "dopio": "ドッピオ",
         "hot_water": "お湯",
         "espresso": "エスプレッソ",
         "americano": "アメリカーノ",

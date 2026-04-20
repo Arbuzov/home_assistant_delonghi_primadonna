@@ -53,6 +53,25 @@
       },
       "sounds": {
         "name": "Sons"
+      },
+      "time_sync": {
+        "name": "Synchro heure"
+      }
+    },
+    "binary_sensor": {
+      "descaling": {
+        "name": "Détartrage"
+      },
+      "filter": {
+        "name": "Filtre"
+      },
+      "enabled": {
+        "name": "Activé"
+      }
+    },
+    "text": {
+      "debug_input": {
+        "name": "Entrée débogage"
       }
     },
     "sensor": {
@@ -66,6 +85,26 @@
           "milk_frother_cleaning": "Nettoyage mousseur à lait"
         }
       },
+      "switches": {
+        "name": "Interrupteurs",
+        "state": {
+          "none": "Aucun",
+          "water_spout": "Sortie d'eau",
+          "motor_up": "Moteur vers le haut",
+          "motor_down": "Moteur vers le bas",
+          "coffee_waste_container": "Bac à marc de café",
+          "water_tank_absent": "Réservoir d'eau absent",
+          "knob": "Bouton",
+          "water_level_low": "Niveau d'eau bas",
+          "coffee_jug": "Carafe à café",
+          "ifd_caraffe": "Carafe à lait",
+          "ciocco_tank": "Réservoir de chocolat",
+          "clean_knob": "Bouton de nettoyage",
+          "door_opened": "Porte ouverte",
+          "preground_door_opened": "Trappe à café moulu ouverte",
+          "unknown_switch": "Interrupteur inconnu"
+        }
+      },
       "device_status": {
         "name": "État de l'appareil",
         "state": {
@@ -73,7 +112,7 @@
           "coffee_waste_container_full": "Bac à marc plein",
           "descale_alarm": "Alarme détartrage",
           "replace_water_filter": "Remplacer le filtre à eau",
-          "coffe_ground_too_fine": "Mouture trop fine",
+          "coffee_ground_too_fine": "Mouture trop fine",
           "coffee_beans_empty": "Bac à grains vide",
           "machine_to_service": "Entretien machine",
           "coffee_heater_probe_failure": "Panne sonde chauffage café",
@@ -97,27 +136,17 @@
           "condense_fan_problem": "Problème ventilateur condensation",
           "clock_bt_comm_problem": "Problème communication horloge/BT",
           "spi_comm_problem": "Problème communication SPI",
-          "unknown_alarm": "Alarme inconnue",
-          "ignore_alarm": "Alarme ignorée"
-        }
-      },
-      "switches": {
-        "name": "Interrupteurs",
-        "state": {
-          "none": "Aucun",
-          "water_spout": "Sortie d'eau",
-          "motor_up": "Moteur vers le haut",
-          "motor_down": "Moteur vers le bas",
-          "coffee_waste_container": "Bac à marc de café",
-          "water_tank_absent": "Réservoir d'eau absent",
-          "knob": "Bouton",
-          "water_level_low": "Niveau d'eau bas",
-          "coffee_jug": "Carafe à café",
-          "ifd_caraffe": "Carafe à lait",
-          "ciocco_tank": "Réservoir de chocolat",
-          "clean_knob": "Bouton de nettoyage",
-          "door_opened": "Porte ouverte",
-          "preground_door_opened": "Trappe à café moulu ouverte"
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "Éteint",
+          "heating": "Chauffage",
+          "washing": "Lavage",
+          "ready": "Prêt",
+          "brewing": "Préparation du café",
+          "rinsing": "Rinçage",
+          "preparing": "Préparation",
+          "delivering_hot_water": "Distribution d'eau chaude",
+          "cleaning_milk_spout": "Nettoyage de la buse à lait",
+          "descaling": "Détartrage"
         }
       },
       "total_coffee": {
@@ -143,6 +172,21 @@
       },
       "total_choco": {
         "name": "Total chocolat"
+      },
+      "total_cold_milk": {
+        "name": "Lait froid total"
+      },
+      "daily_coffee": {
+        "name": "Café quotidien"
+      },
+      "weekly_coffee": {
+        "name": "Café hebdomadaire"
+      },
+      "daily_water": {
+        "name": "Eau quotidienne"
+      },
+      "weekly_water": {
+        "name": "Eau hebdomadaire"
       },
       "additional_coffee": {
         "name": "Café supplémentaire"
@@ -172,10 +216,10 @@
         "steam": "Vapeur",
         "long": "Long",
         "coffee": "Café",
-        "dopio": "DOUBLE",
+        "dopio": "Double",
         "hot_water": "Eau chaude",
         "espresso": "Espresso",
-        "americano": "Américain",
+        "americano": "Americano",
         "espresso2": "Expresso 2"
       }
     }

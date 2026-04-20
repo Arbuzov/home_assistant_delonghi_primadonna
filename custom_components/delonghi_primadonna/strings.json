@@ -19,6 +19,45 @@
         }
     },
     "entity": {
+        "select": {
+            "profile": {
+                "name": "Profile"
+            },
+            "make_beverage": {
+                "name": "Beverage"
+            },
+            "energy_save_mode": {
+                "name": "Turn off after"
+            },
+            "water_hardness": {
+                "name": "Water hardness"
+            },
+            "water_temperature": {
+                "name": "Water temperature"
+            }
+        },
+        "button": {
+            "power_on": {
+                "name": "Turn on"
+            }
+        },
+        "switch": {
+            "cup_light": {
+                "name": "Cup light"
+            },
+            "debug_notification": {
+                "name": "Debug notification"
+            },
+            "energy_save_mode": {
+                "name": "Energy save mode"
+            },
+            "sounds": {
+                "name": "Sounds"
+            },
+            "time_sync": {
+                "name": "Time sync"
+            }
+        },
         "binary_sensor": {
             "descaling": {
                 "name": "Descaling"
@@ -62,8 +101,126 @@
                     "ciocco_tank": "Chocolate tank",
                     "clean_knob": "Clean knob",
                     "door_opened": "Door opened",
-                    "preground_door_opened": "Preground door opened"
+                    "preground_door_opened": "Preground door opened",
+                    "unknown_switch": "Unknown switch"
                 }
+            },
+            "device_status": {
+                "name": "Machine Status",
+                "state": {
+                    "empty_water_tank": "Empty water tank",
+                    "coffee_waste_container_full": "Coffee waste container full",
+                    "descale_alarm": "Descale alarm",
+                    "replace_water_filter": "Replace water filter",
+                    "coffee_ground_too_fine": "Coffee ground too fine",
+                    "coffee_beans_empty": "Coffee beans empty",
+                    "machine_to_service": "Machine to service",
+                    "coffee_heater_probe_failure": "Coffee heater probe failure",
+                    "too_much_coffee": "Too much coffee",
+                    "coffee_infuser_motor_not_working": "Coffee infuser motor not working",
+                    "steamer_probe_failure": "Steamer probe failure",
+                    "empty_drip_tray": "Empty drip tray",
+                    "hydraulic_circuit_problem": "Hydraulic circuit problem",
+                    "tank_is_in_position": "Tank is in position",
+                    "clean_knob": "Clean knob",
+                    "coffee_beans_empty_two": "Coffee beans empty (secondary)",
+                    "tank_too_full": "Tank too full",
+                    "bean_hopper_absent": "Bean hopper absent",
+                    "grid_presence": "Grid presence",
+                    "infuser_sense": "Infuser sense",
+                    "not_enough_coffee": "Not enough coffee",
+                    "expansion_comm_prob": "Expansion comm problem",
+                    "expansion_submodules_prob": "Expansion submodules problem",
+                    "grinding_unit_1_problem": "Grinding unit 1 problem",
+                    "grinding_unit_2_problem": "Grinding unit 2 problem",
+                    "condense_fan_problem": "Condense fan problem",
+                    "clock_bt_comm_problem": "Clock BT comm problem",
+                    "spi_comm_problem": "SPI comm problem",
+                    "unknown_alarm": "Unknown alarm",
+                    "turned_off": "Turned Off",
+                    "heating": "Heating",
+                    "washing": "Washing",
+                    "ready": "Ready",
+                    "brewing": "Brewing",
+                    "rinsing": "Rinsing",
+                    "preparing": "Preparing",
+                    "delivering_hot_water": "Delivering Hot Water",
+                    "cleaning_milk_spout": "Cleaning Milk Spout",
+                    "descaling": "Descaling"
+                }
+            },
+            "total_coffee": {
+                "name": "Total Coffee"
+            },
+            "total_coffee_with_milk": {
+                "name": "Total Coffee with Milk"
+            },
+            "total_water": {
+                "name": "Total Water"
+            },
+            "descaling_count": {
+                "name": "Descaling Count"
+            },
+            "milk_cleaning_count": {
+                "name": "Milk Cleaning Count"
+            },
+            "filter_replace_count": {
+                "name": "Filter Replacements"
+            },
+            "total_tea": {
+                "name": "Total Tea"
+            },
+            "total_choco": {
+                "name": "Total Choco"
+            },
+            "total_cold_milk": {
+                "name": "Total Cold Milk"
+            },
+            "daily_coffee": {
+                "name": "Daily Coffee"
+            },
+            "weekly_coffee": {
+                "name": "Weekly Coffee"
+            },
+            "daily_water": {
+                "name": "Daily Water"
+            },
+            "weekly_water": {
+                "name": "Weekly Water"
+            },
+            "additional_coffee": {
+                "name": "Additional Coffee"
+            }
+        }
+    },
+    "services": {
+        "make_beverage": {
+            "name": "Make beverage",
+            "description": "Prepare a beverage from the list below",
+            "fields": {
+                "beverage": {
+                    "name": "Beverage",
+                    "description": "Beverage to prepare"
+                },
+                "entity_id": {
+                    "name": "Entity ID",
+                    "description": "Entity ID of the coffee machine"
+                }
+            }
+        }
+    },
+    "selector": {
+        "beverage": {
+            "options": {
+                "none": "None",
+                "steam": "Steam",
+                "long": "Long",
+                "coffee": "Coffee",
+                "dopio": "Dopio",
+                "hot_water": "Hot water",
+                "espresso": "Espresso",
+                "americano": "Americano",
+                "espresso2": "Espresso 2"
             }
         }
     }

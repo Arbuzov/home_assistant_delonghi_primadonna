@@ -83,6 +83,22 @@ DEVICE_STATUS = {
     99: "unknown_alarm",
 }
 
+MACHINE_STATUS = {
+    0: "turned_off",
+    1: "heating",
+    2: "washing",
+    3: "heating",
+    4: "heating",
+    5: "ready",  # Old / v1 Ready
+    6: "brewing",
+    7: "ready",  # v2 Ready
+    8: "rinsing",
+    10: "preparing",
+    11: "delivering_hot_water",
+    12: "cleaning_milk_spout",
+    14: "descaling",
+}
+
 """
 Command bytes
 """

@@ -53,6 +53,25 @@
       },
       "sounds": {
         "name": "听起来"
+      },
+      "time_sync": {
+        "name": "时间同步"
+      }
+    },
+    "binary_sensor": {
+      "descaling": {
+        "name": "除垢"
+      },
+      "filter": {
+        "name": "过滤器"
+      },
+      "enabled": {
+        "name": "已启用"
+      }
+    },
+    "text": {
+      "debug_input": {
+        "name": "调试输入"
       }
     },
     "sensor": {
@@ -66,6 +85,26 @@
           "milk_frother_cleaning": "奶泡器清洁"
         }
       },
+      "switches": {
+        "name": "开关",
+        "state": {
+          "none": "无",
+          "water_spout": "出水口",
+          "motor_up": "电机上升",
+          "motor_down": "电机下降",
+          "coffee_waste_container": "咖啡泥容器",
+          "water_tank_absent": "缺少水罐",
+          "knob": "旋钮",
+          "water_level_low": "水位低",
+          "coffee_jug": "咖啡壶",
+          "ifd_caraffe": "牛奶壶",
+          "ciocco_tank": "巧克力罐",
+          "clean_knob": "清洗旋钮",
+          "door_opened": "门已打开",
+          "preground_door_opened": "粉仓已打开",
+          "unknown_switch": "Unknown switch"
+        }
+      },
       "device_status": {
         "name": "设备状态",
         "state": {
@@ -73,7 +112,7 @@
           "coffee_waste_container_full": "咖啡渣容器已满",
           "descale_alarm": "除垢警报",
           "replace_water_filter": "请更换水过滤器",
-          "coffe_ground_too_fine": "磨粉太细",
+          "coffee_ground_too_fine": "磨粉太细",
           "coffee_beans_empty": "咖啡豆已空",
           "machine_to_service": "需要保养",
           "coffee_heater_probe_failure": "咖啡加热器探头故障",
@@ -97,27 +136,17 @@
           "condense_fan_problem": "冷凝风扇故障",
           "clock_bt_comm_problem": "时钟/蓝牙通讯异常",
           "spi_comm_problem": "SPI通讯异常",
-          "unknown_alarm": "未知警报",
-          "ignore_alarm": "忽略警报"
-        }
-      },
-      "switches": {
-        "name": "开关",
-        "state": {
-          "none": "无",
-          "water_spout": "出水口",
-          "motor_up": "电机上升",
-          "motor_down": "电机下降",
-          "coffee_waste_container": "咖啡泥容器",
-          "water_tank_absent": "缺少水罐",
-          "knob": "旋钮",
-          "water_level_low": "水位低",
-          "coffee_jug": "咖啡壶",
-          "ifd_caraffe": "牛奶壶",
-          "ciocco_tank": "巧克力罐",
-          "clean_knob": "清洗旋钮",
-          "door_opened": "门已打开",
-          "preground_door_opened": "粉仓已打开"
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "已关闭",
+          "heating": "加热中",
+          "washing": "清洗中",
+          "ready": "准备就绪",
+          "brewing": "冲泡中",
+          "rinsing": "冲洗中",
+          "preparing": "准备中",
+          "delivering_hot_water": "出热水中",
+          "cleaning_milk_spout": "清洗牛奶出口",
+          "descaling": "除垢"
         }
       },
       "total_coffee": {
@@ -144,6 +173,21 @@
       "total_choco": {
         "name": "巧克力总数"
       },
+      "total_cold_milk": {
+        "name": "冷牛奶总量"
+      },
+      "daily_coffee": {
+        "name": "每日咖啡"
+      },
+      "weekly_coffee": {
+        "name": "每周咖啡"
+      },
+      "daily_water": {
+        "name": "每日水"
+      },
+      "weekly_water": {
+        "name": "每周水"
+      },
       "additional_coffee": {
         "name": "额外咖啡"
       }
@@ -168,14 +212,14 @@
   "selector": {
     "beverage": {
       "options": {
-        "none": "没有任何",
+        "none": "无",
         "steam": "蒸汽",
         "long": "长的",
         "coffee": "咖啡",
-        "dopio": "双倍的",
+        "dopio": "双份",
         "hot_water": "热水",
         "espresso": "浓缩咖啡",
-        "americano": "美国",
+        "americano": "美式",
         "espresso2": "浓缩咖啡2"
       }
     }
