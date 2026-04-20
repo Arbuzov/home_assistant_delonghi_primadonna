@@ -15,7 +15,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base_entity import DelonghiDeviceEntity
 from .const import DOMAIN
-from .device import NOZZLE_STATE, DelongiPrimadonna
+from .device import DelongiPrimadonna, NOZZLE_STATE
 from .machine_switch import MachineSwitch
 
 
@@ -327,11 +327,12 @@ class DelongiPrimadonnaUtilitySensor(DelongiPrimadonnaStatisticsSensor):
 
         current_period = self._current_period_id
 
-        # Initialize or reset if period changed
-        if self._last_period_id != current_period:
+        # Initialize or reset if period changed or start value is missing
+        if self._last_period_id != current_period or self._start_value is None:
             self._start_value = total_value
             self._last_period_id = current_period
-            # Trigger state save
+            # Trigger state save to persist start_value and last_period_id
             self.async_write_ha_state()
+            return 0
 
-        return round(total_value - self._start_value, 2)
+        return round(max(0, total_value - self._start_value), 2)

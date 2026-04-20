@@ -1,13 +1,13 @@
 """Delongi primadonna device description"""
 import asyncio
-import copy
-import logging
-import time
-import uuid
 from binascii import crc_hqx, hexlify
+import copy
 from dataclasses import dataclass
 from datetime import datetime
 from enum import IntFlag
+import logging
+import time
+import uuid
 
 try:
     from enum import StrEnum
@@ -820,8 +820,6 @@ class DelongiPrimadonna:
             await self.get_statistics(3017, 10)
             await asyncio.sleep(0.3)
 
-            # Optional: Request tea/other beverages if needed
-            # await self.get_statistics(3025, 1)  # Tea counter
 
     async def get_statistics(self, start_index: int, count: int) -> None:
         """Get statistics from the machine"""
@@ -830,4 +828,4 @@ class DelongiPrimadonna:
         message[5] = start_index & 0xFF
         message[6] = count
 
-        await self.send_command(message)
+        await self.send_command(message)
