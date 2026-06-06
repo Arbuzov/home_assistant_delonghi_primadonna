@@ -2,8 +2,11 @@
 
 from typing import Any
 
-from homeassistant.components.sensor import (SensorDeviceClass, SensorEntity,
-                                             SensorStateClass)
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorStateClass,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
@@ -12,7 +15,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base_entity import DelonghiDeviceEntity
 from .const import DOMAIN
-from .device import NOZZLE_STATE, DelongiPrimadonna
+from .device import DelongiPrimadonna, NOZZLE_STATE
 from .machine_switch import MachineSwitch
 
 
@@ -50,13 +53,36 @@ async def async_setup_entry(
             ),
             DelongiPrimadonnaStatisticsSensor(
                 delongh_device, hass, 'milk_cleaning_count',
-                115, 'Milk Cleaning Count',
+                111, 'Milk Cleaning Count',
                 icon='mdi:water-sync',
             ),
             DelongiPrimadonnaStatisticsSensor(
                 delongh_device, hass, 'filter_replace_count',
                 108, 'Filter Replacements', icon='mdi:filter',
             ),
+            DelongiPrimadonnaStatisticsSensor(
+                delongh_device, hass, 'total_tea', 3025, 'Total Tea',
+                icon='mdi:tea'),
+            DelongiPrimadonnaStatisticsSensor(
+                delongh_device, hass, 'total_choco', 3021, 'Total Choco',
+                icon='mdi:cup-water'),
+            DelongiPrimadonnaStatisticsSensor(
+                delongh_device, hass, 'total_cold_milk', 3017,
+                'Total Cold Milk', icon='mdi:snowflake'),
+
+            # Utility sensors (Disabled by default)
+            DelongiPrimadonnaUtilitySensor(
+                delongh_device, hass, 'daily_coffee', -3077, 'Daily Coffee',
+                period='daily', icon='mdi:coffee-to-go'),
+            DelongiPrimadonnaUtilitySensor(
+                delongh_device, hass, 'weekly_coffee', -3077, 'Weekly Coffee',
+                period='weekly', icon='mdi:coffee-to-go'),
+            DelongiPrimadonnaUtilitySensor(
+                delongh_device, hass, 'daily_water', 10106, 'Daily Water',
+                'L', period='daily', icon='mdi:water'),
+            DelongiPrimadonnaUtilitySensor(
+                delongh_device, hass, 'weekly_water', 10106, 'Weekly Water',
+                'L', period='weekly', icon='mdi:water'),
         ]
     )
 
@@ -94,10 +120,9 @@ class DelongiPrimadonnaNozzleSensor(
 
     @property
     def icon(self):
-        result = 'mdi:coffee'
         if self.device.steam_nozzle == "milk_frother":
-            result = 'mdi:coffee-outline'
-        return result
+            return 'mdi:coffee-outline'
+        return 'mdi:coffee'
 
 
 class DelongiPrimadonnaStatusSensor(
@@ -214,7 +239,9 @@ class DelongiPrimadonnaStatisticsSensor(
     @property
     def native_value(self):
         """Return the current value from the statistics dictionary."""
-        return self.device.statistics.get(self._param_id)
+        return self.device.statistics.get(
+            self._param_id, self._attr_native_value
+        )
 
     @property
     def icon(self):
@@ -227,3 +254,76 @@ class DelongiPrimadonnaStatisticsSensor(
             self.hass.async_create_task(
                 self.device.update_statistics()
             )
+
+
+class DelongiPrimadonnaUtilitySensor(DelongiPrimadonnaStatisticsSensor):
+    """
+    Sensor that tracks usage over a period (daily/weekly).
+    Disabled by default.
+    """
+
+    _attr_entity_registry_enabled_default = False
+
+    def __init__(
+        self,
+        device: DelongiPrimadonna,
+        hass: HomeAssistant,
+        sensor_type: str,
+        param_id: int,
+        name: str,
+        native_unit_of_measurement: str = None,
+        period: str = "daily",
+        icon: str = 'mdi:counter'
+    ) -> None:
+        """Initialize the utility sensor."""
+        super().__init__(
+            device, hass, sensor_type, param_id, name,
+            native_unit_of_measurement, icon
+        )
+        self._period = period
+        self._start_value = None
+        self._last_period_id = None
+
+    @property
+    def _current_period_id(self) -> str:
+        """Get the current period identifier."""
+        from datetime import datetime
+        now = datetime.now()
+        if self._period == "daily":
+            return now.strftime("%Y-%m-%d")
+        return now.strftime("%Y-%W")
+
+    async def async_added_to_hass(self) -> None:
+        """Handle entity which will be added."""
+        await super().async_added_to_hass()
+        if (last_state := await self.async_get_last_state()) is not None:
+            self._start_value = last_state.attributes.get("start_value")
+            self._last_period_id = last_state.attributes.get("last_period_id")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return entity specific state attributes."""
+        return {
+            "start_value": self._start_value,
+            "last_period_id": self._last_period_id,
+            "period": self._period
+        }
+
+    @property
+    def native_value(self):
+        """Return the current period usage."""
+        total_value = super().native_value
+        if total_value is None:
+            return None
+
+        current_period = self._current_period_id
+
+        # Initialize or reset if period changed or start value is missing
+        if self._last_period_id != current_period or self._start_value is None:
+            self._start_value = total_value
+            self._last_period_id = current_period
+            # Trigger state save to persist start_value and last_period_id
+            self.async_write_ha_state()
+            return 0
+
+        return round(max(0, total_value - self._start_value), 2)
