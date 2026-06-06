@@ -53,6 +53,25 @@
       },
       "sounds": {
         "name": "Sunete"
+      },
+      "time_sync": {
+        "name": "Sincronizare oră"
+      }
+    },
+    "binary_sensor": {
+      "descaling": {
+        "name": "Decalcifiere"
+      },
+      "filter": {
+        "name": "Filtru"
+      },
+      "enabled": {
+        "name": "Activat"
+      }
+    },
+    "text": {
+      "debug_input": {
+        "name": "Intrare depanare"
       }
     },
     "sensor": {
@@ -66,6 +85,26 @@
           "milk_frother_cleaning": "Curățare spumant de lapte"
         }
       },
+      "switches": {
+        "name": "Comutatoare",
+        "state": {
+          "none": "Niciuna",
+          "water_spout": "Gura de apă",
+          "motor_up": "Motor sus",
+          "motor_down": "Motor jos",
+          "coffee_waste_container": "Recipient zaț de cafea",
+          "water_tank_absent": "Lipsă rezervor apă",
+          "knob": "Buton",
+          "water_level_low": "Nivel scăzut de apă",
+          "coffee_jug": "Carafă de cafea",
+          "ifd_caraffe": "Carafă de lapte",
+          "ciocco_tank": "Recipient ciocolată",
+          "clean_knob": "Buton curățare",
+          "door_opened": "Ușă deschisă",
+          "preground_door_opened": "Compartiment cafea măcinată deschis",
+          "unknown_switch": "Comutator necunoscut"
+        }
+      },
       "device_status": {
         "name": "Starea aparatului",
         "state": {
@@ -73,7 +112,7 @@
           "coffee_waste_container_full": "Recipientul pentru zaț este plin",
           "descale_alarm": "Alarmă decalcifiere",
           "replace_water_filter": "Înlocuiți filtrul de apă",
-          "coffe_ground_too_fine": "Măcinare prea fină",
+          "coffee_ground_too_fine": "Măcinare prea fină",
           "coffee_beans_empty": "Lipsă boabe de cafea",
           "machine_to_service": "Service necesar",
           "coffee_heater_probe_failure": "Defecțiune sondă încălzitor cafea",
@@ -98,26 +137,17 @@
           "clock_bt_comm_problem": "Problemă comunicare ceas/BT",
           "spi_comm_problem": "Problemă comunicare SPI",
           "unknown_alarm": "Alarmă necunoscută",
-          "ignore_alarm": "Ignoră alarma"
-        }
-      },
-      "switches": {
-        "name": "Comutatoare",
-        "state": {
-          "none": "Niciuna",
-          "water_spout": "Gura de apă",
-          "motor_up": "Motor sus",
-          "motor_down": "Motor jos",
-          "coffee_waste_container": "Recipient zaț de cafea",
-          "water_tank_absent": "Lipsă rezervor apă",
-          "knob": "Buton",
-          "water_level_low": "Nivel scăzut de apă",
-          "coffee_jug": "Carafă de cafea",
-          "ifd_caraffe": "Carafă de lapte",
-          "ciocco_tank": "Recipient ciocolată",
-          "clean_knob": "Buton curățare",
-          "door_opened": "Ușă deschisă",
-          "preground_door_opened": "Compartiment cafea măcinată deschis"
+          "ignore_alarm": "Ignoră alarma",
+          "turned_off": "Oprit",
+          "heating": "Încălzire",
+          "washing": "Spălare",
+          "ready": "Gata",
+          "brewing": "Preparare",
+          "rinsing": "Clătire",
+          "preparing": "Pregătire",
+          "delivering_hot_water": "Distribuire apă fierbinte",
+          "cleaning_milk_spout": "Curățare duză de lapte",
+          "descaling": "Decalcifiere"
         }
       },
       "total_coffee": {
@@ -144,6 +174,21 @@
       "total_choco": {
         "name": "Total ciocolată"
       },
+      "total_cold_milk": {
+        "name": "Total lapte rece"
+      },
+      "daily_coffee": {
+        "name": "Cafea zilnică"
+      },
+      "weekly_coffee": {
+        "name": "Cafea săptămânală"
+      },
+      "daily_water": {
+        "name": "Apa zilnică"
+      },
+      "weekly_water": {
+        "name": "Apa săptămânală"
+      },
       "additional_coffee": {
         "name": "Cafea adițională"
       }
@@ -168,11 +213,11 @@
   "selector": {
     "beverage": {
       "options": {
-        "none": "Nici unul",
+        "none": "Niciuna",
         "steam": "Aburi",
         "long": "Lung",
         "coffee": "Cafea",
-        "dopio": "DUBLA",
+        "dopio": "Dubla",
         "hot_water": "Apă caldă",
         "espresso": "Espresso",
         "americano": "Americano",

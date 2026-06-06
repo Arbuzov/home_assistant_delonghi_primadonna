@@ -136,7 +136,17 @@
           "condense_fan_problem": "Condense fan problem",
           "clock_bt_comm_problem": "Clock BT comm problem",
           "spi_comm_problem": "SPI comm problem",
-          "unknown_alarm": "Unknown alarm"
+          "unknown_alarm": "Unknown alarm",
+          "turned_off": "Turned Off",
+          "heating": "Heating",
+          "washing": "Washing",
+          "ready": "Ready",
+          "brewing": "Brewing",
+          "rinsing": "Rinsing",
+          "preparing": "Preparing",
+          "delivering_hot_water": "Delivering Hot Water",
+          "cleaning_milk_spout": "Cleaning Milk Spout",
+          "descaling": "Descaling"
         }
       },
       "total_coffee": {
@@ -162,6 +172,21 @@
       },
       "total_choco": {
         "name": "Total Choco"
+      },
+      "total_cold_milk": {
+        "name": "Total Cold Milk"
+      },
+      "daily_coffee": {
+        "name": "Daily Coffee"
+      },
+      "weekly_coffee": {
+        "name": "Weekly Coffee"
+      },
+      "daily_water": {
+        "name": "Daily Water"
+      },
+      "weekly_water": {
+        "name": "Weekly Water"
       },
       "additional_coffee": {
         "name": "Additional Coffee"
