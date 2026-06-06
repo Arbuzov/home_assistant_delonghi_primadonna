@@ -18,7 +18,7 @@
 
 ## Known issues
 
-* Delonghi device reports one status at once if you remove water tank first and than remove coffeecake container you got only one warning about the water
+* Delonghi device reports one status at a time: if you remove the water tank first and then remove the coffee grounds container, you get only one warning about the water.
 * Delonghi device supports only one connection. You could not connect to device using the native application if you use this integration.
 * Delonghi device may not handle customer disconnection. Your device may die but Delonghi may think it's still connected.
 

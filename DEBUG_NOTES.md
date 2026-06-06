@@ -21,7 +21,7 @@ custom_components.delonghi_primadonna: debug
 ```
 Click **Call Service**.
 
-## This is a debug notes collected from the device
+## These are debug notes collected from the device
 
 Please join
 
