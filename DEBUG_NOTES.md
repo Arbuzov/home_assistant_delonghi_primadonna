@@ -1,3 +1,26 @@
+## How to Enable Debug Logs
+To see the debug information in Home Assistant, you need to configure the `logger` component.
+
+1. Permanent Configuration (Recommended)
+Add the following to your `configuration.yaml` file and restart Home Assistant:
+
+```yaml
+logger:
+  default: warning
+  logs:
+    custom_components.delonghi_primadonna: debug
+```
+2. Temporary Configuration (No Restart)
+You can use the `logger.set_level` service to enable debug logs immediately without restarting:
+
+Go to `Developer Tools` > `Services`.
+Select the `logger.set_level` service.
+Use the following YAML:
+```yaml
+custom_components.delonghi_primadonna: debug
+```
+Click **Call Service**.
+
 ## This is a debug notes collected from the device
 
 Please join
@@ -125,23 +148,27 @@ This command is used to request various counters (beverages, maintenance, etc.) 
 | ID | Category | Description | Notes |
 |----|----------|-------------|-------|
 | 105 | Maintenance | Descaling Count | |
-| 106 | Maintenance | Total Water Quantity | Divide by 2000 (or 5000) for Liters |
+| 106 | Maintenance | Total Water Quantity | Divide by 2000 for Liters |
 | 108 | Maintenance | Filter Replacements | |
-| 115 | Maintenance | Milk Cleaning Count | |
+| 111 | Maintenance | Milk Cleaning Count | |
 | 3000 | Beverage | Black Coffee Total (Part 1) | Combine with 3077 |
 | 3001 | Beverage | Coffee with Milk Total (Part 1) | Combine with 3003 |
-| 3003 | Beverage | Coffee with Milk Total (Part 2) | |
-| 3017 | Beverage | Additional Coffee | |
-| 3021 | Beverage | Total Choco | |
-| 3025 | Beverage | Total Tea | |
+| 3003 | Beverage | Coffee with Milk Total (Part 2) | Combined as ID -3003 |
+| 3017 | Beverage | Total with Cold Milk | `TOTAL_BEVERAGE_WITH_COLD_MILK` in APK |
+| 3021 | Beverage | Total Choco | `TOTAL_CHOCO` in APK |
+| 3025 | Beverage | Total Tea | `TOTAL_TEA` in APK |
 | 3047 | Beverage | Total "To Go" (Part 1) | Combine with 3048 |
 | 3048 | Beverage | Total "To Go" (Part 2) | |
-| 3077 | Beverage | Black Coffee Total (Part 2) | |
+| 3077 | Beverage | Black Coffee Total (Part 2) | Combined as ID -3077 |
 | 3078 | Beverage | Total Beverage (Part 2?) | |
 | 3080 | Beverage | Total Beverage (Part 1?) | |
 
 **Combined Calculations:**
-- **Total Black Coffee**: `ID 3000` + `ID 3077`
-- **Total Coffee with Milk**: `ID 3001` + `ID 3003`
+- **Total Black Coffee**: `ID 3000` + `ID 3077` (Result stored as `-3077`)
+- **Total Coffee with Milk**: `ID 3001` + `ID 3003` (Result stored as `-3003`)
 - **Total To-Go**: `ID 3047` + `ID 3048`
 - **Other Beverage**: `ID 3080` + `ID 3078`
+
+> [!NOTE]
+> **The Milk Cleaning ID Discrepancy**
+> Analysis of the decompiled APK (`b7.e.java` line 508) shows that the official app requests **ID 115** for the milk cleaning counter. However, some integration users have reported that their machines provide this value on **ID 111**. The current implementation uses 111, but 115 is worth investigating if 111 returns 0.
