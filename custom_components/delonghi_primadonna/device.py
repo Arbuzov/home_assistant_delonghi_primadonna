@@ -41,7 +41,7 @@ from .const import (
     COFFEE_GROUNDS_CONTAINER_DETACHED,
     COFFEE_GROUNDS_CONTAINER_FULL,
     CONTROLL_CHARACTERISTIC,
-    DEBUG, 
+    DEBUG,
     DEFAULT_IMAGE_URL,
     DEVICE_READY,
     DEVICE_STATUS,
@@ -256,7 +256,7 @@ def _build_start_command(recipe_id: int, coffee_qty: int = 0,
             0x01, 0x00, coffee_qty & 0xFF,
             0x00, 0x00, 0x06, 0x00, 0x00,
         ]
-    
+
     # Milk drink format (observed for cappuccino-like beverages)
     milk_lo = milk_qty & 0xFF
     milk_hi = (milk_qty >> 8) & 0xFF
@@ -939,5 +939,5 @@ class DelongiPrimadonna:
         message[4] = (start_index >> 8) & 0xFF
         message[5] = start_index & 0xFF
         message[6] = count
-        
+
         await self.send_command(message)
