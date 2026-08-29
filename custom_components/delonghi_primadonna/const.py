@@ -109,6 +109,11 @@ MACHINE_STATUS = {
 """
 Command bytes
 """
+# Command type lives in byte 2. These commands are acknowledged by the
+# machine acting on them, not by a reply frame, so waiting for one only
+# burns the response timeout while holding the device lock.
+COMMANDS_WITHOUT_RESPONSE = frozenset({0x84, 0xE2})
+
 BYTES_POWER = [0x0d, 0x07, 0x84, 0x0f, 0x02, 0x01, 0x55, 0x12]
 
 # Default bitmask for commands

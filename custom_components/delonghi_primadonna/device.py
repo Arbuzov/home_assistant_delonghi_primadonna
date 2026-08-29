@@ -29,14 +29,15 @@ from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     BYTES_WATER_TEMPERATURE_COMMAND, COFFE_OFF, COFFE_ON,
                     COFFEE_GROUNDS_CONTAINER_CLEAN,
                     COFFEE_GROUNDS_CONTAINER_DETACHED,
-                    COFFEE_GROUNDS_CONTAINER_FULL, CONTROLL_CHARACTERISTIC,
-                    DEBUG, DEFAULT_DEVICE_NAME, DEFAULT_IMAGE_URL,
-                    DEVICE_READY, DEVICE_STATUS, DEVICE_TURNOFF, DOMAIN,
-                    DOPPIO_OFF, DOPPIO_ON, ESPRESSO2_OFF, ESPRESSO2_ON,
-                    ESPRESSO_OFF, ESPRESSO_ON, HOTWATER_OFF, HOTWATER_ON,
-                    LONG_OFF, LONG_ON, MACHINE_STATUS, NAME_CHARACTERISTIC,
-                    NOZZLE_STATE, START_COFFEE, STEAM_OFF, STEAM_ON,
-                    WATER_SHORTAGE, WATER_TANK_DETACHED)
+                    COFFEE_GROUNDS_CONTAINER_FULL, COMMANDS_WITHOUT_RESPONSE,
+                    CONTROLL_CHARACTERISTIC, DEBUG, DEFAULT_DEVICE_NAME,
+                    DEFAULT_IMAGE_URL, DEVICE_READY, DEVICE_STATUS,
+                    DEVICE_TURNOFF, DOMAIN, DOPPIO_OFF, DOPPIO_ON,
+                    ESPRESSO2_OFF, ESPRESSO2_ON, ESPRESSO_OFF, ESPRESSO_ON,
+                    HOTWATER_OFF, HOTWATER_ON, LONG_OFF, LONG_ON,
+                    MACHINE_STATUS, NAME_CHARACTERISTIC, NOZZLE_STATE,
+                    START_COFFEE, STEAM_OFF, STEAM_ON, WATER_SHORTAGE,
+                    WATER_TANK_DETACHED)
 from .machine_switch import MachineSwitch, parse_switches
 from .model import get_machine_model
 
@@ -295,6 +296,7 @@ class DelongiPrimadonna:
         self._lock = asyncio.Lock()
         self._rx_buffer = bytearray()
         self._response_event = None
+        self._expected_answer_id: int | None = None
         self._last_response: bytes | None = None
         self.statistics: dict[int, int | float] = {}
         self._last_stats_request = 0.0
@@ -512,12 +514,17 @@ class DelongiPrimadonna:
 
     async def _handle_data(self, sender, value):
         """Handle notifications from the device."""
+        answer_id = value[2] if len(value) > 2 else None
+
+        # A reply carries the id of the request it answers. Any other frame
+        # is something else - most often an unsolicited status update - and
+        # must not be mistaken for the reply we are waiting on.
         if (
             self._response_event is not None
             and not self._response_event.is_set()
+            and answer_id == self._expected_answer_id
         ):
             self._response_event.set()
-        answer_id = value[2] if len(value) > 2 else None
 
         if answer_id in [0x75, 0x70]:
             monitor_data = parse_monitor_data(value)
@@ -799,10 +806,20 @@ class DelongiPrimadonna:
                         'Send command: %s',
                         hexlify(bytearray(message_to_send), " ")
                     )
-                    self._response_event = asyncio.Event()
+                    expects_reply = (
+                        message_to_send[2] not in COMMANDS_WITHOUT_RESPONSE
+                    )
+                    if expects_reply:
+                        self._response_event = asyncio.Event()
+                        self._expected_answer_id = message_to_send[2]
+                    else:
+                        self._response_event = None
+                        self._expected_answer_id = None
                     await self._client.write_gatt_char(
                         CONTROLL_CHARACTERISTIC, bytearray(message_to_send)
                     )
+                    if not expects_reply:
+                        return
                     try:
                         await asyncio.wait_for(
                             self._response_event.wait(),
@@ -815,6 +832,7 @@ class DelongiPrimadonna:
                         )
                     finally:
                         self._response_event = None
+                        self._expected_answer_id = None
                     return
                 except BleakError as error:
                     self.connected = False
