@@ -339,13 +339,16 @@ class DelongiPrimadonna:
             if machine and machine.nProfiles
             else len(AVAILABLE_PROFILES)
         )
+        # Per-device profile mapping so each instance keeps its own
+        # names even when multiple machines are configured. The
+        # module-level AVAILABLE_PROFILES is only used here as a
+        # fallback source of default names; it is never mutated.
+        self._profiles: dict[int, str] = {
+            pid: AVAILABLE_PROFILES.get(pid, f"Profile {pid}")
+            for pid in range(1, self._n_profiles + 1)
+        }
         self.active_profile_id: int | None = None
-        for pid in range(1, self._n_profiles + 1):
-            AVAILABLE_PROFILES.setdefault(pid, f"Profile {pid}")
-        for pid in list(AVAILABLE_PROFILES):
-            if pid > self._n_profiles:
-                AVAILABLE_PROFILES.pop(pid)
-        self.profiles = list(AVAILABLE_PROFILES.values())
+        self.profiles = list(self._profiles.values())
         self._profiles_loaded = False
 
         # Build dynamic beverage list from machine recipes
@@ -674,20 +677,20 @@ class DelongiPrimadonna:
             if monitor_data:
                 self._handle_monitor_data(monitor_data, answer_id, value)
         elif answer_id == 0xA4:
-            parsed = []
+            parsed = {}
             try:
                 parsed = self._parse_profile_response(
                     list(value)
                 )
             except Exception as err:  # noqa: BLE001
                 _LOGGER.warning("Failed to parse profile response: %s", err)
-            for pid, name in parsed.items():
-                AVAILABLE_PROFILES[pid] = name
+            if parsed:
+                self._profiles.update(parsed)
             _LOGGER.debug(
                 "Available profiles: %s",
-                AVAILABLE_PROFILES
+                self._profiles
             )
-            self.profiles = list(AVAILABLE_PROFILES.values())
+            self.profiles = list(self._profiles.values())
         elif answer_id == 0xA9:
             profile_id = value[4] if len(value) > 4 else None
             status = value[5] if len(value) > 5 else None
@@ -948,6 +951,19 @@ class DelongiPrimadonna:
         packet[4] = dt.hour & 0xFF
         packet[5] = dt.minute & 0xFF
         await self.send_command(packet)
+
+    def profile_name(self, profile_id: int | None) -> str | None:
+        """Return the name for a profile id, or None if unknown."""
+        if profile_id is None:
+            return None
+        return self._profiles.get(profile_id)
+
+    def profile_id(self, name: str) -> int | None:
+        """Return the id for a profile name, or None if unknown."""
+        for pid, profile_name in self._profiles.items():
+            if profile_name == name:
+                return pid
+        return None
 
     async def select_profile(self, profile_id) -> None:
         """select a profile."""

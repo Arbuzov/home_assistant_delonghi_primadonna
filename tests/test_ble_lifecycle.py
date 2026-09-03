@@ -565,7 +565,53 @@ async def test_statistics_schedule_respects_throttle():
     assert hass.created_tasks == []
 
 
+def make_profile_response(names):
+    """Build a 0xA4 profile-response frame.
+
+    Format matches _parse_profile_response: [0xD0, len, 0xA4, 0xF0]
+    header, then one slot per profile of 20 name bytes (UTF-16-BE,
+    NUL-terminated) followed by a 1-byte profile id.
+    """
+    body = bytearray([0xD0, 0x00, 0xA4, 0xF0])
+    for pid in sorted(names):
+        name = names[pid].encode("utf-16-be")[:20]
+        body += name.ljust(20, b"\x00")
+        body += bytes([pid])
+    body[1] = len(body)
+    return bytes(body)
+
+
+async def test_profiles_isolated_between_devices():
+    dev_a = make_device()
+    dev_b = make_device()
+
+    dev_a._handle_data(None, make_profile_response({
+        1: "Anna",
+        2: "Bob",
+    }))
+    await asyncio.sleep(0)
+
+    dev_b._handle_data(None, make_profile_response({
+        1: "Cathy",
+        2: "Dan",
+    }))
+    await asyncio.sleep(0)
+
+    # Each device must reflect only the names it received, and the
+    # module-level AVAILABLE_PROFILES must never leak across instances.
+    assert dev_a.profiles[0] == "Anna"
+    assert dev_a.profiles[1] == "Bob"
+    assert dev_b.profiles[0] == "Cathy"
+    assert dev_b.profiles[1] == "Dan"
+    assert dev_a.profiles != dev_b.profiles
+
+    # Defaults for slots that were not present in the frame survive.
+    assert dev_a.profiles[2] == "Profile 3"
+    assert dev_a.profiles[3] == "Guest"
+
+
 async def run_tests():
+    await test_profiles_isolated_between_devices()
     await test_connect_success()
     await test_connect_clears_receive_buffer_before_notifications()
     await test_receive_buffer_reassembles_fragmented_packet()
