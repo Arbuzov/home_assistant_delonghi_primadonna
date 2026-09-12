@@ -35,6 +35,7 @@ def make_device(hass=None):
 class FakeBus:
     def __init__(self):
         self.events = []
+        self.background_events = []
 
     def async_fire(self, event_type, data=None):
         self.events.append((event_type, data))
@@ -575,17 +576,14 @@ async def test_statistics_schedule_respects_throttle():
 
 
 def make_profile_response(names):
-    """Build a 0xA4 profile-response frame.
+    """Build a 0xA4 profile-response frame for the parser.
 
-    Header is [0xD0, len, 0xA4, 0xF0] as the parser expects, then one
-    slot per profile of 20 name bytes (UTF-16-BE, NUL-terminated)
-    followed by a 1-byte icon (per #265 the response carries no index;
-    the parser maps slots positionally, so this byte's value is ignored).
-
-    Test-only helper, not the wire format: the length byte follows the
-    msg_len == total - 1 convention, but there is no CRC, so the real
-    ingest CRC gate would park the frame and the tests deliver it
-    straight to _handle_data.
+    Test helper, not wire format: [0xD0, len, 0xA4, 0xF0] header, then
+    one slot per profile of 20 name bytes (UTF-16-BE, NUL-terminated)
+    followed by a 1-byte icon. The frame carries no per-slot index -
+    the parser maps slots positionally - and it has no CRC, so it can
+    never pass the ingest CRC gate; tests deliver it straight to
+    _handle_data.
     """
     body = bytearray([0xD0, 0x00, 0xA4, 0xF0])
     for pid in sorted(names):
