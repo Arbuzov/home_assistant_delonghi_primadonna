@@ -20,7 +20,7 @@ from bleak_retry_connector import (BleakClientWithServiceCache,
                                    establish_connection)
 from homeassistant.components import bluetooth
 from homeassistant.const import CONF_MAC, CONF_MODEL, CONF_NAME
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 
 from .const import (AMERICANO_OFF, AMERICANO_ON, AVAILABLE_PROFILES,
                     BASE_COMMAND, BEVERAGE_NONE, BYTES_AUTOPOWEROFF_COMMAND,
@@ -47,6 +47,34 @@ from .model import get_machine_model
 _LOGGER = logging.getLogger(__name__)
 
 START_BYTE = 0xD0
+
+# Backoff applied when the machine is advertising but refuses connections.
+# Without this the integration retries at the entity poll rate forever.
+MIN_BACKOFF = 30
+MAX_BACKOFF = 900
+
+# How long a user initiated command waits for the machine to advertise.
+# A machine in standby advertises infrequently, so a single point-in-time
+# presence check is not enough to decide it is unreachable.
+DISCOVERY_TIMEOUT = 25
+
+# Safety net: even though we subscribe to advertisements, probe for the
+# machine occasionally so a missed callback can never leave the
+# integration permanently asleep. Kept under Home Assistant's 10s entity
+# update warning threshold.
+PROBE_INTERVAL = 600
+PROBE_TIMEOUT = 8
+
+
+class DeviceNotPresent(BleakError):
+    """Raised when the machine is not advertising, or is still within a
+    backoff window after a recent connection failure.
+
+    This is an expected, boring condition (machine switched off, out of
+    range, or already backing off) and must never be logged above debug
+    level - ``_note_failure`` already logged the one WARNING for the
+    streak.
+    """
 
 
 @dataclass
@@ -319,6 +347,16 @@ class DelongiPrimadonna:
         self._response_event = None
         self._expected_statistics_start: int | None = None
         self._last_response: bytes | None = None
+        # --- availability / backoff bookkeeping -------------------------
+        # ``_present`` mirrors what the Bluetooth stack sees (advertising),
+        # ``connected`` means we actually hold a GATT connection.
+        self._present = False
+        self._unsub_bluetooth = None
+        self._unsub_unavailable = None
+        self._backoff = MIN_BACKOFF
+        self._retry_after = 0.0
+        self._failure_logged = False
+        self._next_probe = 0.0
         self.statistics: dict[int, int | float] = {}
         self._last_stats_request = 0.0
         self._stats_lock = asyncio.Lock()
@@ -373,6 +411,179 @@ class DelongiPrimadonna:
         if len(self.available_beverages) <= 1:
             # Fallback to legacy enum if no recipes
             self.available_beverages = [*AvailableBeverage]
+
+    # ------------------------------------------------------------------
+    # Lifecycle / availability
+    # ------------------------------------------------------------------
+
+    async def async_start(self) -> None:
+        """Start watching for the machine's advertisements.
+
+        Instead of only ever finding out the machine exists by trying to
+        connect, subscribe to Bluetooth advertisements too: it lets the
+        stack tell us promptly when the machine appears or disappears,
+        and lets a fresh advertisement reset the backoff below.
+        """
+        self._present = bluetooth.async_address_present(
+            self._hass, self.mac, connectable=True
+        )
+        self._unsub_bluetooth = bluetooth.async_register_callback(
+            self._hass,
+            self._async_on_advertisement,
+            {'address': self.mac.upper(), 'connectable': True},
+            bluetooth.BluetoothScanningMode.ACTIVE,
+        )
+        # Let the Bluetooth stack tell us when the machine stops
+        # advertising, so state flips promptly instead of on the next poll.
+        self._unsub_unavailable = bluetooth.async_track_unavailable(
+            self._hass,
+            self._async_on_unavailable,
+            self.mac.upper(),
+            connectable=True,
+        )
+        _LOGGER.debug(
+            'Watching %s, present at startup: %s', self.mac, self._present
+        )
+
+    async def async_stop(self) -> None:
+        """Stop watching advertisements."""
+        for unsub_name in ('_unsub_bluetooth', '_unsub_unavailable'):
+            unsub = getattr(self, unsub_name)
+            if unsub is not None:
+                unsub()
+                setattr(self, unsub_name, None)
+
+    @callback
+    def _async_on_unavailable(self, _service_info) -> None:
+        """Handle the machine no longer being advertised.
+
+        A BLE peripheral normally stops advertising while it is in a
+        connection, so this callback fires during perfectly healthy
+        sessions. Only treat it as a loss when the link is actually down.
+        """
+        if self._client is not None and self._client.is_connected:
+            _LOGGER.debug(
+                '%s stopped advertising but the connection is up', self.mac
+            )
+            return
+        if self._present:
+            _LOGGER.info('%s went out of range', self.name)
+        self._present = False
+        self.connected = False
+
+    @callback
+    def _async_on_advertisement(self, service_info, change) -> None:
+        """Handle an advertisement from the machine."""
+        was_present = self._present
+        self._present = True
+        if not was_present:
+            _LOGGER.info('%s is back in range', self.name)
+            # A fresh advertisement means a fresh start: forget the backoff
+            # accumulated while the machine was away.
+            self._reset_backoff()
+            self._hass.async_create_task(self.get_device_name())
+
+    @property
+    def available(self) -> bool:
+        """Whether the machine is reachable at all."""
+        return self._present
+
+    def _address_present(self) -> bool:
+        """Ask the Bluetooth stack whether the machine is advertising.
+
+        A held-open GATT link makes the machine stop advertising, same as
+        in ``_async_on_unavailable``, so an active connection counts as
+        present without asking the advertisement history.
+        """
+        if self._client is not None and self._client.is_connected:
+            self._present = True
+            return True
+        present = bluetooth.async_address_present(
+            self._hass, self.mac, connectable=True
+        )
+        if not present and self._present:
+            _LOGGER.info('%s went out of range', self.name)
+        self._present = present
+        return present
+
+    async def _async_wait_for_device(
+        self, timeout: int = DISCOVERY_TIMEOUT
+    ) -> bool:
+        """Wait for the machine to advertise, requesting an active scan.
+
+        A machine in standby can advertise only every few seconds, and the
+        Bluetooth stack drops it from its history in between. Asking once
+        and giving up would make the power-on button unreliable, so wait
+        for a real advertisement instead.
+        """
+        _LOGGER.debug(
+            'Waiting up to %ss for an advertisement from %s',
+            timeout,
+            self.mac,
+        )
+        try:
+            await bluetooth.async_process_advertisements(
+                self._hass,
+                lambda service_info: True,
+                {'address': self.mac.upper(), 'connectable': True},
+                bluetooth.BluetoothScanningMode.ACTIVE,
+                timeout,
+            )
+        except asyncio.TimeoutError:
+            return False
+        self._present = True
+        self._reset_backoff()
+        return True
+
+    def _reset_backoff(self) -> None:
+        self._backoff = MIN_BACKOFF
+        self._retry_after = 0.0
+        self._failure_logged = False
+
+    def _note_failure(self, error: Exception) -> None:
+        """Record a failed connection and widen the retry window."""
+        if isinstance(error, DeviceNotPresent):
+            # Not a failure at all: the machine is simply off, or we are
+            # already backing off from an earlier one. The advertisement
+            # callback (or the backoff timer) wakes us up in due course.
+            _LOGGER.debug('%s is not reachable right now', self.mac)
+            return
+        self._retry_after = time.monotonic() + self._backoff
+        # Log the first failure of a streak at warning level so real
+        # problems stay visible, then stay quiet until we recover.
+        if not self._failure_logged:
+            _LOGGER.warning(
+                'Cannot reach %s (%s: %s). Retrying with backoff, '
+                'further attempts are logged at debug level.',
+                self.name,
+                type(error).__name__,
+                error,
+            )
+            self._failure_logged = True
+        else:
+            _LOGGER.debug(
+                'Connection to %s still failing (%s), next try in %ss',
+                self.mac,
+                error,
+                self._backoff,
+            )
+        self._backoff = min(self._backoff * 2, MAX_BACKOFF)
+
+    async def _async_probe_if_due(self) -> None:
+        """Occasionally listen for the machine even when it looks absent.
+
+        Advertisement callbacks are the primary wake-up path. This is the
+        backstop: if one is ever missed, the integration would otherwise
+        stay asleep until Home Assistant restarts. Logs at debug only, so
+        it does not bring back the log spam.
+        """
+        now = time.monotonic()
+        if now < self._next_probe:
+            return
+        self._next_probe = now + PROBE_INTERVAL
+        if await self._async_wait_for_device(PROBE_TIMEOUT):
+            _LOGGER.debug('Probe found %s, reconnecting', self.mac)
+            await self.get_device_name()
 
     def set_initialization_task(self, task: asyncio.Task) -> None:
         """Track the device initialization task."""
@@ -453,10 +664,29 @@ class DelongiPrimadonna:
                 self._client = None
                 self.connected = False
 
-    async def _connect(self):
-        """Connect to the device."""
+    async def _connect(self, retries=3, ignore_backoff=False):
+        """Connect to the device.
+
+        Retries are delegated to ``bleak_retry_connector``, which knows how
+        to deal with ESPHome proxies, transient GATT errors and the various
+        backend quirks far better than a hand written loop.
+
+        ``ignore_backoff`` is for commands a person just triggered: the
+        backoff window exists to protect background polling from a
+        machine that refuses connections, not to make a button silently
+        do nothing while the machine is advertising the whole time. A
+        real failure on the bypassed attempt still widens the window via
+        ``_note_failure``.
+        """
         if self._client is not None and self._client.is_connected:
             return
+
+        if not ignore_backoff and time.monotonic() < self._retry_after:
+            # Still backing off from a recent real failure - the streak
+            # was already logged once by ``_note_failure``.
+            raise DeviceNotPresent(
+                f'{self.mac} is backing off after a recent failure'
+            )
 
         self._client = None
         self.connected = False
@@ -466,16 +696,17 @@ class DelongiPrimadonna:
                 self._hass, self.mac, connectable=True
             )
             if not self._device:
-                raise BleakError(
-                    f"A device with address {self.mac} could not be found."
-                )
+                # Expected whenever the machine is off or out of range.
+                self._present = False
+                raise DeviceNotPresent(f'{self.mac} is not advertising')
 
-            _LOGGER.info("Connect to %s", self.mac)
+            _LOGGER.debug("Connecting to %s", self.mac)
             client = await establish_connection(
                 BleakClientWithServiceCache,
                 self._device,
                 self.name or self.mac,
-                max_attempts=3,
+                self._async_disconnected,
+                max_attempts=retries,
             )
             self._client = client
 
@@ -489,6 +720,7 @@ class DelongiPrimadonna:
                     timeout=10,
                 )
                 self.connected = True
+                self._reset_backoff()
             except asyncio.CancelledError:
                 try:
                     await asyncio.wait_for(client.disconnect(), timeout=5)
@@ -508,14 +740,35 @@ class DelongiPrimadonna:
 
         except Exception as error:
             self.connected = False
-            _LOGGER.warning(
-                "BLE connect error: %s (type: %s)",
-                error,
-                type(error).__name__,
-            )
+            self._note_failure(error)
             raise
         finally:
             self._connecting = False
+
+    @callback
+    def _async_disconnected(self, _client) -> None:
+        """Handle the machine dropping the GATT link.
+
+        Clears both the cached advertisement and our own ``_present``
+        flag: the machine stopped advertising while connected, so
+        whatever either side last saw is stale. Without also resetting
+        ``_present`` here, the next advertisement would hit its sticky
+        True value and take the no-op branch in
+        ``_async_on_advertisement`` instead of the fresh-return one that
+        resets the backoff.
+
+        ``async_clear_advertisement_history`` only exists from Home
+        Assistant 2026.5.0 onward; ``hacs.json`` declares a 2023.7.0
+        floor, so the call must stay optional.
+        """
+        _LOGGER.debug('Disconnected from %s', self.mac)
+        self._client = None
+        self.connected = False
+        self._present = False
+        if hasattr(bluetooth, 'async_clear_advertisement_history'):
+            bluetooth.async_clear_advertisement_history(
+                self._hass, self.mac
+            )
 
     def _make_switch_command(self):
         """Make hex command.
@@ -605,7 +858,7 @@ class DelongiPrimadonna:
                     'notification_id': f'{self.mac}_err_{uuid.uuid4()}',
                 },
             )
-        _LOGGER.info('Event triggered: %s', event_data)
+        _LOGGER.debug('Event triggered: %s', event_data)
 
     @staticmethod
     def _has_valid_crc(packet: bytes) -> bool:
@@ -727,7 +980,7 @@ class DelongiPrimadonna:
         hex_value = hexlify(value, ' ')
 
         if self._device_status != hex_value:
-            _LOGGER.info(
+            _LOGGER.debug(
                 'Received data: %s from %s',
                 hex_value,
                 sender
@@ -817,41 +1070,53 @@ class DelongiPrimadonna:
 
     async def power_on(self) -> None:
         """Turn the device on."""
-        await self.send_command(BYTES_POWER)
+        await self.send_command(BYTES_POWER, wait_for_device=True)
 
     async def power_off(self) -> None:
         """Put the device into standby."""
-        await self.send_command(BYTES_POWER_OFF)
+        await self.send_command(BYTES_POWER_OFF, wait_for_device=True)
 
     async def cup_light_on(self) -> None:
         """Turn the cup light on."""
         self.switches.cup_light = True
-        await self.send_command(self._make_switch_command())
+        await self.send_command(
+            self._make_switch_command(), wait_for_device=True
+        )
 
     async def cup_light_off(self) -> None:
         """Turn the cup light off."""
         self.switches.cup_light = False
-        await self.send_command(self._make_switch_command())
+        await self.send_command(
+            self._make_switch_command(), wait_for_device=True
+        )
 
     async def energy_save_on(self):
         """Enable energy save mode"""
         self.switches.energy_save = True
-        await self.send_command(self._make_switch_command())
+        await self.send_command(
+            self._make_switch_command(), wait_for_device=True
+        )
 
     async def energy_save_off(self):
         """Enable energy save mode"""
         self.switches.energy_save = False
-        await self.send_command(self._make_switch_command())
+        await self.send_command(
+            self._make_switch_command(), wait_for_device=True
+        )
 
     async def sound_alarm_on(self):
         """Enable sound alarm"""
         self.switches.sounds = True
-        await self.send_command(self._make_switch_command())
+        await self.send_command(
+            self._make_switch_command(), wait_for_device=True
+        )
 
     async def sound_alarm_off(self):
         """Disable sound alarm"""
         self.switches.sounds = False
-        await self.send_command(self._make_switch_command())
+        await self.send_command(
+            self._make_switch_command(), wait_for_device=True
+        )
 
     async def beverage_start(self, beverage: str) -> None:
         """Start beverage by name (recipe or legacy enum)."""
@@ -868,7 +1133,9 @@ class DelongiPrimadonna:
                     "Starting %s (recipe %d) via legacy",
                     beverage, rid,
                 )
-                await self.send_command(BEVERAGE_COMMANDS[legacy].on)
+                await self.send_command(
+                    BEVERAGE_COMMANDS[legacy].on, wait_for_device=True
+                )
             else:
                 _LOGGER.info(
                     "Starting %s (recipe %d) via dynamic",
@@ -877,7 +1144,7 @@ class DelongiPrimadonna:
                 cmd = _build_start_command(
                     rid, recipe['coffee_qty'], recipe['milk_qty']
                 )
-                await self.send_command(cmd)
+                await self.send_command(cmd, wait_for_device=True)
             self.cooking = beverage
             return
         _LOGGER.warning("Unknown beverage: %s", beverage)
@@ -888,20 +1155,23 @@ class DelongiPrimadonna:
             return
         recipe = self._recipe_map.get(self.cooking)
         if recipe:
-            await self.send_command(_build_stop_command(recipe['id']))
+            await self.send_command(
+                _build_stop_command(recipe['id']), wait_for_device=True
+            )
         else:
             _LOGGER.warning("Cannot cancel unknown beverage: %s", self.cooking)
         self.cooking = BEVERAGE_NONE
 
     async def debug(self):
         """Send command which causes status reply"""
-        await self.send_command(DEBUG)
+        await self.send_command(DEBUG, wait_for_device=True)
 
     async def get_device_name(self):
         """
         Get device name
         :return: device name
         """
+        was_not_present = False
         async with self._lock:
             try:
                 await self._connect()
@@ -919,19 +1189,31 @@ class DelongiPrimadonna:
                 await self._client.write_gatt_char(
                     uuid.UUID(CONTROLL_CHARACTERISTIC), bytearray(DEBUG)
                 )
+                if not self.connected:
+                    _LOGGER.info('Connected to %s', self.name)
                 self.connected = True
+            # _connect() already logged the first failure of a streak and
+            # armed the backoff, so these handlers stay at debug level.
+            except DeviceNotPresent:
+                self.connected = False
+                was_not_present = not self._present
             except BleakDBusError as error:
                 self.connected = False
-                _LOGGER.warning('BleakDBusError: %s', error)
+                _LOGGER.debug('BleakDBusError: %s', error)
             except BleakError as error:
                 self.connected = False
-                _LOGGER.warning('BleakError: %s', error)
+                _LOGGER.debug('BleakError: %s', error)
             except asyncio.exceptions.TimeoutError as error:
                 self.connected = False
-                _LOGGER.info('TimeoutError: %s at device connection', error)
+                _LOGGER.debug('TimeoutError: %s at device connection', error)
             except asyncio.CancelledError:
                 self.connected = False
                 raise
+
+        if was_not_present:
+            # Outside the lock: this may recurse back into
+            # get_device_name() if the probe finds the machine.
+            await self._async_probe_if_due()
 
         if self.connected and not self._profiles_loaded:
             command = BYTES_LOAD_PROFILES.copy()
@@ -947,38 +1229,40 @@ class DelongiPrimadonna:
         packet = BYTES_TIME_COMMAND.copy()
         packet[4] = dt.hour & 0xFF
         packet[5] = dt.minute & 0xFF
-        await self.send_command(packet)
+        await self.send_command(packet, wait_for_device=True)
 
     async def select_profile(self, profile_id) -> None:
         """select a profile."""
         _LOGGER.debug("Send select profile command id=%s", profile_id)
         message = [0x0D, 0x06, 0xA9, 0xF0, profile_id, 0xD7, 0xC0]
-        await self.send_command(message)
+        await self.send_command(message, wait_for_device=True)
 
     async def set_auto_power_off(self, power_off_interval) -> None:
         """Set auto power off time."""
         message = copy.deepcopy(BYTES_AUTOPOWEROFF_COMMAND)
         message[9] = power_off_interval
-        await self.send_command(message)
+        await self.send_command(message, wait_for_device=True)
 
     async def set_water_hardness(self, hardness_level) -> None:
         """Set water hardness"""
         message = copy.deepcopy(BYTES_WATER_HARDNESS_COMMAND)
         message[9] = hardness_level
-        await self.send_command(message)
+        await self.send_command(message, wait_for_device=True)
 
     async def set_water_temperature(self, temperature_level) -> None:
         """Set water temperature"""
         message = copy.deepcopy(BYTES_WATER_TEMPERATURE_COMMAND)
         message[9] = temperature_level
-        await self.send_command(message)
+        await self.send_command(message, wait_for_device=True)
 
     async def common_command(self, command: str) -> None:
         """Send custom BLE command"""
         message = [int(x, 16) for x in command.split(' ')]
-        await self.send_command(message)
+        await self.send_command(message, wait_for_device=True)
 
-    async def send_command(self, message, retries=3) -> bool:
+    async def send_command(
+        self, message, retries=3, wait_for_device=False
+    ) -> bool:
         """Send a command and report whether a reply arrived.
 
         Correlation is only exact for statistics (0xA2), which are matched
@@ -988,17 +1272,44 @@ class DelongiPrimadonna:
         only meaningful for 0xA2; ``get_statistics`` is its sole consumer.
         Do not treat True as an acknowledgement for other commands without
         adding per-answer-id correlation first (see PR #255).
+
+        ``wait_for_device`` must be passed True for anything a person
+        triggered: those commands are rare and must not fail just because
+        the machine happened to be between advertisements. It defaults to
+        False so a caller that forgets to think about it - e.g. routine
+        polling - never silently inherits a 25s wait.
         """
+        if not self._address_present():
+            if not wait_for_device:
+                _LOGGER.debug(
+                    'Skipping background command, %s is not in range',
+                    self.name,
+                )
+                self.connected = False
+                return False
+            if not await self._async_wait_for_device():
+                # A command a person asked for must never fail silently.
+                _LOGGER.warning(
+                    'Cannot send command to %s: no Bluetooth advertisement '
+                    'within %ss. The machine is switched off at the mains, '
+                    'out of range of the proxy, or already connected to '
+                    'the De\'Longhi app (it accepts only one connection).',
+                    self.name,
+                    DISCOVERY_TIMEOUT,
+                )
+                self.connected = False
+                return False
+
         async with self._lock:
             message_to_send = copy.deepcopy(message)
             for attempt in range(retries):
                 try:
-                    await self._connect()
+                    await self._connect(ignore_backoff=wait_for_device)
                     crc = crc_hqx(bytearray(message_to_send[:-2]), 0x1D0F)
                     crc_bytes = crc.to_bytes(2, byteorder='big')
                     message_to_send[-2] = crc_bytes[0]
                     message_to_send[-1] = crc_bytes[1]
-                    _LOGGER.info(
+                    _LOGGER.debug(
                         'Send command: %s',
                         hexlify(bytearray(message_to_send), " ")
                     )
@@ -1038,6 +1349,14 @@ class DelongiPrimadonna:
                         self._expected_statistics_start = None
 
                     return response_received
+                except DeviceNotPresent:
+                    self.connected = False
+                    if wait_for_device:
+                        _LOGGER.warning(
+                            '%s stopped advertising while the command was '
+                            'being sent', self.name
+                        )
+                    return False
                 except BleakError as error:
                     self.connected = False
                     _LOGGER.warning(

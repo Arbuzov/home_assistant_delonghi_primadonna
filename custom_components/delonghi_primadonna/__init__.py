@@ -36,6 +36,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN][entry.unique_id] = delonghi_device
     _LOGGER.debug('Device id %s', entry.unique_id)
     _LOGGER.debug("Device data %s", entry.data)
+    # Subscribe to advertisements instead of only ever finding out the
+    # machine exists by trying to connect.
+    await delonghi_device.async_start()
     if hasattr(entry, "async_create_background_task"):
         initialization_task = entry.async_create_background_task(
             hass,
@@ -82,6 +85,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry, PLATFORMS
     )
     if unload_ok:
+        await delonghi_device.async_stop()
         await delonghi_device.cancel_statistics_update()
         await delonghi_device.disconnect()
         hass.data[DOMAIN].pop(entry.unique_id)
