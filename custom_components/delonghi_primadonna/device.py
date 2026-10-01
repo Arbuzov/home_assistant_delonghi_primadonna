@@ -48,11 +48,17 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class DeviceNotVisible(BleakError):
-    """No connectable adapter currently sees the machine.
+    """Home Assistant has no connectable Bluetooth device for the address.
 
-    This is what an appliance that is switched off looks like, so it is an
-    expected state rather than a fault. Subclasses BleakError so existing
-    handlers keep working.
+    Raised when ``bluetooth.async_ble_device_from_address`` returns nothing.
+    That is what a machine that is switched off looks like, which makes it
+    the common case and not worth a warning on every poll. The same lookup
+    also comes back empty for a mistyped MAC, a dead adapter, an offline
+    Bluetooth proxy and a Bluetooth integration that is not loaded, so the
+    condition is "not visible", not "off". A user action that fails because
+    of it is still reported at error level by ``send_command``.
+
+    Subclasses BleakError so existing handlers keep working.
     """
 
 
@@ -1010,6 +1016,7 @@ class DelongiPrimadonna:
         """
         async with self._lock:
             message_to_send = copy.deepcopy(message)
+            last_error = None
             for attempt in range(retries):
                 try:
                     await self._connect()
@@ -1059,6 +1066,7 @@ class DelongiPrimadonna:
                     return response_received
                 except BleakError as error:
                     self.connected = False
+                    last_error = error
                     _LOGGER.log(
                         logging.DEBUG
                         if isinstance(error, DeviceNotVisible)
@@ -1078,7 +1086,15 @@ class DelongiPrimadonna:
                     self._client = None
                     await asyncio.sleep(2)
 
-            _LOGGER.error('Failed to send command after %d attempts', retries)
+            _LOGGER.error(
+                'Failed to send the %s command to %s (%s) after %d '
+                'attempts: %s',
+                describe_command(message_to_send),
+                self.name or DEFAULT_DEVICE_NAME,
+                self.mac,
+                retries,
+                last_error,
+            )
             return False
 
     async def _parse_statistics(self, data: bytes) -> None:
