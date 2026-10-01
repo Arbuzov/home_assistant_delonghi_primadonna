@@ -46,6 +46,22 @@ from .model import get_machine_model
 
 _LOGGER = logging.getLogger(__name__)
 
+
+class DeviceNotVisible(BleakError):
+    """Home Assistant has no connectable Bluetooth device for the address.
+
+    Raised when ``bluetooth.async_ble_device_from_address`` returns nothing.
+    That is what a machine that is switched off looks like, which makes it
+    the common case and not worth a warning on every poll. The same lookup
+    also comes back empty for a mistyped MAC, a dead adapter, an offline
+    Bluetooth proxy and a Bluetooth integration that is not loaded, so the
+    condition is "not visible", not "off". A user action that fails because
+    of it is still reported at error level by ``send_command``.
+
+    Subclasses BleakError so existing handlers keep working.
+    """
+
+
 START_BYTE = 0xD0
 
 
@@ -466,8 +482,9 @@ class DelongiPrimadonna:
                 self._hass, self.mac, connectable=True
             )
             if not self._device:
-                raise BleakError(
-                    f"A device with address {self.mac} could not be found."
+                raise DeviceNotVisible(
+                    f"{self.mac} is not currently visible to a "
+                    f"connectable Bluetooth adapter"
                 )
 
             _LOGGER.info("Connect to %s", self.mac)
@@ -508,7 +525,10 @@ class DelongiPrimadonna:
 
         except Exception as error:
             self.connected = False
-            _LOGGER.warning(
+            _LOGGER.log(
+                logging.DEBUG
+                if isinstance(error, DeviceNotVisible)
+                else logging.WARNING,
                 "BLE connect error: %s (type: %s)",
                 error,
                 type(error).__name__,
@@ -925,7 +945,12 @@ class DelongiPrimadonna:
                 _LOGGER.warning('BleakDBusError: %s', error)
             except BleakError as error:
                 self.connected = False
-                _LOGGER.warning('BleakError: %s', error)
+                _LOGGER.log(
+                    logging.DEBUG
+                    if isinstance(error, DeviceNotVisible)
+                    else logging.WARNING,
+                    'BleakError: %s', error
+                )
             except asyncio.exceptions.TimeoutError as error:
                 self.connected = False
                 _LOGGER.info('TimeoutError: %s at device connection', error)
@@ -991,6 +1016,7 @@ class DelongiPrimadonna:
         """
         async with self._lock:
             message_to_send = copy.deepcopy(message)
+            last_error = None
             for attempt in range(retries):
                 try:
                     await self._connect()
@@ -1040,7 +1066,11 @@ class DelongiPrimadonna:
                     return response_received
                 except BleakError as error:
                     self.connected = False
-                    _LOGGER.warning(
+                    last_error = error
+                    _LOGGER.log(
+                        logging.DEBUG
+                        if isinstance(error, DeviceNotVisible)
+                        else logging.WARNING,
                         'BleakError: %s (attempt %d)',
                         error,
                         attempt + 1
@@ -1056,7 +1086,15 @@ class DelongiPrimadonna:
                     self._client = None
                     await asyncio.sleep(2)
 
-            _LOGGER.error('Failed to send command after %d attempts', retries)
+            _LOGGER.error(
+                'Failed to send the %s command to %s (%s) after %d '
+                'attempts: %s',
+                describe_command(message_to_send),
+                self.name or DEFAULT_DEVICE_NAME,
+                self.mac,
+                retries,
+                last_error,
+            )
             return False
 
     async def _parse_statistics(self, data: bytes) -> None:
