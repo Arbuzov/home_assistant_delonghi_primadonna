@@ -11,7 +11,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base_entity import DelonghiDeviceEntity
-from .const import AVAILABLE_PROFILES, BEVERAGE_NONE, DOMAIN, POWER_OFF_OPTIONS
+from .const import BEVERAGE_NONE, DOMAIN, POWER_OFF_OPTIONS
 from .device import BeverageEntityFeature, DelongiPrimadonna
 
 _LOGGER = logging.getLogger(__name__)
@@ -62,8 +62,10 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
     def current_option(self) -> str | None:
         """Return the currently active profile from the device."""
         pid = self.device.active_profile_id
-        if pid is not None and pid in AVAILABLE_PROFILES:
-            return AVAILABLE_PROFILES[pid]
+        if pid is not None:
+            name = self.device.profile_name(pid)
+            if name is not None:
+                return name
         return self._attr_current_option
 
     @property
@@ -73,14 +75,7 @@ class ProfileSelect(DelonghiDeviceEntity, SelectEntity, RestoreEntity):
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
-        profile_id = next(
-            (
-                pid
-                for pid, name in AVAILABLE_PROFILES.items()
-                if name == option
-            ),
-            None,
-        )
+        profile_id = self.device.profile_id(option)
         _LOGGER.debug("Select profile '%s' id=%s", option, profile_id)
         self.hass.async_create_task(self.device.select_profile(profile_id))
         self._attr_current_option = option

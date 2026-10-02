@@ -32,10 +32,20 @@ def make_device(hass=None):
     return DelongiPrimadonna(CONFIG, hass)
 
 
+class FakeBus:
+    def __init__(self):
+        self.events = []
+        self.background_events = []
+
+    def async_fire(self, event_type, data=None):
+        self.events.append((event_type, data))
+
+
 class FakeHass:
     def __init__(self):
         self.created_tasks = []
         self.background_tasks = []
+        self.bus = FakeBus()
 
     def async_create_task(self, coro):
         task = asyncio.create_task(coro)
@@ -565,7 +575,56 @@ async def test_statistics_schedule_respects_throttle():
     assert hass.created_tasks == []
 
 
+def make_profile_response(names):
+    """Build a 0xA4 profile-response frame for the parser.
+
+    Test helper, not wire format: [0xD0, len, 0xA4, 0xF0] header, then
+    one slot per profile of 20 name bytes (UTF-16-BE, NUL-terminated)
+    followed by a 1-byte icon. The frame carries no per-slot index -
+    the parser maps slots positionally - and it has no CRC, so it can
+    never pass the ingest CRC gate; tests deliver it straight to
+    _handle_data.
+    """
+    body = bytearray([0xD0, 0x00, 0xA4, 0xF0])
+    for pid in sorted(names):
+        name = names[pid].encode("utf-16-be")[:20]
+        body += name.ljust(20, b"\x00")
+        body += bytes([pid])
+    body[1] = len(body) - 1
+    return bytes(body)
+
+
+async def test_profiles_isolated_between_devices():
+    dev_a = make_device(FakeHass())
+    dev_b = make_device(FakeHass())
+
+    await dev_a._handle_data(None, make_profile_response({
+        1: "Anna",
+        2: "Bob",
+    }))
+    await asyncio.sleep(0)
+
+    await dev_b._handle_data(None, make_profile_response({
+        1: "Cathy",
+        2: "Dan",
+    }))
+    await asyncio.sleep(0)
+
+    # Each device must reflect only the names it received, and the
+    # module-level AVAILABLE_PROFILES must never leak across instances.
+    assert dev_a.profiles[0] == "Anna"
+    assert dev_a.profiles[1] == "Bob"
+    assert dev_b.profiles[0] == "Cathy"
+    assert dev_b.profiles[1] == "Dan"
+    assert dev_a.profiles != dev_b.profiles
+
+    # Defaults for slots that were not present in the frame survive.
+    assert dev_a.profiles[2] == "Profile 3"
+    assert dev_a.profiles[3] == "Guest"
+
+
 async def run_tests():
+    await test_profiles_isolated_between_devices()
     await test_connect_success()
     await test_connect_clears_receive_buffer_before_notifications()
     await test_receive_buffer_reassembles_fragmented_packet()
