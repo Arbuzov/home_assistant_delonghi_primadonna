@@ -112,6 +112,7 @@ async def run_with_fake_connection(device, client):
         _client_class,
         ble_device,
         _name,
+        _disconnected_callback,
         max_attempts,
     ):
         assert ble_device is fake_ble_device
@@ -300,6 +301,7 @@ async def test_connect_cancellation_disconnects_client():
         _client_class,
         ble_device,
         _name,
+        _disconnected_callback,
         max_attempts,
     ):
         assert ble_device is fake_ble_device
