@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 import sys
 import time
@@ -16,8 +17,10 @@ sys.path.append(
 )
 
 import delonghi_primadonna.device as device_module  # noqa: E402
-from delonghi_primadonna.const import BYTES_STATISTICS_COMMAND  # noqa: E402
-from delonghi_primadonna.device import DelongiPrimadonna  # noqa: E402
+from delonghi_primadonna.const import (BYTES_POWER,  # noqa: E402
+                                       BYTES_STATISTICS_COMMAND)
+from delonghi_primadonna.device import (DelongiPrimadonna,  # noqa: E402
+                                        DeviceNotVisible)
 from delonghi_primadonna.device_tracker import \
     DelongiPrimadonnaDeviceTracker  # noqa: E402
 
@@ -26,6 +29,15 @@ CONFIG = {
     "model": "TEST",
     "name": "TEST",
 }
+
+
+class _CollectingHandler(logging.Handler):
+    def __init__(self, sink):
+        super().__init__(level=logging.DEBUG)
+        self._sink = sink
+
+    def emit(self, record):
+        self._sink.append(record)
 
 
 def make_device(hass=None):
@@ -565,7 +577,190 @@ async def test_statistics_schedule_respects_throttle():
     assert hass.created_tasks == []
 
 
+async def test_missing_device_raises_device_not_visible():
+    """A machine no adapter can see is an expected state, not a fault."""
+    device = make_device()
+    original_lookup = device_module.bluetooth.async_ble_device_from_address
+    device_module.bluetooth.async_ble_device_from_address = (
+        lambda hass, mac, connectable: None
+    )
+    try:
+        raised = None
+        try:
+            await device._connect()
+        except BleakError as error:
+            raised = error
+    finally:
+        device_module.bluetooth.async_ble_device_from_address = (
+            original_lookup
+        )
+
+    assert isinstance(raised, DeviceNotVisible), (
+        "a machine that is switched off must be distinguishable from a "
+        "machine that refuses to connect"
+    )
+    assert isinstance(raised, BleakError), (
+        "DeviceNotVisible must stay a BleakError so existing handlers "
+        "keep working"
+    )
+
+
+async def test_switched_off_machine_logs_no_warning():
+    """The common case - appliance off - must not spam WARNING."""
+    device = make_device()
+    original_lookup = device_module.bluetooth.async_ble_device_from_address
+    device_module.bluetooth.async_ble_device_from_address = (
+        lambda hass, mac, connectable: None
+    )
+    records = []
+    handler = _CollectingHandler(records)
+    previous_level = device_module._LOGGER.level
+    device_module._LOGGER.addHandler(handler)
+    device_module._LOGGER.setLevel(logging.DEBUG)
+    try:
+        try:
+            await device._connect()
+        except BleakError:
+            pass
+    finally:
+        device_module._LOGGER.removeHandler(handler)
+        device_module._LOGGER.setLevel(previous_level)
+        device_module.bluetooth.async_ble_device_from_address = (
+            original_lookup
+        )
+
+    warnings = [r for r in records if r.levelno >= logging.WARNING]
+    assert not warnings, (
+        "an unreachable machine produced WARNING lines: "
+        f"{[r.getMessage() for r in warnings]}"
+    )
+    assert records, "the event should still be visible at DEBUG"
+
+
+async def test_refusing_machine_still_warns():
+    """A machine in range that will not connect is still a real fault."""
+    device = make_device()
+    original_lookup = device_module.bluetooth.async_ble_device_from_address
+    original_establish = device_module.establish_connection
+    device_module.bluetooth.async_ble_device_from_address = (
+        lambda hass, mac, connectable: object()
+    )
+
+    async def refuse(*args, **kwargs):
+        raise BleakError("device refused the connection")
+
+    device_module.establish_connection = refuse
+    records = []
+    handler = _CollectingHandler(records)
+    previous_level = device_module._LOGGER.level
+    device_module._LOGGER.addHandler(handler)
+    device_module._LOGGER.setLevel(logging.DEBUG)
+    try:
+        try:
+            await device._connect()
+        except BleakError:
+            pass
+    finally:
+        device_module._LOGGER.removeHandler(handler)
+        device_module._LOGGER.setLevel(previous_level)
+        device_module.bluetooth.async_ble_device_from_address = (
+            original_lookup
+        )
+        device_module.establish_connection = original_establish
+
+    warnings = [r for r in records if r.levelno >= logging.WARNING]
+    assert warnings, "a machine that refuses to connect must still warn"
+
+
+async def _send_power_and_collect_logs(lookup, establish=None):
+    """Press "power on" against a machine that cannot be reached."""
+    device = make_device()
+    original_lookup = device_module.bluetooth.async_ble_device_from_address
+    original_establish = device_module.establish_connection
+    original_sleep = device_module.asyncio.sleep
+
+    async def no_sleep(_delay):
+        return None
+
+    device_module.bluetooth.async_ble_device_from_address = lookup
+    if establish is not None:
+        device_module.establish_connection = establish
+    device_module.asyncio.sleep = no_sleep
+    records = []
+    handler = _CollectingHandler(records)
+    previous_level = device_module._LOGGER.level
+    device_module._LOGGER.addHandler(handler)
+    device_module._LOGGER.setLevel(logging.DEBUG)
+    try:
+        result = await device.send_command(list(BYTES_POWER))
+    finally:
+        device_module._LOGGER.removeHandler(handler)
+        device_module._LOGGER.setLevel(previous_level)
+        device_module.asyncio.sleep = original_sleep
+        device_module.establish_connection = original_establish
+        device_module.bluetooth.async_ble_device_from_address = (
+            original_lookup
+        )
+    return result, records
+
+
+async def test_failed_user_command_explains_itself_when_not_visible():
+    """The per-attempt lines are quiet, so the final one must stand alone.
+
+    A user pressing "power on" against a machine Home Assistant cannot see
+    gets exactly one line above DEBUG. It has to say which command failed,
+    for which machine and address, and why - that address is the user's one
+    chance to notice a mistyped MAC.
+    """
+    result, records = await _send_power_and_collect_logs(
+        lambda hass, mac, connectable: None
+    )
+
+    assert result is False
+    loud = [r for r in records if r.levelno >= logging.WARNING]
+    assert len(loud) == 1 and loud[0].levelno == logging.ERROR, (
+        "expected exactly one ERROR and no WARNING, got: "
+        f"{[(r.levelname, r.getMessage()) for r in loud]}"
+    )
+    message = loud[0].getMessage()
+    for expected in (
+        "power",
+        CONFIG["name"],
+        CONFIG["mac"],
+        "3 attempts",
+        "not currently visible",
+    ):
+        assert expected in message, (
+            f"the final error lacks {expected!r}: {message}"
+        )
+
+
+async def test_failed_user_command_reports_the_refusal():
+    """A real fault keeps its per-attempt warnings and names the cause."""
+
+    async def refuse(*args, **kwargs):
+        raise BleakError("device refused the connection")
+
+    result, records = await _send_power_and_collect_logs(
+        lambda hass, mac, connectable: object(), refuse
+    )
+
+    assert result is False
+    errors = [r for r in records if r.levelno == logging.ERROR]
+    assert len(errors) == 1, [r.getMessage() for r in errors]
+    assert "device refused the connection" in errors[0].getMessage()
+    assert "power" in errors[0].getMessage()
+    warnings = [r for r in records if r.levelno == logging.WARNING]
+    assert warnings, "a refusing machine must still warn on each attempt"
+
+
 async def run_tests():
+    await test_missing_device_raises_device_not_visible()
+    await test_switched_off_machine_logs_no_warning()
+    await test_refusing_machine_still_warns()
+    await test_failed_user_command_explains_itself_when_not_visible()
+    await test_failed_user_command_reports_the_refusal()
+
     await test_connect_success()
     await test_connect_clears_receive_buffer_before_notifications()
     await test_receive_buffer_reassembles_fragmented_packet()
