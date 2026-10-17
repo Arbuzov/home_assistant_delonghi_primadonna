@@ -380,7 +380,7 @@ async def test_failed_first_range_aborts_statistics_batch():
     assert calls == [(100, 10)]
 
 
-async def test_statistics_polling_starts_second_block_at_111():
+async def test_statistics_polling_starts_second_block_at_110():
     device = make_device()
     calls = []
 
@@ -405,7 +405,7 @@ async def test_statistics_polling_starts_second_block_at_111():
 
     assert calls == [
         (100, 10),
-        (111, 10),
+        (110, 10),
         (3000, 10),
         (3017, 10),
         (3077, 4),
@@ -427,7 +427,7 @@ async def run_tests():
     await test_timeout_clears_pending_response_state()
     await test_cancellation_clears_pending_response_state()
     await test_failed_first_range_aborts_statistics_batch()
-    await test_statistics_polling_starts_second_block_at_111()
+    await test_statistics_polling_starts_second_block_at_110()
 
     print(
         "[SUCCESS] BLE response correlation "
