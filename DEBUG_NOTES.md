@@ -65,7 +65,7 @@ Please join
 |d0 07 a9 f0 01 00 3b 3c|Set Profile 1 response||
 |d0 07 a9 f0 02 00 6e 6f|Set Profile 2 response||
 |d0 07 a9 f0 03 00 5d 5e|Set Profile 3 response||
-|d0 07 a9 f0 04 01 d4 e8|Set Profile Guest response||
+|d0 07 a9 f0 04 01 d4 e8|Profile 4 **rejected**|Byte 5 is the status: `00` accepted, `01` rejected. Previously mislabelled as a "Guest" response - that machine refused slot 4.|
 
 ### Management protocol
 
