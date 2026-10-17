@@ -17,7 +17,8 @@ sys.path.append(
 )
 
 import delonghi_primadonna.device as device_module  # noqa: E402
-from delonghi_primadonna.const import (BYTES_POWER,  # noqa: E402
+from delonghi_primadonna.const import (AVAILABLE_PROFILES,  # noqa: E402
+                                       BYTES_POWER,
                                        BYTES_STATISTICS_COMMAND)
 from delonghi_primadonna.device import (DelongiPrimadonna,  # noqa: E402
                                         DeviceNotVisible)
@@ -784,6 +785,7 @@ def make_profile_response(names):
 
 
 async def test_profiles_isolated_between_devices():
+    defaults = dict(AVAILABLE_PROFILES)
     dev_a = make_device(FakeHass())
     dev_b = make_device(FakeHass())
 
@@ -810,6 +812,15 @@ async def test_profiles_isolated_between_devices():
     # Defaults for slots that were not present in the frame survive.
     assert dev_a.profiles[2] == "Profile 3"
     assert dev_a.profiles[3] == "Guest"
+
+    # The per-device lists above were snapshots even when the names lived
+    # in the shared dict, so they cannot catch the leak. These can: the
+    # dict stays untouched, lookups are per device, and a machine set up
+    # later starts from the defaults rather than another machine's names.
+    assert AVAILABLE_PROFILES == defaults
+    assert dev_a.profile_name(1) == "Anna"
+    assert dev_b.profile_name(1) == "Cathy"
+    assert make_device(FakeHass()).profiles == list(defaults.values())
 
 
 async def run_tests():
