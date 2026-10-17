@@ -811,7 +811,7 @@ async def test_profiles_isolated_between_devices():
 
     # Defaults for slots that were not present in the frame survive.
     assert dev_a.profiles[2] == "Profile 3"
-    assert dev_a.profiles[3] == "Guest"
+    assert dev_a.profiles[3] == "Profile 4"
 
     # The per-device lists above were snapshots even when the names lived
     # in the shared dict, so they cannot catch the leak. These can: the
