@@ -231,3 +231,24 @@ The two personalised profile names in the example above were replaced with
 placeholders of the same length and the frame's CRC recomputed, so the layout,
 the padding and the icon bytes are exactly as captured while the names are not.
 The factory names are unchanged.
+
+### Machine state (byte 9 of a 0x75 frame)
+
+Measured 2026-08-20 across a full power cycle, with the percentage in
+byte 11 and the stage counter in byte 10:
+
+```
+19:31:23   status 07                    ready
+           -- power off sent 19:31:30 --
+19:31:35   status 02  stage 01          shutting down
+
+           -- power on sent 19:40:43 --
+19:40:53   status 01  stage 02    0 %   turning on
+19:41:04   status 01  stage 05   54 %
+19:41:17   status 01  stage 07  100 %
+19:41:29   status 07                    ready
+```
+
+So **2 is shutting down, not washing**, and 1 covers the whole warm-up
+rather than being a momentary state. Byte 5 alternates between `0x02`
+(MotorUp) and `0x04` (MotorDown) during the rinse, resting at `0x04`.
