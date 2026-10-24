@@ -54,6 +54,15 @@ async def test_off_and_heating_are_not_reported_as_ready():
     assert status_for(1) == "heating"
 
 
+async def test_status_2_is_shutting_down_not_washing():
+    """Status 2 appears right after the power-off command.
+
+    Measured on an ECAM 656.55.MS: ready at 19:31:23, power off sent at
+    19:31:30, status 2 at 19:31:35 and nothing resembling a rinse.
+    """
+    assert status_for(2) == "shutting_down"
+
+
 async def test_ready_still_reports_ready():
     assert status_for(7) == "ready"
 
@@ -61,6 +70,7 @@ async def test_ready_still_reports_ready():
 async def run_tests():
     await test_measured_states()
     await test_off_and_heating_are_not_reported_as_ready()
+    await test_status_2_is_shutting_down_not_washing()
     await test_ready_still_reports_ready()
     print("[SUCCESS] Machine states verified.")
 

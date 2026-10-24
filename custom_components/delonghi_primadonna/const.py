@@ -99,7 +99,9 @@ DEVICE_STATUS = {
 MACHINE_STATUS = {
     0: "turned_off",
     1: "heating",
-    2: "washing",
+    # Measured 2026-08-20: status 2 appears immediately after the
+    # power-off command, matching longshot's ShuttingDown.
+    2: "shutting_down",
     3: "heating",
     # Measured on an ECAM 656.55.MS during a full descaling run, 2026-08-22.
     # 4 is set as soon as the descaling program is armed and stays set while
