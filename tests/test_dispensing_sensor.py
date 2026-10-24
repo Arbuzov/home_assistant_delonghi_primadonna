@@ -76,6 +76,21 @@ async def test_milk_and_hot_water_states_count_as_dispensing():
     assert device.is_dispensing is True
 
 
+async def test_steam_counts_maintenance_does_not():
+    """Steam (5) is a dispense; descaling, milk cleaning, filter are not.
+
+    A measured 96 s steam dispense reported state 5 throughout and never
+    state 7, so without 5 the sensor stayed off for the whole dispense.
+    """
+    device = make_device()
+
+    apply(device, 5, 2, 30)
+    assert device.is_dispensing is True
+    for maintenance in (4, 12, 14):
+        apply(device, maintenance, 1, 50)
+        assert device.is_dispensing is False, maintenance
+
+
 async def test_percentage_is_cleared_when_idle():
     device = make_device()
 
@@ -101,6 +116,7 @@ async def run_tests():
     await test_percentage_is_parsed_from_byte_11()
     await test_ready_with_progress_counts_as_dispensing()
     await test_milk_and_hot_water_states_count_as_dispensing()
+    await test_steam_counts_maintenance_does_not()
     await test_percentage_is_cleared_when_idle()
     await test_sensor_reflects_the_device()
     print("[SUCCESS] Dispensing sensor verified.")
