@@ -90,6 +90,57 @@ The request id is the third byte of the command, the response id must be the sam
 Switches managed by command [0x0d, 0x0b, 0x90, 0x0f, 0x00, 0x3f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
 The nine digit (counted from 0) is the command bitmask
 
+### Which requests are answered (and in which state)
+
+The response id matches the request id, but only for the commands the machine
+actually answers. Several request ids above are sent without any same-id reply
+coming back, and some are answered only while the machine is awake. Measured on
+an **ECAM 656.55.MS** (protocol 1) with debug logging on; all frames below are
+CRC-valid (`crc_hqx(packet[:-2], 0x1D0F)`).
+
+**0xA9 (switch profile) — answered with its own id.** Confirmed on protocol 1
+too (the `d0 07 a9` frames in the Profiles table above are from a Dinamica
+Plus, protocol 2). Awake, 2026-10-17:
+
+```
+TX 0d 06 a9 f0 02 e7 a3
+RX d0 07 a9 f0 02 00 6e 6f     +270 ms
+TX 0d 06 a9 f0 01 d7 c0
+RX d0 07 a9 f0 01 00 3b 3c     +276 ms
+```
+
+Byte 4 echoes the requested profile, byte 5 is the status (`00` accepted; `01`
+rejected, see the Profiles table). The display followed both times.
+
+**0x84 (power) — never answered with a 0x84 frame.** Standby and power-on each
+draw a single unrelated frame a few hundred ms later, then the usual `0x75`
+status stream. No `d0 .. 84` ever arrives. Awake, 2026-10-17:
+
+```
+TX 0d 07 84 0f 01 01 00 41     standby
+RX d0 14 60 0f 00 00 00 00 00 04 00 00 00 00 98 00 00 00 00 e2 ef   +323 ms  (0x60)
+TX 0d 07 84 0f 02 01 55 12     power on
+RX d0 11 70 0f 00 00 00 00 00 02 4e ae e7 00 78 0a 29 ba           +165 ms  (0x70)
+```
+
+Under a "first frame after the write wins" rule the stray `0x60`/`0x70` is taken
+as the reply; correlating strictly by response id avoids that, but then nothing
+releases the waiter and the 0x84 write runs into the full timeout — so a power
+command should not wait for a reply at all.
+
+**0xE2 (clock) — answered while awake, silent in standby.** Awake, 2026-09-04:
+
+```
+TX 0d 07 e2 f0 0e 2b 24 7f
+RX d0 06 e2 f0 00 3c 25        +139 ms
+```
+
+A clock sync sent right after a Home Assistant restart while the machine was in
+**standby** (`0d 07 e2 f0 10 0b 20 61`) got no reply and ran into the full 10 s
+timeout. 0xA4 (profile list) behaves the same way — answered awake, silent in
+standby — so "answered" has to be qualified by machine state, not treated as a
+property of the request id alone.
+
 ### Notification Protocol assumptions
 |Code    | Details                                             |
 |--------|-----------------------------------------------------|
