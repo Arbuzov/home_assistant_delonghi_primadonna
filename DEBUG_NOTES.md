@@ -274,6 +274,7 @@ and a single write longer than 20 bytes (sent through an ESPHome Bluetooth
 proxy) got no reply and started nothing. The app
 writes 20 bytes, then the rest, and the machine reassembles the frame from
 the length byte. Every coffee-and-milk start is longer than 20 bytes.
+`send_command` splits frames the same way since #280.
 
 The app's Espresso Macchiato, 25 bytes:
 
