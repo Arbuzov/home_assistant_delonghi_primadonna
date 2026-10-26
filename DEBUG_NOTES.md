@@ -266,8 +266,8 @@ confirmed on this machine.
 ```
 
 `LL` is the total frame length minus one, the CRC is `crc_hqx(frame[:-2],
-0x1D0F)` as for every other command, and the machine replies
-`d0 07 83 f0 <trigger> <status> crc crc`.
+0x1D0F)` as for every other command. The machine replies `d0 07 83 f0 xx yy
+crc crc`; the replies seen are listed with each case below.
 
 **Frames longer than 20 bytes must be split.** The machine's ATT MTU is 23,
 and a single write longer than 20 bytes (sent through an ESPHome Bluetooth
@@ -337,6 +337,9 @@ answered or the carafe is removed. Coffee-only starts are still accepted
 while it is up. A Hot Milk start sent then was accepted but held behind the
 prompt, and dropped when the prompt was cancelled. Nothing in the capture
 shows the app answering the prompt; it was answered on the machine.
+Sent while it was up, trigger `03` (longshot's NextStep) and `06`
+(ExitProgramOk) for the Macchiato (`83 f0 0b 03 06`, `83 f0 0b 06 06`) were
+each answered `d0 07 83 f0 01 01` and left the prompt on screen.
 
 #### Capturing the app's traffic on iOS
 
