@@ -217,6 +217,9 @@ class DeviceSwitches:
         self.is_on = False
 
 
+# Longest frame the machine accepts in one write; see send_command
+MAX_WRITE_LENGTH = 20
+
 BEVERAGE_COMMANDS = {
     AvailableBeverage.NONE: BeverageCommand(DEBUG, DEBUG),
     AvailableBeverage.STEAM: BeverageCommand(STEAM_ON, STEAM_OFF),
@@ -1061,10 +1064,17 @@ class DelongiPrimadonna:
 
                     response_received = False
                     try:
-                        await self._client.write_gatt_char(
-                            CONTROLL_CHARACTERISTIC,
-                            bytearray(message_to_send),
-                        )
+                        # The machine ignores any write longer than 20 bytes
+                        # (ATT MTU 23). Coffee Link splits longer frames into
+                        # 20-byte writes and the machine reassembles them by
+                        # the frame's length byte, so do the same.
+                        data = bytearray(message_to_send)
+                        step = MAX_WRITE_LENGTH
+                        for start in range(0, len(data), step):
+                            await self._client.write_gatt_char(
+                                CONTROLL_CHARACTERISTIC,
+                                data[start:start + step],
+                            )
                         try:
                             await asyncio.wait_for(
                                 self._response_event.wait(),
