@@ -262,7 +262,7 @@ log of Coffee Link, profile 1. Tag names are
 confirmed on this machine.
 
 ```
-0d LL 83 f0 <beverage> <trigger> <tag value>... <mode> <crc crc>
+0d LL 83 f0 <beverage> <trigger> <tag value>... <profile << 2 | mode> <crc crc>
 ```
 
 `LL` is the total frame length minus one, the CRC is `crc_hqx(frame[:-2],
@@ -292,11 +292,11 @@ The app's Espresso Macchiato, 25 bytes:
 | `09 00 52` | milk 8.2 s |
 | `0b 01` | froth 1 |
 | `1c 02` | accessory: milk carafe |
-| `06` | mode: prepare |
+| `06` | profile 1 (`1 << 2`), mode 2: prepare |
 
 Reply `d0 07 83 f0 01 00`, 0.2 s later. About 20 s earlier the app had sent
-the same tags with trigger `00` and mode `05`, answered `d0 07 83 f0 00 01`:
-that **saved** them to the profile. A recipe read (`0xa6`) afterwards
+the same tags with trigger `00` and last byte `05` (profile 1, mode 1: save),
+answered `d0 07 83 f0 00 01`: that **saved** them to the profile. A recipe read (`0xa6`) afterwards
 returned the app's strength and bean tin, not the ones stored before.
 
 Tags, one byte each except `01`, `09` and `0f`, which are 16-bit big-endian:
@@ -322,9 +322,27 @@ so not affected by the write limit) macchiato start with the tags in recipe
 order and no `1c` was ignored; which of the two the machine needs was not
 separated. Coffee-only starts with the tags out of order were accepted.
 
-Trigger and mode values seen: trigger `01` start, `00` with mode `05` save;
-mode `06` prepare (longshot calls it PrepareInversion, `02` Prepare). The
-stop this integration sends (`83 f0 <beverage> 02 06`) is unchanged.
+The trigger and mode names below are Coffee Link's own (Android 4.9.6, which
+builds this frame in its `dispenseBeveragePacket`). The last byte is
+`(profile << 2) | mode`, so `06` is profile 1 with mode 2, not longshot's
+PrepareInversion.
+
+| Trigger | Coffee Link | | Mode | Coffee Link |
+|---|---|---|---|---|
+| `00` | DONTCARE | | `0` | DELETE_BEVERAGE |
+| `01` | START | | `1` | SAVE_BEVERAGE |
+| `02` | START_PROGRAM / STOPV2 | | `2` | PREPARE_BEVERAGE |
+| `03` | CHECK_START | | `3` | PREPARE_AND_SAVE_BEVERAGE |
+| `04` | STOP | | `5` | SAVE_BEVERAGE_INVERSION |
+| `05` | STOP_PROGRAM | | `6` | PREPARE_BEVERAGE_INVERSION |
+| `06` | SKIP_RINSE | | `7` | PREPARE_SAVE_BEVERAGE_INVERSION |
+| `07` | ADVANCED_MODE | | | |
+
+The app sets the top bit of the trigger (`| 0x80`) in one case not traced
+here. It only sends tags below `0x17`, plus `1c` and a few newer ones
+(`1f` iced, `21` mug adjust, `26` intensity, `27` rinse), so `17` CleanType
+is never sent. The stop this integration sends (`83 f0 <beverage> 02 06`) is
+STOPV2 for profile 1.
 
 The recipe stored for a beverage (`0d 07 a6 f0 <profile> <beverage> crc
 crc`) and its ranges (`0d 06 b0 f0 <beverage> crc crc`, one
@@ -337,9 +355,11 @@ answered or the carafe is removed. Coffee-only starts are still accepted
 while it is up. A Hot Milk start sent then was accepted but held behind the
 prompt, and dropped when the prompt was cancelled. Nothing in the capture
 shows the app answering the prompt; it was answered on the machine.
-Sent while it was up, trigger `03` (longshot's NextStep) and `06`
-(ExitProgramOk) for the Macchiato (`83 f0 0b 03 06`, `83 f0 0b 06 06`) were
-each answered `d0 07 83 f0 01 01` and left the prompt on screen.
+Sent while it was up, trigger `03` (CHECK_START) and `06` (SKIP_RINSE) for
+the Macchiato (`83 f0 0b 03 06`, `83 f0 0b 06 06`) were each answered
+`d0 07 83 f0 01 01` and left the prompt on screen. Coffee Link has no milk
+clean command: nothing in it builds one, and its Maestosa entry in
+`assets/MachinesModels.json` lists no cleaning setting.
 
 #### Capturing the app's traffic on iOS
 
