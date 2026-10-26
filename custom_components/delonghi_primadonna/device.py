@@ -1040,6 +1040,7 @@ class DelongiPrimadonna:
             message_to_send = copy.deepcopy(message)
             last_error = None
             for attempt in range(retries):
+                written = 0
                 try:
                     await self._connect()
                     crc = crc_hqx(bytearray(message_to_send[:-2]), 0x1D0F)
@@ -1070,11 +1071,23 @@ class DelongiPrimadonna:
                         # the frame's length byte, so do the same.
                         data = bytearray(message_to_send)
                         step = MAX_WRITE_LENGTH
-                        for start in range(0, len(data), step):
-                            await self._client.write_gatt_char(
-                                CONTROLL_CHARACTERISTIC,
-                                data[start:start + step],
-                            )
+                        try:
+                            for start in range(0, len(data), step):
+                                written += 1
+                                await self._client.write_gatt_char(
+                                    CONTROLL_CHARACTERISTIC,
+                                    data[start:start + step],
+                                )
+                        except BaseException as error:
+                            if (len(data) > step
+                                    and not isinstance(error, BleakError)):
+                                # Stopped partway through a frame: drop the
+                                # connection, or the machine would take the
+                                # next command as the rest of this one.
+                                # (BleakError disconnects below anyway.)
+                                self.connected = False
+                                await self._drop_client()
+                            raise
                         try:
                             await asyncio.wait_for(
                                 self._response_event.wait(),
@@ -1104,15 +1117,17 @@ class DelongiPrimadonna:
                         error,
                         attempt + 1
                     )
-                    if self._client is not None:
-                        try:
-                            await asyncio.wait_for(
-                                self._client.disconnect(),
-                                timeout=5,
-                            )
-                        except Exception:  # noqa: BLE001
-                            pass
-                    self._client = None
+                    await self._drop_client()
+                    if written and message_to_send[2] == 0x83:
+                        # The machine may already have the whole frame, and a
+                        # beverage start is not safe to repeat
+                        _LOGGER.warning(
+                            'Not retrying the %s command: a write failed '
+                            'after sending began, so the machine may '
+                            'already have it',
+                            describe_command(message_to_send),
+                        )
+                        return False
                     await asyncio.sleep(2)
 
             _LOGGER.error(
@@ -1125,6 +1140,18 @@ class DelongiPrimadonna:
                 last_error,
             )
             return False
+
+    async def _drop_client(self) -> None:
+        """Disconnect and forget the BLE client."""
+        if self._client is not None:
+            try:
+                await asyncio.wait_for(
+                    self._client.disconnect(),
+                    timeout=5,
+                )
+            except Exception:  # noqa: BLE001
+                pass
+        self._client = None
 
     async def _parse_statistics(self, data: bytes) -> None:
         """Parse statistics response"""

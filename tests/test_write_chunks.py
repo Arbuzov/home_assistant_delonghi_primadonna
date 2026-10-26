@@ -1,6 +1,10 @@
+import asyncio
 import os
 import sys
 from binascii import unhexlify
+
+import pytest
+from bleak.exc import BleakError
 
 sys.path.append(
     os.path.abspath(
@@ -46,7 +50,34 @@ class RecordingClient:
         self.writes.append(bytes(_message))
 
 
+class FailingClient(RecordingClient):
+    """Fails the given write (1-based) by raising ``error``."""
+
+    def __init__(self, fail_on, error):
+        super().__init__()
+        self.fail_on = fail_on
+        self.error = error
+        self.disconnects = 0
+
+    async def write_gatt_char(
+        self,
+        _characteristic,
+        _message,
+    ):
+        if len(self.writes) + 1 == self.fail_on:
+            self.writes.append(None)
+            raise self.error
+        self.writes.append(bytes(_message))
+
+    async def disconnect(self):
+        self.disconnects += 1
+
+
 async def fake_connect():
+    return None
+
+
+async def no_sleep(_seconds):
     return None
 
 
@@ -86,3 +117,49 @@ async def fake_wait_for(awaitable, timeout):
     """No machine to answer, so skip the 10 s reply wait."""
     awaitable.close()
     raise TimeoutError
+
+
+async def test_beverage_start_is_not_replayed_after_a_failed_write(
+    monkeypatch,
+):
+    monkeypatch.setattr("asyncio.sleep", no_sleep)
+    client = FailingClient(2, BleakError("lost"))
+    device = make_device(client)
+
+    result = await device.send_command(
+        list(MACCHIATO_START[:-2]) + [0, 0], retries=3)
+
+    assert result is False
+    # One attempt only: the first chunk and the failed second one
+    assert client.writes == [MACCHIATO_START[:20], None]
+    assert client.disconnects == 1
+
+
+async def test_other_commands_are_still_retried(monkeypatch):
+    monkeypatch.setattr("asyncio.sleep", no_sleep)
+    monkeypatch.setattr("asyncio.wait_for", fake_wait_for)
+    client = FailingClient(1, BleakError("lost"))
+    device = make_device(client)
+
+    async def reconnect():
+        device._client = client
+
+    device._connect = reconnect
+    statistics = [0x0D, 0x08, 0xA2, 0x0F, 0x00, 0x64, 0x0A, 0x00, 0x00]
+
+    await device.send_command(statistics, retries=2)
+
+    assert len(client.writes) == 2
+    assert client.writes[1] is not None
+
+
+async def test_cancelled_mid_frame_drops_the_connection():
+    client = FailingClient(2, asyncio.CancelledError())
+    device = make_device(client)
+
+    with pytest.raises(asyncio.CancelledError):
+        await device.send_command(
+            list(MACCHIATO_START[:-2]) + [0, 0], retries=1)
+
+    assert client.disconnects == 1
+    assert device._client is None
