@@ -252,3 +252,126 @@ byte 11 and the stage counter in byte 10:
 So **2 is shutting down, not washing**, and 1 covers the whole warm-up
 rather than being a momentary state. Byte 5 alternates between `0x02`
 (MotorUp) and `0x04` (MotorDown) during the rinse, resting at `0x04`.
+
+### Beverage start (0x83)
+
+Captured 2026-10-26 on a Maestosa (EPAM960.75.GLM) from an iOS Bluetooth
+log of Coffee Link, profile 1. Tag names are
+[longshot](https://github.com/mmastrac/longshot)'s
+(`src/protocol/hardware_enums.rs`); the meanings marked *observed* were
+confirmed on this machine.
+
+```
+0d LL 83 f0 <beverage> <trigger> <tag value>... <profile << 2 | mode> <crc crc>
+```
+
+`LL` is the total frame length minus one, the CRC is `crc_hqx(frame[:-2],
+0x1D0F)` as for every other command. The machine replies `d0 07 83 f0 xx yy
+crc crc`; the replies seen are listed with each case below.
+
+**Frames longer than 20 bytes must be split.** The machine's ATT MTU is 23,
+and a single write longer than 20 bytes (sent through an ESPHome Bluetooth
+proxy) got no reply and started nothing. The app
+writes 20 bytes, then the rest, and the machine reassembles the frame from
+the length byte. Every coffee-and-milk start is longer than 20 bytes.
+`send_command` splits frames the same way since #280.
+
+The app's Espresso Macchiato, 25 bytes:
+
+```
+0d 18 83 f0 0b 01 00 02 01 00 4f 02 03 04 00 09 00 52 0b 01 1c 02 06 12 a0
+```
+
+| Bytes | Meaning |
+|---|---|
+| `0b` | beverage: Espresso Macchiato |
+| `01` | trigger: start |
+| `00 02` | temperature 2 |
+| `01 00 4f` | coffee 79 ml |
+| `02 03` | strength 3 |
+| `04 00` | bean tin 1 |
+| `09 00 52` | milk 8.2 s |
+| `0b 01` | froth 1 |
+| `1c 02` | accessory: milk carafe |
+| `06` | profile 1 (`1 << 2`), mode 2: prepare |
+
+Reply `d0 07 83 f0 01 00`, 0.2 s later. About 20 s earlier the app had sent
+the same tags with trigger `00` and last byte `05` (profile 1, mode 1: save),
+answered `d0 07 83 f0 00 01`: that **saved** them to the profile. A recipe read (`0xa6`) afterwards
+returned the app's strength and bean tin, not the ones stored before.
+
+Tags, one byte each except `01`, `09` and `0f`, which are 16-bit big-endian:
+
+| Tag | longshot name | Notes |
+|---|---|---|
+| `00` | Temp | 0-3 |
+| `01` | Coffee | ml |
+| `02` | Taste | strength 1-5 (0 = pre-ground) |
+| `04` | Blend | *observed*: bean tin on a two-hopper machine, `00` tin 1, `01` tin 2 |
+| `08` | DueXPer | `01` on the 2X Espresso |
+| `09` | Milk | *observed*: tenths of a second on the Maestosa, not ml |
+| `0b` | MilkFroth | 1-3 |
+| `0c` | Inversion | milk first |
+| `0f` | HotWater | ml |
+| `18` | Programmable | recipe metadata, not sent |
+| `19` | Visible | recipe metadata, not sent |
+| `1b` | IndexLength | recipe metadata, not sent |
+| `1c` | Accessorio | `02` milk carafe; the app sends it on milk drinks |
+
+The app sends the tags in ascending order with `1c` last. A short (17-byte,
+so not affected by the write limit) macchiato start with the tags in recipe
+order and no `1c` was ignored; which of the two the machine needs was not
+separated. Coffee-only starts with the tags out of order were accepted.
+
+The trigger and mode names below are Coffee Link's own (Android 4.9.6, which
+builds this frame in its `dispenseBeveragePacket`). The last byte is
+`(profile << 2) | mode`, so `06` is profile 1 with mode 2, not longshot's
+PrepareInversion.
+
+| Trigger | Coffee Link | | Mode | Coffee Link |
+|---|---|---|---|---|
+| `00` | DONTCARE | | `0` | DELETE_BEVERAGE |
+| `01` | START | | `1` | SAVE_BEVERAGE |
+| `02` | START_PROGRAM / STOPV2 | | `2` | PREPARE_BEVERAGE |
+| `03` | CHECK_START | | `3` | PREPARE_AND_SAVE_BEVERAGE |
+| `04` | STOP | | `5` | SAVE_BEVERAGE_INVERSION |
+| `05` | STOP_PROGRAM | | `6` | PREPARE_BEVERAGE_INVERSION |
+| `06` | SKIP_RINSE | | `7` | PREPARE_SAVE_BEVERAGE_INVERSION |
+| `07` | ADVANCED_MODE | | | |
+
+The app sets the top bit of the trigger (`| 0x80`) in one case not traced
+here. It only sends tags below `0x17`, plus `1c` and a few newer ones
+(`1f` iced, `21` mug adjust, `26` intensity, `27` rinse), so `17` CleanType
+is never sent. The stop this integration sends (`83 f0 <beverage> 02 06`) is
+STOPV2 for profile 1.
+
+The recipe stored for a beverage (`0d 07 a6 f0 <profile> <beverage> crc
+crc`) and its ranges (`0d 06 b0 f0 <beverage> crc crc`, one
+`<tag> <min> <default> <max>` group per tag) list which tags a beverage
+takes. The app reads both for every beverage when it connects.
+
+**After any milk beverage starts** the machine raises alarm bit 14 (the
+`clean_knob` status) and keeps it until the clean prompt on its screen is
+answered or the carafe is removed. Coffee-only starts are still accepted
+while it is up. A Hot Milk start sent then was accepted but held behind the
+prompt, and dropped when the prompt was cancelled. Nothing in the capture
+shows the app answering the prompt; it was answered on the machine.
+Sent while it was up, trigger `03` (CHECK_START) and `06` (SKIP_RINSE) for
+the Macchiato (`83 f0 0b 03 06`, `83 f0 0b 06 06`) were each answered
+`d0 07 83 f0 01 01` and left the prompt on screen. Coffee Link has no milk
+clean command: nothing in it builds one, and its Maestosa entry in
+`assets/MachinesModels.json` lists no cleaning setting.
+
+#### Capturing the app's traffic on iOS
+
+1. Install Apple's Bluetooth logging profile for iOS from
+   [Profiles and Logs](https://developer.apple.com/bug-reporting/profiles-and-logs/).
+2. Disconnect Home Assistant from the machine (it accepts one connection),
+   then use the app.
+3. Trigger a sysdiagnose (both volume buttons and the side button briefly),
+   wait for it to finish and copy it off the phone.
+4. The log is `logs/Bluetooth/bluetoothd-hci-*.pklg` in the archive.
+   PacketLogger opens it, or read the ATT writes (`0x12`) and notifications
+   (`0x1b`) on CID 4 directly: each record is a 4-byte big-endian length,
+   an 8-byte timestamp, a 1-byte type (`02` sent, `03` received) and the HCI
+   ACL packet.
