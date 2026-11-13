@@ -262,7 +262,7 @@ log of Coffee Link, profile 1. Tag names are
 confirmed on this machine.
 
 ```
-0d LL 83 f0 <beverage> <trigger> <tag value>... <profile << 2 | mode> <crc crc>
+0d LL 83 f0 <beverage> <trigger> <tag value>... <profile and mode> <crc crc>
 ```
 
 `LL` is the total frame length minus one, the CRC is `crc_hqx(frame[:-2],
@@ -273,8 +273,11 @@ crc crc`; the replies seen are listed with each case below.
 and a single write longer than 20 bytes (sent through an ESPHome Bluetooth
 proxy) got no reply and started nothing. The app
 writes 20 bytes, then the rest, and the machine reassembles the frame from
-the length byte. Every coffee-and-milk start is longer than 20 bytes.
-`send_command` splits frames the same way since #280.
+the length byte. Coffee Link's coffee-and-milk starts in this capture were
+all longer than 20 bytes (the Macchiato below is 25); the shorter, hand-built
+macchiato further down fits in one write. Until #280 is merged,
+`send_command` sends every frame in one write, so it cannot start a frame
+longer than 20 bytes; #280 splits them the way the app does.
 
 The app's Espresso Macchiato, 25 bytes:
 
@@ -325,8 +328,12 @@ separated. Coffee-only starts with the tags out of order were accepted.
 
 The trigger and mode names below are Coffee Link's own (Android 4.9.6, which
 builds this frame in its `dispenseBeveragePacket`). The last byte is
-`(profile << 2) | mode`, so `06` is profile 1 with mode 2, not longshot's
-PrepareInversion.
+`(profile << 2) | mode` for modes 0-3. Only modes 1 and 2 were captured:
+`05` and `06` were sent with the app on profile 1, so they are profile 1 with
+mode 1 (save) and mode 2 (prepare), not longshot's PrepareInversion. The formula does not
+hold for the inversion modes 5-7, which set bit 2 themselves, so it cannot
+tell profile 0 / mode 6 from profile 1 / mode 2. How the app packs a profile
+with those modes was not traced.
 
 | Trigger | Coffee Link | | Mode | Coffee Link |
 |---|---|---|---|---|
