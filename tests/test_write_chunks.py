@@ -16,7 +16,11 @@ sys.path.append(
     )
 )
 
-from delonghi_primadonna.device import DelongiPrimadonna  # noqa: E402
+from delonghi_primadonna.const import COFFE_ON  # noqa: E402
+from delonghi_primadonna.device import (  # noqa: E402
+    DelongiPrimadonna,
+    _build_stop_command,
+)
 
 CONFIG = {
     "mac": "00:11:22:33:44:55",
@@ -163,3 +167,41 @@ async def test_cancelled_mid_frame_drops_the_connection():
 
     assert client.disconnects == 1
     assert device._client is None
+
+
+async def fake_reply(awaitable, timeout):
+    """The machine answers straight away."""
+    awaitable.close()
+
+
+async def test_beverage_stop_is_retried_after_a_failed_write(monkeypatch):
+    monkeypatch.setattr("asyncio.sleep", no_sleep)
+    monkeypatch.setattr("asyncio.wait_for", fake_reply)
+    client = FailingClient(1, BleakError("lost"))
+    device = make_device(client)
+
+    async def reconnect():
+        device._client = client
+
+    device._connect = reconnect
+    stop = _build_stop_command(0x0B)
+
+    result = await device.send_command(stop, retries=3)
+
+    # A stop is safe to repeat: the second attempt goes through
+    assert result is True
+    assert client.writes[0] is None
+    assert client.writes[1][:7] == bytes(stop[:7])
+    assert len(client.writes) == 2
+
+
+async def test_short_beverage_start_is_not_replayed(monkeypatch):
+    monkeypatch.setattr("asyncio.sleep", no_sleep)
+    client = FailingClient(1, BleakError("lost"))
+    device = make_device(client)
+
+    result = await device.send_command(list(COFFE_ON), retries=3)
+
+    # A single-write start that failed may still have reached the machine
+    assert result is False
+    assert client.writes == [None]

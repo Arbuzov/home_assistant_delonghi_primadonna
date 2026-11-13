@@ -250,6 +250,24 @@ def _build_stop_command(recipe_id: int) -> list[int]:
     return [0x0D, 0x08, 0x83, 0xF0, recipe_id & 0xFF, 0x02, 0x06, 0x00, 0x00]
 
 
+# Byte 5 of a 0x83 beverage frame says what to do with the beverage.
+# Coffee Link sets the top bit in one untraced case, so mask it off.
+BEVERAGE_TRIGGER_START = 0x01
+
+
+def _is_beverage_start(frame) -> bool:
+    """Whether a frame starts a beverage, which is not safe to repeat.
+
+    Stops (trigger 0x02, as _build_stop_command sends) and saves
+    (trigger 0x00) can be sent twice without harm.
+    """
+    return (
+        len(frame) > 5
+        and frame[2] == 0x83
+        and frame[5] & 0x7F == BEVERAGE_TRIGGER_START
+    )
+
+
 def _build_start_command(recipe_id: int, coffee_qty: int = 0,
                          milk_qty: int = 0) -> list[int]:
     """Build a generic start command for a recipe.
@@ -1118,7 +1136,7 @@ class DelongiPrimadonna:
                         attempt + 1
                     )
                     await self._drop_client()
-                    if written and message_to_send[2] == 0x83:
+                    if written and _is_beverage_start(message_to_send):
                         # The machine may already have the whole frame, and a
                         # beverage start is not safe to repeat
                         _LOGGER.warning(
