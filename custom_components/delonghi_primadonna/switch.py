@@ -207,7 +207,8 @@ class DelongiPrimadonnaTimeSyncSwitch(
 ):
     """Keep the machine clock in step with Home Assistant.
 
-    While on, the clock is set right away and then re-synced once a day.
+    While on, the clock is set right away if the machine is awake, or
+    once it wakes up, and then re-synced once a day.
     """
 
     _attr_icon = 'mdi:clock-time-eight-outline'
@@ -228,25 +229,43 @@ class DelongiPrimadonnaTimeSyncSwitch(
         """Return the category of the entity."""
         return EntityCategory.CONFIG
 
+    # Set when a sync is due but the machine is in standby.
+    _sync_pending = False
+
     async def async_update(self) -> None:
-        """Re-sync the clock once a day while enabled."""
+        """Re-sync the clock once a day while enabled.
+
+        A machine in standby does not answer the clock command (it drew
+        no reply for the full timeout), so a due sync waits until the
+        machine is awake and goes out on the first poll after that.
+        """
         if not self.device.sync_time:
             return
         now = time.monotonic()
-        if now - self.device.last_time_sync < 24 * 3600:
+        if (
+            not self._sync_pending
+            and now - self.device.last_time_sync < 24 * 3600
+        ):
             return
+        if not self.device.switches.is_on:
+            self._sync_pending = True
+            return
+        self._sync_pending = False
         self.device.last_time_sync = now
-        self.hass.async_create_task(
-            self.device.set_time(datetime.datetime.now())
-        )
+        self.hass.async_create_task(self._sync_clock())
+
+    async def _sync_clock(self) -> None:
+        """Set the clock; if nothing came back, try again in an hour."""
+        if not await self.device.set_time(datetime.datetime.now()):
+            # Due again by the daily rule one hour after this attempt, so
+            # a machine that never answers is not asked on every poll.
+            self.device.last_time_sync -= 23 * 3600
 
     async def async_turn_on(self, **kwargs: Any) -> None:
-        """Enable time sync and set the clock right away."""
+        """Enable time sync and set the clock now, or once awake."""
         self.device.sync_time = True
-        self.device.last_time_sync = time.monotonic()
-        self.hass.async_create_task(
-            self.device.set_time(datetime.datetime.now())
-        )
+        self._sync_pending = True
+        await self.async_update()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Disable time synchronization."""
