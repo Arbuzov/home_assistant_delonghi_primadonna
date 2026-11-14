@@ -139,6 +139,81 @@ async def test_custom_start_falls_back_without_answer():
     assert sent[1][:6] == [0x0D, 0x0D, 0x83, 0xF0, 0xE6, 0x01]
 
 
+async def test_overlapping_reads_share_one_request():
+    device = DelongiPrimadonna(CONFIG, FakeHass())
+    sent = []
+    release = asyncio.Event()
+
+    async def send_command(message, retries=3):
+        sent.append(list(message))
+        await release.wait()
+        await device._handle_data(
+            None, recipe_answer(message[4], message[5], EXTRAPRESSO)
+        )
+        return True
+
+    async def no_event(value):
+        return None
+
+    device.send_command = send_command
+    device._event_trigger = no_event
+
+    first = asyncio.ensure_future(device.read_recipe_quantities(230))
+    second = asyncio.ensure_future(device.read_recipe_quantities(230))
+    await asyncio.sleep(0)
+    release.set()
+    results = await asyncio.gather(first, second)
+
+    assert len(sent) == 1
+    assert results[0] == results[1]
+    assert (0x01, 40) in results[0]
+    assert device._recipe_waiters == {}
+
+
+async def test_read_deadline_includes_the_request():
+    """A request that hangs does not delay the fallback past the timeout."""
+    device = DelongiPrimadonna(CONFIG, FakeHass())
+
+    async def send_command(message, retries=3):
+        await asyncio.sleep(10)
+        return True
+
+    device.send_command = send_command
+
+    loop = asyncio.get_running_loop()
+    start = loop.time()
+    result = await device.read_recipe_quantities(230, timeout=0.05)
+
+    assert result is None
+    assert loop.time() - start < 1
+    assert device._recipe_waiters == {}
+
+
+async def test_reply_without_pending_read_is_not_reused():
+    """A late reply to an abandoned read does not feed the next read."""
+    device = DelongiPrimadonna(CONFIG, FakeHass())
+    sent = []
+
+    async def no_event(value):
+        return None
+
+    device._event_trigger = no_event
+
+    async def silent(message, retries=3):
+        sent.append(list(message))
+        return True
+
+    device.send_command = silent
+    assert await device.read_recipe_quantities(230, timeout=0.01) is None
+
+    # The late reply arrives while nothing waits for it...
+    await device._handle_data(None, recipe_answer(1, 230, EXTRAPRESSO))
+
+    # ...and the next read asks the machine again instead of using it.
+    assert await device.read_recipe_quantities(230, timeout=0.01) is None
+    assert len(sent) == 2
+
+
 async def test_standard_recipe_does_not_read_the_machine():
     device = DelongiPrimadonna(CONFIG, FakeHass())
     sent = []
