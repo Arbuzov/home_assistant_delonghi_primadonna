@@ -152,6 +152,25 @@ class DelongiPrimadonnaStatusSensor(
         return 'mdi:alert-circle-outline'
 
 
+# Switches the user has to act on come first, so that an alert is not
+# hidden behind a switch that is set most of the time (motor_down).
+SWITCH_PRIORITY = (
+    MachineSwitch.WATER_TANK_ABSENT,
+    MachineSwitch.WATER_LEVEL_LOW,
+    MachineSwitch.COFFEE_WASTE_CONTAINER,
+    MachineSwitch.DOOR_OPENED,
+    MachineSwitch.PREGROUND_DOOR_OPENED,
+    MachineSwitch.CLEAN_KNOB,
+)
+
+
+def _switch_priority(switch: MachineSwitch) -> int:
+    """Sort key: alert switches first, then the parse order."""
+    if switch in SWITCH_PRIORITY:
+        return SWITCH_PRIORITY.index(switch)
+    return len(SWITCH_PRIORITY)
+
+
 class DelongiPrimadonnaSwitchesSensor(
     DelonghiDeviceEntity, SensorEntity, RestoreEntity
 ):
@@ -175,9 +194,26 @@ class DelongiPrimadonnaSwitchesSensor(
 
     @property
     def native_value(self):
-        if not self.device.active_switches:
+        """Return the most relevant active switch.
+
+        An ENUM sensor can only report one of its options, so when several
+        switches are active at once the state is the highest-priority one
+        (alerts first) and the full list goes to the ``active_switches``
+        attribute.
+        """
+        active = self.device.active_switches
+        if not active:
             return 'none'
-        return ', '.join(s.value for s in self.device.active_switches)
+        return min(active, key=_switch_priority).value
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Expose every active switch."""
+        return {
+            'active_switches': [
+                s.value for s in self.device.active_switches
+            ],
+        }
 
     @property
     def entity_category(self, **kwargs: Any) -> None:
