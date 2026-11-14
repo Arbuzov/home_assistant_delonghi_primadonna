@@ -255,9 +255,11 @@ class DelongiPrimadonnaTimeSyncSwitch(
         self.hass.async_create_task(self._sync_clock())
 
     async def _sync_clock(self) -> None:
-        """Set the clock, and retry on the next poll if nothing came back."""
+        """Set the clock; if nothing came back, try again in an hour."""
         if not await self.device.set_time(datetime.datetime.now()):
-            self._sync_pending = True
+            # Due again by the daily rule one hour after this attempt, so
+            # a machine that never answers is not asked on every poll.
+            self.device.last_time_sync -= 23 * 3600
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Enable time sync and set the clock now, or once awake."""

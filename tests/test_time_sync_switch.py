@@ -174,11 +174,12 @@ async def test_turn_on_in_standby_syncs_on_wake_up():
     assert len(device.clock_sets) == 1, "the deferred sync was lost"
 
 
-async def test_unanswered_sync_is_retried_on_next_poll():
-    """A clock command that drew no frame stays pending.
+async def test_unanswered_sync_is_retried_after_an_hour():
+    """A clock command that drew no frame is retried an hour later.
 
-    Otherwise a timeout right after wake-up would count as a sync and
-    the clock would wait another day.
+    Not on the next poll: a machine that never answers would otherwise
+    hold the device lock for the full timeout every poll. And not a day
+    later either, which is what a timeout right after wake-up cost.
     """
     switch, device, hass = make_switch()
     device.last_time_sync = time.monotonic()
@@ -189,6 +190,11 @@ async def test_unanswered_sync_is_retried_on_next_poll():
     assert len(device.clock_sets) == 1
 
     device.clock_answers = True
+    await switch.async_update()
+    await asyncio.gather(*hass.tasks)
+    assert len(device.clock_sets) == 1, "retried on the very next poll"
+
+    device.last_time_sync -= 3600
     await switch.async_update()
     await asyncio.gather(*hass.tasks)
     assert len(device.clock_sets) == 2, "unanswered sync was not retried"
@@ -221,7 +227,7 @@ async def run_tests():
     await test_switch_methods_are_coroutines()
     await test_no_clock_command_while_in_standby()
     await test_turn_on_in_standby_syncs_on_wake_up()
-    await test_unanswered_sync_is_retried_on_next_poll()
+    await test_unanswered_sync_is_retried_after_an_hour()
     await test_set_time_reports_whether_a_frame_came_back()
     print("[SUCCESS] Time sync switch verified.")
 
