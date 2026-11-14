@@ -217,6 +217,9 @@ class DeviceSwitches:
         self.is_on = False
 
 
+# Longest frame the machine accepts in one write; see send_command
+MAX_WRITE_LENGTH = 20
+
 BEVERAGE_COMMANDS = {
     AvailableBeverage.NONE: BeverageCommand(DEBUG, DEBUG),
     AvailableBeverage.STEAM: BeverageCommand(STEAM_ON, STEAM_OFF),
@@ -245,6 +248,24 @@ RECIPE_ID_TO_BEVERAGE = {
 def _build_stop_command(recipe_id: int) -> list[int]:
     """Build a stop command for any recipe ID."""
     return [0x0D, 0x08, 0x83, 0xF0, recipe_id & 0xFF, 0x02, 0x06, 0x00, 0x00]
+
+
+# Byte 5 of a 0x83 beverage frame says what to do with the beverage.
+# Coffee Link sets the top bit in one untraced case, so mask it off.
+BEVERAGE_TRIGGER_START = 0x01
+
+
+def _is_beverage_start(frame) -> bool:
+    """Whether a frame starts a beverage, which is not safe to repeat.
+
+    Stops (trigger 0x02, as _build_stop_command sends) and saves
+    (trigger 0x00) can be sent twice without harm.
+    """
+    return (
+        len(frame) > 5
+        and frame[2] == 0x83
+        and frame[5] & 0x7F == BEVERAGE_TRIGGER_START
+    )
 
 
 def _build_start_command(recipe_id: int, coffee_qty: int = 0,
@@ -1037,6 +1058,7 @@ class DelongiPrimadonna:
             message_to_send = copy.deepcopy(message)
             last_error = None
             for attempt in range(retries):
+                written = 0
                 try:
                     await self._connect()
                     crc = crc_hqx(bytearray(message_to_send[:-2]), 0x1D0F)
@@ -1061,10 +1083,29 @@ class DelongiPrimadonna:
 
                     response_received = False
                     try:
-                        await self._client.write_gatt_char(
-                            CONTROLL_CHARACTERISTIC,
-                            bytearray(message_to_send),
-                        )
+                        # The machine ignores any write longer than 20 bytes
+                        # (ATT MTU 23). Coffee Link splits longer frames into
+                        # 20-byte writes and the machine reassembles them by
+                        # the frame's length byte, so do the same.
+                        data = bytearray(message_to_send)
+                        step = MAX_WRITE_LENGTH
+                        try:
+                            for start in range(0, len(data), step):
+                                written += 1
+                                await self._client.write_gatt_char(
+                                    CONTROLL_CHARACTERISTIC,
+                                    data[start:start + step],
+                                )
+                        except BaseException as error:
+                            if (len(data) > step
+                                    and not isinstance(error, BleakError)):
+                                # Stopped partway through a frame: drop the
+                                # connection, or the machine would take the
+                                # next command as the rest of this one.
+                                # (BleakError disconnects below anyway.)
+                                self.connected = False
+                                await self._drop_client()
+                            raise
                         try:
                             await asyncio.wait_for(
                                 self._response_event.wait(),
@@ -1094,15 +1135,17 @@ class DelongiPrimadonna:
                         error,
                         attempt + 1
                     )
-                    if self._client is not None:
-                        try:
-                            await asyncio.wait_for(
-                                self._client.disconnect(),
-                                timeout=5,
-                            )
-                        except Exception:  # noqa: BLE001
-                            pass
-                    self._client = None
+                    await self._drop_client()
+                    if written and _is_beverage_start(message_to_send):
+                        # The machine may already have the whole frame, and a
+                        # beverage start is not safe to repeat
+                        _LOGGER.warning(
+                            'Not retrying the %s command: a write failed '
+                            'after sending began, so the machine may '
+                            'already have it',
+                            describe_command(message_to_send),
+                        )
+                        return False
                     await asyncio.sleep(2)
 
             _LOGGER.error(
@@ -1115,6 +1158,18 @@ class DelongiPrimadonna:
                 last_error,
             )
             return False
+
+    async def _drop_client(self) -> None:
+        """Disconnect and forget the BLE client."""
+        if self._client is not None:
+            try:
+                await asyncio.wait_for(
+                    self._client.disconnect(),
+                    timeout=5,
+                )
+            except Exception:  # noqa: BLE001
+                pass
+        self._client = None
 
     async def _parse_statistics(self, data: bytes) -> None:
         """Parse statistics response"""
