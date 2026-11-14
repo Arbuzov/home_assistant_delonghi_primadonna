@@ -530,6 +530,50 @@ async def test_status_update_is_throttled_and_contained():
     assert calls == 2
 
 
+async def test_first_status_request_is_not_throttled(monkeypatch):
+    """The first poll goes out even right after the host booted."""
+    hass = FakeHass()
+    device = make_device(hass)
+    calls = 0
+
+    async def get_device_name():
+        nonlocal calls
+        calls += 1
+
+    device.get_device_name = get_device_name
+    # time.monotonic() can be below the interval just after boot.
+    monkeypatch.setattr(device_module.time, "monotonic", lambda: 5.0)
+
+    device.schedule_status_update()
+    await device._status_task
+
+    assert calls == 1
+
+
+async def test_stalled_status_request_is_abandoned(monkeypatch):
+    """A BLE call that never returns does not block later polls."""
+    hass = FakeHass()
+    device = make_device(hass)
+    monkeypatch.setattr(device_module, "STATUS_UPDATE_TIMEOUT", 0.01)
+
+    async def stalled_get_device_name():
+        await asyncio.Event().wait()
+
+    device.get_device_name = stalled_get_device_name
+
+    device.schedule_status_update()
+    first_task = device._status_task
+    await first_task
+
+    assert first_task.done()
+    assert not first_task.cancelled()
+
+    device._last_status_request -= STATUS_UPDATE_INTERVAL
+    device.schedule_status_update()
+    assert device._status_task is not first_task
+    await device.cancel_status_update()
+
+
 async def test_statistics_task_deduplicates_and_cancels():
     hass = FakeHass()
     device = make_device(hass)

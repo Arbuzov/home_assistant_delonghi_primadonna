@@ -48,6 +48,9 @@ _LOGGER = logging.getLogger(__name__)
 
 # Seconds between two status requests (0x75), see #287.
 STATUS_UPDATE_INTERVAL = 25
+# Longest a status request may take before it is abandoned, so a BLE call
+# that never returns cannot block every later poll.
+STATUS_UPDATE_TIMEOUT = 20
 
 
 class DeviceNotVisible(BleakError):
@@ -345,7 +348,7 @@ class DelongiPrimadonna:
         self._last_switches_request = 0.0
         self._statistics_task: asyncio.Task | None = None
         self._status_task: asyncio.Task | None = None
-        self._last_status_request = 0.0
+        self._last_status_request: float | None = None
         self._initialization_task: asyncio.Task | None = None
         machine = get_machine_model(self.product_code)
         self.model = (
@@ -442,7 +445,8 @@ class DelongiPrimadonna:
             return
 
         if (
-            time.monotonic() - self._last_status_request
+            self._last_status_request is not None
+            and time.monotonic() - self._last_status_request
             < STATUS_UPDATE_INTERVAL
         ):
             return
@@ -456,7 +460,14 @@ class DelongiPrimadonna:
     async def _run_status_update(self) -> None:
         """Run a managed status update."""
         try:
-            await self.get_device_name()
+            await asyncio.wait_for(
+                self.get_device_name(), STATUS_UPDATE_TIMEOUT
+            )
+        except asyncio.TimeoutError:
+            _LOGGER.warning(
+                "Status update took more than %s s, abandoned",
+                STATUS_UPDATE_TIMEOUT,
+            )
         except asyncio.CancelledError:
             raise
         except Exception:
