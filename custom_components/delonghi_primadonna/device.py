@@ -275,6 +275,85 @@ def _build_start_command(recipe_id: int, coffee_qty: int = 0,
     ]
 
 
+# Recipe ingredient tags (longshot's EcamIngredients). Coffee, milk and hot
+# water are 16-bit big-endian, every other known tag is one byte.
+WIDE_RECIPE_TAGS = frozenset({0x01, 0x09, 0x0F})
+NARROW_RECIPE_TAGS = frozenset({
+    0x00, 0x02, 0x04, 0x08, 0x0B, 0x0C, 0x18, 0x19, 0x1B, 0x1C,
+})
+# Recipe metadata returned by a recipe read but never sent in a start.
+RECIPE_METADATA_TAGS = frozenset({0x18, 0x19, 0x1B})
+# Accessory tag, sent last by Coffee Link.
+RECIPE_ACCESSORY_TAG = 0x1C
+# A single BLE write longer than this is ignored by the machine (#280).
+MAX_SINGLE_WRITE = 20
+
+
+def _build_recipe_read_command(profile: int, recipe_id: int) -> list[int]:
+    """Build a recipe quantity read (0xa6) for one profile and recipe."""
+    return [0x0D, 0x07, 0xA6, 0xF0, profile & 0xFF, recipe_id & 0xFF,
+            0x00, 0x00]
+
+
+def _parse_recipe_quantity(packet: bytes) -> tuple[int, int, list] | None:
+    """Parse a recipe quantity answer (0xa6).
+
+    ``d0 LL a6 f0 <profile> <recipe> (<tag> <value>)... <crc> <crc>``
+
+    Return ``(profile, recipe_id, [(tag, value), ...])``, or None when the
+    frame is malformed or holds a tag whose width is unknown.
+    """
+    if len(packet) < 8 or packet[2] != 0xA6:
+        return None
+    profile, recipe_id = packet[4], packet[5]
+    body = packet[6:-2]
+    ingredients = []
+    i = 0
+    while i < len(body):
+        tag = body[i]
+        if tag in WIDE_RECIPE_TAGS:
+            if i + 2 >= len(body):
+                return None
+            ingredients.append((tag, (body[i + 1] << 8) | body[i + 2]))
+            i += 3
+        elif tag in NARROW_RECIPE_TAGS:
+            if i + 1 >= len(body):
+                return None
+            ingredients.append((tag, body[i + 1]))
+            i += 2
+        else:
+            return None
+    return profile, recipe_id, ingredients
+
+
+def _build_recipe_start_command(recipe_id: int, ingredients: list,
+                                profile: int = 1) -> list[int]:
+    """Build a start (0x83) carrying the ingredients read from the machine.
+
+    Tags go in ascending order with the accessory last and recipe metadata
+    left out, as Coffee Link sends them. The last byte before the CRC is
+    ``(profile << 2) | 2`` (prepare).
+    """
+    sendable = [
+        (tag, value) for tag, value in ingredients
+        if tag not in RECIPE_METADATA_TAGS
+    ]
+    sendable.sort(key=lambda item: (
+        item[0] == RECIPE_ACCESSORY_TAG, item[0]
+    ))
+    body: list[int] = []
+    for tag, value in sendable:
+        body.append(tag)
+        if tag in WIDE_RECIPE_TAGS:
+            body.extend(((value >> 8) & 0xFF, value & 0xFF))
+        else:
+            body.append(value & 0xFF)
+    frame = [0x0D, 0x00, 0x83, 0xF0, recipe_id & 0xFF, 0x01, *body,
+             ((profile & 0xFF) << 2) | 0x02, 0x00, 0x00]
+    frame[1] = len(frame) - 1
+    return frame
+
+
 DEVICE_NOTIFICATION = {
     str(bytearray(DEVICE_READY)): BeverageNotify(
         NotificationType.STATUS, 'DeviceOK'
@@ -335,6 +414,9 @@ class DelongiPrimadonna:
         self._response_event = None
         self._expected_statistics_start: int | None = None
         self._last_response: bytes | None = None
+        # (profile, recipe id) -> ingredients read from the machine (0xa6)
+        self.recipe_quantities: dict[tuple[int, int], list] = {}
+        self._recipe_event: asyncio.Event | None = None
         self.statistics: dict[int, int | float] = {}
         self._last_stats_request = 0.0
         self._stats_lock = asyncio.Lock()
@@ -734,6 +816,21 @@ class DelongiPrimadonna:
                 )
         elif answer_id == 0x95:
             self._handle_parameter_data(value)
+        elif answer_id == 0xA6:
+            recipe = _parse_recipe_quantity(bytes(value))
+            if recipe is None:
+                _LOGGER.warning(
+                    "Could not parse recipe answer: %s", hexlify(value, " ")
+                )
+            else:
+                profile, recipe_id, ingredients = recipe
+                self.recipe_quantities[(profile, recipe_id)] = ingredients
+                _LOGGER.debug(
+                    "Recipe %d (profile %d): %s",
+                    recipe_id, profile, ingredients,
+                )
+            if self._recipe_event is not None:
+                self._recipe_event.set()
 
         if (
             self._response_event is not None
@@ -900,13 +997,69 @@ class DelongiPrimadonna:
                     "Starting %s (recipe %d) via dynamic",
                     beverage, rid,
                 )
-                cmd = _build_start_command(
-                    rid, recipe['coffee_qty'], recipe['milk_qty']
-                )
+                cmd = None
+                if not recipe['coffee_qty'] and not recipe['milk_qty']:
+                    # The model file has no quantities (custom recipes):
+                    # use the ones stored on the machine, as Coffee Link
+                    # does. Sending 0 makes the machine cancel (#286).
+                    cmd = await self._build_stored_recipe_start(rid)
+                if cmd is None:
+                    cmd = _build_start_command(
+                        rid, recipe['coffee_qty'], recipe['milk_qty']
+                    )
                 await self.send_command(cmd)
             self.cooking = beverage
             return
         _LOGGER.warning("Unknown beverage: %s", beverage)
+
+    async def read_recipe_quantities(
+        self, recipe_id: int, profile: int | None = None,
+        timeout: float = 3.0,
+    ) -> list | None:
+        """Read the ingredients a recipe has on the machine (0xa6)."""
+        profile = profile or self.active_profile_id or 1
+        key = (profile, recipe_id & 0xFF)
+        self.recipe_quantities.pop(key, None)
+        self._recipe_event = asyncio.Event()
+        try:
+            await self.send_command(
+                _build_recipe_read_command(profile, recipe_id)
+            )
+            deadline = time.monotonic() + timeout
+            while key not in self.recipe_quantities:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    break
+                self._recipe_event.clear()
+                try:
+                    await asyncio.wait_for(
+                        self._recipe_event.wait(), remaining
+                    )
+                except asyncio.TimeoutError:
+                    break
+        finally:
+            self._recipe_event = None
+        return self.recipe_quantities.get(key)
+
+    async def _build_stored_recipe_start(self, recipe_id: int):
+        """Build a start frame from the recipe stored on the machine."""
+        profile = self.active_profile_id or 1
+        ingredients = await self.read_recipe_quantities(recipe_id, profile)
+        if not ingredients:
+            _LOGGER.warning(
+                "No stored recipe read for recipe %d (profile %d), "
+                "starting it without quantities",
+                recipe_id, profile,
+            )
+            return None
+        cmd = _build_recipe_start_command(recipe_id, ingredients, profile)
+        if len(cmd) > MAX_SINGLE_WRITE:
+            _LOGGER.warning(
+                "Start frame for recipe %d is %d bytes, longer than one "
+                "BLE write: the machine may ignore it (see #280)",
+                recipe_id, len(cmd),
+            )
+        return cmd
 
     async def beverage_cancel(self) -> None:
         """Cancel beverage"""

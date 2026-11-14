@@ -134,6 +134,7 @@ COMMAND_NAMES = {
     0x95: 'read setting',
     0xA2: 'statistics',
     0xA4: 'profile names',
+    0xA6: 'recipe quantities',
     0xA9: 'profile selection',
     0xE2: 'clock',
 }
