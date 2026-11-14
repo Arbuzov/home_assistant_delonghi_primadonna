@@ -764,7 +764,13 @@ class DelongiPrimadonna:
     ) -> None:
         """Apply parsed monitor data to device state."""
         # Power state
+        was_on = self.switches.is_on
         self.switches.is_on = monitor_data.status > 0
+        # The profile-name request (0xA4) is answered only while the
+        # machine is awake, so names asked for in standby never arrived.
+        # Ask again once it wakes up.
+        if self.switches.is_on and not was_on:
+            self._profiles_loaded = False
 
         # Dispensing: steam (5), milk preparation (10) and hot water (11)
         # are their own states; 7 covers both idle and dispensing, and the
