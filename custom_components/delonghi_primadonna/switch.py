@@ -207,7 +207,8 @@ class DelongiPrimadonnaTimeSyncSwitch(
 ):
     """Keep the machine clock in step with Home Assistant.
 
-    While on, the clock is set right away and then re-synced once a day.
+    While on, the clock is set right away if the machine is awake, or
+    once it wakes up, and then re-synced once a day.
     """
 
     _attr_icon = 'mdi:clock-time-eight-outline'
@@ -251,9 +252,12 @@ class DelongiPrimadonnaTimeSyncSwitch(
             return
         self._sync_pending = False
         self.device.last_time_sync = now
-        self.hass.async_create_task(
-            self.device.set_time(datetime.datetime.now())
-        )
+        self.hass.async_create_task(self._sync_clock())
+
+    async def _sync_clock(self) -> None:
+        """Set the clock, and retry on the next poll if nothing came back."""
+        if not await self.device.set_time(datetime.datetime.now()):
+            self._sync_pending = True
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Enable time sync and set the clock now, or once awake."""

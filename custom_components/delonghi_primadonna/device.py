@@ -973,12 +973,15 @@ class DelongiPrimadonna:
                 self.active_profile_id = 1
             self._profiles_loaded = True
 
-    async def set_time(self, dt: datetime) -> None:
-        """Set device clock from provided datetime."""
+    async def set_time(self, dt: datetime) -> bool:
+        """Set device clock from provided datetime.
+
+        Returns send_command's result: False means no frame came back.
+        """
         packet = BYTES_TIME_COMMAND.copy()
         packet[4] = dt.hour & 0xFF
         packet[5] = dt.minute & 0xFF
-        await self.send_command(packet)
+        return await self.send_command(packet)
 
     def profile_name(self, profile_id: int | None) -> str | None:
         """Return the name for a profile id, or None if unknown."""
