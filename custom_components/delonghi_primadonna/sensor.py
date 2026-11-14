@@ -140,6 +140,14 @@ class DelongiPrimadonnaStatusSensor(
     def native_value(self):
         return self.device.status
 
+    async def async_update(self) -> None:
+        """Ask the machine for its status.
+
+        The device tracker used to be the only entity doing this, and it is
+        disabled by default, so the status never refreshed (#287).
+        """
+        self.device.schedule_status_update()
+
     @property
     def entity_category(self, **kwargs: Any) -> None:
         """Return the category of the entity."""

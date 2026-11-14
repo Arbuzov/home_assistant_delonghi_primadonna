@@ -46,6 +46,12 @@ from .model import get_machine_model
 
 _LOGGER = logging.getLogger(__name__)
 
+# Seconds between two status requests (0x75), see #287.
+STATUS_UPDATE_INTERVAL = 25
+# Longest a status request may take before it is abandoned, so a BLE call
+# that never returns cannot block every later poll.
+STATUS_UPDATE_TIMEOUT = 20
+
 
 class DeviceNotVisible(BleakError):
     """Home Assistant has no connectable Bluetooth device for the address.
@@ -341,6 +347,8 @@ class DelongiPrimadonna:
         self._switches_raw: int | None = None
         self._last_switches_request = 0.0
         self._statistics_task: asyncio.Task | None = None
+        self._status_task: asyncio.Task | None = None
+        self._last_status_request: float | None = None
         self._initialization_task: asyncio.Task | None = None
         machine = get_machine_model(self.product_code)
         self.model = (
@@ -424,6 +432,60 @@ class DelongiPrimadonna:
             self._run_statistics_update(),
             "delonghi statistics update",
         )
+
+    def schedule_status_update(self) -> None:
+        """Schedule a status request (0x75) when needed.
+
+        Called by every entity that polls the machine state, so the
+        status keeps refreshing whichever of them are enabled. Attempts
+        are throttled, failed ones included, and never run twice at once.
+        """
+        task = self._status_task
+        if task is not None and not task.done():
+            return
+
+        if (
+            self._last_status_request is not None
+            and time.monotonic() - self._last_status_request
+            < STATUS_UPDATE_INTERVAL
+        ):
+            return
+
+        self._last_status_request = time.monotonic()
+        self._status_task = self._hass.async_create_background_task(
+            self._run_status_update(),
+            "delonghi status update",
+        )
+
+    async def _run_status_update(self) -> None:
+        """Run a managed status update."""
+        try:
+            await asyncio.wait_for(
+                self.get_device_name(), STATUS_UPDATE_TIMEOUT
+            )
+        except asyncio.TimeoutError:
+            _LOGGER.warning(
+                "Status update took more than %s s, abandoned",
+                STATUS_UPDATE_TIMEOUT,
+            )
+        except asyncio.CancelledError:
+            raise
+        except Exception:
+            _LOGGER.exception("Status update failed")
+
+    async def cancel_status_update(self) -> None:
+        """Cancel and wait for a pending status update."""
+        task = self._status_task
+        self._status_task = None
+
+        if task is None or task.done():
+            return
+
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
 
     async def _run_statistics_update(self) -> None:
         """Run a managed statistics update."""
