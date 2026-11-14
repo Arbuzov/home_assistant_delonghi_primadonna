@@ -20,10 +20,12 @@ import delonghi_primadonna.device as device_module  # noqa: E402
 from delonghi_primadonna.const import (AVAILABLE_PROFILES,  # noqa: E402
                                        BYTES_POWER,
                                        BYTES_STATISTICS_COMMAND)
-from delonghi_primadonna.device import (DelongiPrimadonna,  # noqa: E402
-                                        DeviceNotVisible)
+from delonghi_primadonna.device import (STATUS_UPDATE_INTERVAL,  # noqa: E402
+                                        DelongiPrimadonna, DeviceNotVisible)
 from delonghi_primadonna.device_tracker import \
     DelongiPrimadonnaDeviceTracker  # noqa: E402
+from delonghi_primadonna.sensor import \
+    DelongiPrimadonnaStatusSensor  # noqa: E402
 
 CONFIG = {
     "mac": "00:11:22:33:44:55",
@@ -435,45 +437,97 @@ async def test_get_device_name_propagates_cancellation():
     assert device.connected is False
 
 
-class FakeTrackerDevice:
-    def __init__(self):
-        self.calls = 0
-        self.started = asyncio.Event()
+async def test_status_task_deduplicates_and_cancels():
+    """Tracker and status sensor share one status request (#287)."""
+    hass = FakeHass()
+    device = make_device(hass)
 
-    async def get_device_name(self):
-        self.calls += 1
-        self.started.set()
+    calls = 0
+    started = asyncio.Event()
+
+    async def get_device_name():
+        nonlocal calls
+        calls += 1
+        started.set()
         await asyncio.Event().wait()
 
-
-async def test_tracker_deduplicates_and_cancels_update():
-    hass = FakeHass()
-    fake_device = FakeTrackerDevice()
+    device.get_device_name = get_device_name
 
     tracker = DelongiPrimadonnaDeviceTracker.__new__(
         DelongiPrimadonnaDeviceTracker
     )
     tracker.hass = hass
-    tracker.device = fake_device
-    tracker._device_name_task = None
+    tracker.device = device
+    status_sensor = DelongiPrimadonnaStatusSensor(device, hass)
 
     await tracker.async_update()
-    first_task = tracker._device_name_task
+    first_task = device._status_task
 
-    await tracker.async_update()
-    second_task = tracker._device_name_task
+    await status_sensor.async_update()
+    second_task = device._status_task
 
-    await fake_device.started.wait()
+    await started.wait()
 
     assert first_task is second_task
-    assert fake_device.calls == 1
+    assert calls == 1
     assert hass.created_tasks == []
     assert len(hass.background_tasks) == 1
 
-    await tracker.async_will_remove_from_hass()
+    await device.cancel_status_update()
 
-    assert tracker._device_name_task is None
+    assert device._status_task is None
     assert first_task.cancelled()
+
+
+async def test_status_sensor_polls_without_tracker():
+    """The status sensor alone (tracker disabled) asks for the status."""
+    hass = FakeHass()
+    device = make_device(hass)
+    calls = 0
+
+    async def get_device_name():
+        nonlocal calls
+        calls += 1
+
+    device.get_device_name = get_device_name
+
+    await DelongiPrimadonnaStatusSensor(device, hass).async_update()
+    await device._status_task
+
+    assert calls == 1
+
+
+async def test_status_update_is_throttled_and_contained():
+    hass = FakeHass()
+    device = make_device(hass)
+    calls = 0
+
+    async def failing_get_device_name():
+        nonlocal calls
+        calls += 1
+        raise RuntimeError("status failed")
+
+    device.get_device_name = failing_get_device_name
+
+    device.schedule_status_update()
+    first_task = device._status_task
+    await first_task
+
+    assert calls == 1
+    assert not first_task.cancelled()
+
+    # A finished (even failed) attempt is not retried before the interval.
+    device.schedule_status_update()
+    assert device._status_task is first_task
+    assert len(hass.background_tasks) == 1
+
+    device._last_status_request -= STATUS_UPDATE_INTERVAL
+    device.schedule_status_update()
+    second_task = device._status_task
+
+    assert second_task is not first_task
+    await second_task
+    assert calls == 2
 
 
 async def test_statistics_task_deduplicates_and_cancels():
@@ -842,7 +896,9 @@ async def run_tests():
 
     await test_initialization_task_is_cancelled_and_awaited()
     await test_get_device_name_propagates_cancellation()
-    await test_tracker_deduplicates_and_cancels_update()
+    await test_status_task_deduplicates_and_cancels()
+    await test_status_sensor_polls_without_tracker()
+    await test_status_update_is_throttled_and_contained()
 
     await test_statistics_task_deduplicates_and_cancels()
     await test_failed_statistics_attempt_is_throttled()

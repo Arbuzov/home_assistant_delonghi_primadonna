@@ -83,6 +83,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
     if unload_ok:
         await delonghi_device.cancel_statistics_update()
+        await delonghi_device.cancel_status_update()
         await delonghi_device.disconnect()
         hass.data[DOMAIN].pop(entry.unique_id)
 
