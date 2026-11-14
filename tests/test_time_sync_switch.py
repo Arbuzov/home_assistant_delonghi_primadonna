@@ -37,8 +37,9 @@ class FakeHass:
         return None
 
 
-def make_switch():
+def make_switch(awake=True):
     device = DelongiPrimadonna(CONFIG, None)
+    device.switches.is_on = awake
     hass = FakeHass()
     switch = DelongiPrimadonnaTimeSyncSwitch(device, hass)
     switch.hass = hass
@@ -123,6 +124,38 @@ async def test_switch_methods_are_coroutines():
     assert "turn_off" not in own, "still defines a synchronous turn_off"
 
 
+async def test_no_clock_command_while_in_standby():
+    """A machine in standby does not answer the clock command.
+
+    Measured 2026-10-17: right after a Home Assistant restart, with the
+    machine in standby, the daily sync went out and drew no reply for the
+    full 10 s timeout and a WARNING. Awake, the same command is answered
+    in 267 ms. So the sync waits for the machine to wake up.
+    """
+    switch, device, hass = make_switch(awake=False)
+    device.sync_time = True
+    device.last_time_sync -= 25 * 3600
+
+    await switch.async_update()
+    assert hass.tasks == [], "sent the clock to a machine in standby"
+
+    device.switches.is_on = True
+    await switch.async_update()
+    assert len(hass.tasks) == 1, "did not sync once the machine woke up"
+
+
+async def test_turn_on_in_standby_syncs_on_wake_up():
+    switch, device, hass = make_switch(awake=False)
+
+    await switch.async_turn_on()
+    assert device.sync_time is True
+    assert hass.tasks == [], "sent the clock to a machine in standby"
+
+    device.switches.is_on = True
+    await switch.async_update()
+    assert len(hass.tasks) == 1, "the deferred sync was lost"
+
+
 async def run_tests():
     await test_turn_on_enables_synchronisation()
     await test_turn_off_disables_synchronisation()
@@ -131,6 +164,8 @@ async def run_tests():
     await test_daily_resync_waits_a_day()
     await test_no_resync_while_disabled()
     await test_switch_methods_are_coroutines()
+    await test_no_clock_command_while_in_standby()
+    await test_turn_on_in_standby_syncs_on_wake_up()
     print("[SUCCESS] Time sync switch verified.")
 
 
