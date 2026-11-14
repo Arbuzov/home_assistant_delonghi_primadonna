@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import time
+from binascii import crc_hqx
 
 from bleak.exc import BleakError
 
@@ -823,6 +824,69 @@ async def test_profiles_isolated_between_devices():
     assert make_device(FakeHass()).profiles == list(defaults.values())
 
 
+def make_monitor_frame(status):
+    """Build a CRC-valid 0x75 status frame with the given machine state."""
+    frame = bytearray(
+        [0xD0, 0x12, 0x75, 0x0F, 0x01, 0x05, 0x00, 0x00, 0x00, status]
+        + [0x00] * 9
+    )
+    crc = crc_hqx(bytes(frame[:-2]), 0x1D0F)
+    frame[-2] = crc >> 8
+    frame[-1] = crc & 0xFF
+    return bytes(frame)
+
+
+class FakeNameClient:
+    is_connected = True
+
+    async def read_gatt_char(self, _characteristic):
+        return b"TEST"
+
+    async def write_gatt_char(self, _characteristic, _message):
+        pass
+
+
+async def test_profile_names_asked_again_after_wake_up():
+    """Names asked for in standby are asked for again on wake-up.
+
+    The machine answers 0xA4 only while awake (DEBUG_NOTES, "Profile
+    list"). The request went out once per connection, so after a start
+    in standby the select kept the placeholder names until a reload.
+    """
+    device = make_device(FakeHass())
+    device._client = FakeNameClient()
+    sent = []
+
+    async def fake_connect():
+        pass
+
+    async def fake_send_command(message, retries=3):
+        sent.append(message)
+        return True
+
+    device._connect = fake_connect
+    device.send_command = fake_send_command
+
+    def profile_requests():
+        return sum(1 for message in sent if message[2] == 0xA4)
+
+    await device._handle_data(None, make_monitor_frame(0x00))
+    await device.get_device_name()
+    assert profile_requests() == 1
+
+    # Still in standby: no point asking again on every poll.
+    await device.get_device_name()
+    assert profile_requests() == 1
+
+    await device._handle_data(None, make_monitor_frame(0x07))
+    await device.get_device_name()
+    assert profile_requests() == 2, "names not asked again after wake-up"
+
+    # Awake and asked once: the next poll does not repeat it.
+    await device.get_device_name()
+    assert profile_requests() == 2
+
+
 async def run_tests():
     await test_missing_device_raises_device_not_visible()
     await test_switched_off_machine_logs_no_warning()
@@ -830,6 +894,7 @@ async def run_tests():
     await test_failed_user_command_explains_itself_when_not_visible()
     await test_failed_user_command_reports_the_refusal()
     await test_profiles_isolated_between_devices()
+    await test_profile_names_asked_again_after_wake_up()
 
     await test_connect_success()
     await test_connect_clears_receive_buffer_before_notifications()
