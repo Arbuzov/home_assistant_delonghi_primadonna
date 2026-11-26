@@ -1,8 +1,10 @@
 """Regressions for the time sync switch."""
 
 import asyncio
+import datetime
 import os
 import sys
+import time
 
 sys.path.append(
     os.path.abspath(
@@ -26,19 +28,30 @@ CONFIG = {
 
 
 class FakeHass:
-    """Records tasks instead of running them."""
+    """Runs scheduled tasks on the loop and keeps them for inspection."""
 
     def __init__(self):
         self.tasks = []
 
     def async_create_task(self, coro):
-        self.tasks.append(coro)
-        coro.close()
-        return None
+        task = asyncio.ensure_future(coro)
+        self.tasks.append(task)
+        return task
 
 
-def make_switch():
+def make_switch(awake=True):
     device = DelongiPrimadonna(CONFIG, None)
+    device.switches.is_on = awake
+    # Spy on the clock command instead of sending it. clock_answers is
+    # what set_time reports: False when no frame came back.
+    device.clock_sets = []
+    device.clock_answers = True
+
+    async def fake_set_time(dt):
+        device.clock_sets.append(dt)
+        return device.clock_answers
+
+    device.set_time = fake_set_time
     hass = FakeHass()
     switch = DelongiPrimadonnaTimeSyncSwitch(device, hass)
     switch.hass = hass
@@ -123,6 +136,87 @@ async def test_switch_methods_are_coroutines():
     assert "turn_off" not in own, "still defines a synchronous turn_off"
 
 
+async def test_no_clock_command_while_in_standby():
+    """A machine in standby does not answer the clock command.
+
+    Measured 2026-10-17: right after a Home Assistant restart, with the
+    machine in standby, the daily sync went out and drew no reply for the
+    full 10 s timeout and a WARNING. Awake, the same command is answered
+    in 267 ms. So the sync waits for the machine to wake up.
+    """
+    switch, device, hass = make_switch(awake=False)
+    device.sync_time = True
+    device.last_time_sync -= 25 * 3600
+
+    await switch.async_update()
+    await asyncio.gather(*hass.tasks)
+    assert device.clock_sets == [], "sent the clock to a machine in standby"
+
+    device.switches.is_on = True
+    await switch.async_update()
+    await asyncio.gather(*hass.tasks)
+    assert len(device.clock_sets) == 1, "did not sync once the machine woke up"
+
+
+async def test_turn_on_in_standby_syncs_on_wake_up():
+    switch, device, hass = make_switch(awake=False)
+    # Not due by the daily rule, so only the pending request can send it.
+    device.last_time_sync = time.monotonic()
+
+    await switch.async_turn_on()
+    await asyncio.gather(*hass.tasks)
+    assert device.sync_time is True
+    assert device.clock_sets == [], "sent the clock to a machine in standby"
+
+    device.switches.is_on = True
+    await switch.async_update()
+    await asyncio.gather(*hass.tasks)
+    assert len(device.clock_sets) == 1, "the deferred sync was lost"
+
+
+async def test_unanswered_sync_is_retried_after_an_hour():
+    """A clock command that drew no frame is retried an hour later.
+
+    Not on the next poll: a machine that never answers would otherwise
+    hold the device lock for the full timeout every poll. And not a day
+    later either, which is what a timeout right after wake-up cost.
+    """
+    switch, device, hass = make_switch()
+    device.last_time_sync = time.monotonic()
+    device.clock_answers = False
+
+    await switch.async_turn_on()
+    await asyncio.gather(*hass.tasks)
+    assert len(device.clock_sets) == 1
+
+    device.clock_answers = True
+    await switch.async_update()
+    await asyncio.gather(*hass.tasks)
+    assert len(device.clock_sets) == 1, "retried on the very next poll"
+
+    device.last_time_sync -= 3600
+    await switch.async_update()
+    await asyncio.gather(*hass.tasks)
+    assert len(device.clock_sets) == 2, "unanswered sync was not retried"
+
+    await switch.async_update()
+    await asyncio.gather(*hass.tasks)
+    assert len(device.clock_sets) == 2, "answered sync was repeated"
+
+
+async def test_set_time_reports_whether_a_frame_came_back():
+    """The switch's retry depends on set_time passing the result on."""
+    device = DelongiPrimadonna(CONFIG, None)
+    for answered in (True, False):
+        async def fake_send_command(message, retries=3, answered=answered):
+            return answered
+
+        device.send_command = fake_send_command
+        assert await device.set_time(
+            datetime.datetime(2026, 11, 14, 9, 30)
+        ) is answered
+
+
 async def run_tests():
     await test_turn_on_enables_synchronisation()
     await test_turn_off_disables_synchronisation()
@@ -131,6 +225,10 @@ async def run_tests():
     await test_daily_resync_waits_a_day()
     await test_no_resync_while_disabled()
     await test_switch_methods_are_coroutines()
+    await test_no_clock_command_while_in_standby()
+    await test_turn_on_in_standby_syncs_on_wake_up()
+    await test_unanswered_sync_is_retried_after_an_hour()
+    await test_set_time_reports_whether_a_frame_came_back()
     print("[SUCCESS] Time sync switch verified.")
 
 
